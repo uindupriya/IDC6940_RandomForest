@@ -66,6 +66,8 @@ to add more work...*
 
 Cite new paper [@su2012linear]
 
+Classification of Knee OA was studied here [@guida2021knee]
+
 ## Methods
 
 -   Detail the models or algorithms used.
