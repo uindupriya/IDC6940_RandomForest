@@ -4,3 +4,4 @@ print(a + b)
 c=20
 d=30
 print(a-c)
+print(a+b-c+d)
