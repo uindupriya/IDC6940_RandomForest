@@ -27,7 +27,7 @@ to edit)
 
 ### Paper 1: Stress Detection by Machine Learning and Wearable Sensors
 
-Garg et al. (2021) used WESAD dataset to compare several models including k-NN, Linear Discriminant Analysis, Random Forest, AdaBoost, and Support Vector Machine for both binary (stress vs. non-stress) and three-class (neutral vs. stress vs. amusement) classification which is a Machine Learning technique. During Garg et al. study Random forest's score was high enough to choose the model. This paper is directly relevant to our project as it demonstrates Random Forest's effectiveness on the exact dataset we are using.
+Garg et al. (2021) used WESAD dataset to compare several models including k-NN, Linear Discriminant Analysis, Random Forest, AdaBoost, and Support Vector Machine for both binary (stress vs. non-stress) and three-class (neutral vs. stress vs. amusement) classification which is a Machine Learning technique. During Garg et al. study Random forest's score was high enough to choose the model.
 
 ### Paper 2: Introducing WESAD, a Multimodal Dataset for Wearable Stress and Affect Detection
 
