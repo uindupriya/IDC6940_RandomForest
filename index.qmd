@@ -33,6 +33,15 @@ Garg et al. (2021) used WESAD dataset to compare several models including k-NN, 
 
 Schmidt et al. (2018) proposed WESAD dataset which was collected from 15 subjects using wrist-worn and chest-worn devices, capturing physiological signals including electrocardiogram (ECG), electrodermal activity (EDA), electromyogram (EMG), respiration, body temperature, blood volume pulse, and three-axis acceleration. This paper is foundational to our project as it describes the exact dataset we are using and establishes the key physiological signals most relevant to stress detection.
 
+
+Paper 7 :A Review of ARIMA vs. Machine Learning for Time Series Forecasting
+Kontopoulou et al. (2023) research paper compares ARIMA and Machine Learning algorithms for time-series forecasting problems. The research suggests that ARIMA model is broadly used since its easy to understand and apply, but authors state that the swift to Machine learning models occurred without assessing ARIMA in all conceptual frameworks. The paper summarizes that ARIMA is more strategic choice in structured, minimalistic datasets, whereas machine learning dominates with large and complex datasets.
+Paper 8: Quantifying Mental Stress Using Cardiovascular Responses — Scoping Review 
+
+Ziyadidegan et al. (2025) research paper studied how cardiovascular responses, particularly heart rate (HR) and heart rate variability (HRV), are used to quantify mental stress. The authors found that heart rate activity consistently changes during stressful events with HR increasing while HRV measurements such as RMSSD and SDNN decrease, confirming heart activity as a reliable stress indicator.  The majority of reviewed studies used descriptive statistical methods including t-tests, ANOVA, and correlation analysis to assess differences between stress and non-stress conditions. Importantly, the review highlights time series techniques including ARIMA, detrended fluctuation analysis, and autocorrelation plots as valuable tools for studying heart rate rhythms and temporal patterns associated with mental stress. Although ARIMA appeared in only 3 of the 119 reviewed studies, the authors emphasize its potential as an emerging and underutilized method for capturing temporal changes in physiological stress responses. Most studies were conducted in controlled laboratory settings comparable to the WESAD dataset collection protocol, and this paper is directly relevant to our project as it provides methodological justification for applying ARIMA to physiological time series signals for stress state detection.
+
+
+
 ## Methods
 
 -   Detail the models or algorithms used.
