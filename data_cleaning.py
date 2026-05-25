@@ -16,12 +16,14 @@ for subject in subjects:
         print(f"{subject} not found, skipping...")
         continue
 
-    print(f"Loading {subject}...")
+    print(f"Processing {subject}...")
 
     with open(path, 'rb') as f:
         data = pickle.load(f, encoding='latin1')
 
     labels = data['label'].flatten()
+
+    # keep only valid stress-related states
     mask = np.isin(labels, [1, 2, 3])
 
     # ---------------- CHEST ----------------
@@ -34,16 +36,18 @@ for subject in subjects:
         'label': labels[mask]
     })
 
-    # only basic cleaning (NO spike removal)
+    # basic cleaning ONLY (invalid physiological values)
     chest_df = chest_df.dropna()
     chest_df = chest_df[(chest_df['TEMP'] > 20) & (chest_df['TEMP'] < 45)]
     chest_df = chest_df[chest_df['EDA'] >= 0]
 
     chest_dfs.append(chest_df)
 
+    print(f"{subject} chest shape: {chest_df.shape}")
+
     # ---------------- WRIST ----------------
-    wrist_label = labels
-    label_4hz = wrist_label[::175]
+    wrist_labels = labels
+    label_4hz = wrist_labels[::175]  # approximate downsampling for labeling
 
     eda_wrist = data['signal']['wrist']['EDA'].flatten()
     temp_wrist = data['signal']['wrist']['TEMP'].flatten()
@@ -58,19 +62,27 @@ for subject in subjects:
     })
 
     wrist_df = wrist_df[wrist_df['label'].isin([1, 2, 3])]
+
     wrist_dfs.append(wrist_df)
+
+    print(f"{subject} wrist shape: {wrist_df.shape}")
 
 # ---------------- FINAL COMBINE ----------------
 chest_final = pd.concat(chest_dfs, ignore_index=True)
 wrist_final = pd.concat(wrist_dfs, ignore_index=True)
 
-print("Chest shape:", chest_final.shape)
-print("Wrist shape:", wrist_final.shape)
+print("\nFINAL SHAPES")
+print("Chest:", chest_final.shape)
+print("Wrist:", wrist_final.shape)
 
+print("\nLabel distribution (Chest):")
 print(chest_final['label'].value_counts())
+
+print("\nLabel distribution (Wrist):")
 print(wrist_final['label'].value_counts())
 
+# ---------------- SAVE ----------------
 chest_final.to_csv('wesad_chest_clean.csv', index=False)
 wrist_final.to_csv('wesad_wrist_clean.csv', index=False)
 
-print("Saved cleaned datasets.")
+print("\nSaved: wesad_chest_clean.csv and wesad_wrist_clean.csv")
