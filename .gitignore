@@ -2,3 +2,13 @@
 .Rhistory
 .RData
 .Ruserdata
+# Ignore large datasets
+Dataset_WESAD/
+wesad_clean.csv
+
+# Generated outputs
+*.html
+
+# Python cache
+__pycache__/
+.ipynb_checkpoints/
