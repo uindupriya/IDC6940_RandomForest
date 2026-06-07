@@ -1,7 +1,7 @@
 ---
-title: "Random Forest vs ARIMA for Stress State Prediction"
+title: "Stress State Prediction from Wearable Sensors: A Comparative Study of ARIMA and Random Forest on the WESAD Dataset"
 subtitle: "This is a Report Template Quarto"
-author: "Indupriya Uppaluri (Advisor: Dr. Cohen)"
+author: "Indupriya Uppaluri, Virginia Vaughan, Chawan Sreelekha (Advisor: Dr. Cohen)"
 date: '`r Sys.Date()`'
 format:
   html:
