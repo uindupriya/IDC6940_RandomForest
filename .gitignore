@@ -2,10 +2,12 @@
 .Rhistory
 .RData
 .Ruserdata
+
 # Ignore large datasets
 Dataset_WESAD/
 wesad_clean.csv
-
+wesad_chest_clean.csv
+wesad_wrist_clean.csv
 
 # Python cache
 __pycache__/
