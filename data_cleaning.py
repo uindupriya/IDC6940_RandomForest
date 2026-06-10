@@ -52,6 +52,8 @@ for subject in subjects:
     chest_df.loc[(chest_df['TEMP'] <= 20) | (chest_df['TEMP'] >= 45), 'TEMP'] = np.nan
     chest_df.loc[chest_df['EDA'] < 0, 'EDA'] = np.nan
     chest_df = chest_df.ffill().bfill()  # Cleans sensor errors seamlessly
+    chest_df = chest_df[chest_df['label'].isin(VALID_LABELS)]
+
     
     chest_dfs.append(chest_df)
     print(f"[CHEST CONTINUOUS] {subject}: {chest_df.shape}")
@@ -62,9 +64,10 @@ for subject in subjects:
     wrist_eda = np.array(data['signal']['wrist']['EDA']).flatten()
     wrist_temp = np.array(data['signal']['wrist']['TEMP']).flatten()
     
+    
     wrist_len = min(len(wrist_eda), len(wrist_temp))
     # Pick every 175th label to match the slow 4Hz wrist sensors perfectly by time
-    wrist_labels = raw_labels[::175][:wrist_len]
+    wrist_labels = np.array([np.bincount(raw_labels[i:i+175]).argmax() for i in range(0, len(raw_labels), 175)])[:wrist_len]
     
     wrist_df = pd.DataFrame({
         'subject': subject,
