@@ -8,7 +8,10 @@ Dataset_WESAD/
 wesad_clean.csv
 wesad_chest_clean.csv
 wesad_wrist_clean.csv
-
+wesad_chest_test.csv
+wesad_chest_train.csv
+wesad_wrist_test.csv
+wesad_wrist_train.csv
 # Python cache
 __pycache__/
 .ipynb_checkpoints/
