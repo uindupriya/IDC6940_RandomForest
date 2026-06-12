@@ -1,3 +1,4 @@
+import joblib
 import pandas as pd
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import classification_report, f1_score, precision_score, recall_score
@@ -65,6 +66,10 @@ for subject, group in train_lagged.groupby('subject'):
     print(f" -> Macro F1-Score  : {macro_f1:.4f}")
     print("\nDetailed Per-Class Performance:")
     print(classification_report(y_test, y_pred, labels=[1, 2, 3], target_names=['Neutral', 'Stress', 'Amusement'], zero_division=0))
+
+    model_filename = f"rf_model_{subject}.pkl"
+    joblib.dump(rf_model, model_filename)
+    print(f" Saved: {model_filename}")
 
 print("\n=== Random Forest Execution Loop Complete ===")
 

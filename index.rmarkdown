@@ -43,9 +43,6 @@ Random Forest is an ensemble machine learning method that builds multiple decisi
 ## Methods
 
 ## Analysis
-
-
-
 ### Random Forest Classification Framework
 
 The predictive model used for multi-class affective state classification is the non-parametric Random Forest algorithm. Formally, a Random Forest is an ensemble classifier consisting of a collection of structured decision trees $\{h(x, \theta_k), k = 1, \dots\}$ where the parameters $\{\theta_k\}$ are independent, identically distributed random vectors, and each individual tree casts a single unit vote for the most popular class at input feature vector $x$.
@@ -73,8 +70,10 @@ We chose the Random Forest algorithm for this comparative time-series framework 
 ## OPERATIONAL EXPERIMENT FINDINGS:
   While Random Forest demonstrates near-perfect classification capabilities on baseline individuals (S2 and S4 achieving an F1-macro of 1.00), it remains highly susceptible to physiological transition overlap. For Subject S3, the model completely failed to distinguish between the late baseline neutral state and the early stress onset state, defaulting to global stress classification (Stress recall = 1.00, Neutral recall = 0.00) [WESAD]. This proves that tabular classifiers struggle when human physiological indicators shift gradually rather than abruptly.
 
+### Implementation Script
+*The common non-parametric regression model is* $Y_i = m(X_i) + \varepsilon_i$*, where* $Y_i$ *can be defined as the sum of the regression function value* $m(x)$ *for* $X_i$*. Here* $m(x)$ *is unknown and* $\varepsilon_i$ *some errors. With the help of this definition, we can create the estimation for local averaging i.e.* $m(x)$ *can be estimated with the product of* $Y_i$ *average and* $X_i$ *is near to* $x$*. In other words, this means that we are discovering the line through the data points with the help of surrounding data points. The estimation formula is printed below [@R-base]:*
 
-## THE CORE ASSUMPTIONS OF RANDOM FOREST (TIME-SERIES CONTEXT):
+### THE CORE ASSUMPTIONS OF RANDOM FOREST (TIME-SERIES CONTEXT):
   - Assumption of Sample Independence (The Time-Series Violation): Random Forest assumes 
     that each row of data is an independent observation. In time-series physiological data, 
     this assumption is completely violated due to temporal autocorrelation (your heart rate 
@@ -130,28 +129,17 @@ A parametric linear model (Equation 2) assumes a constant, straight-line relatio
 - **Robustness to Sensor Artifacts and Noise:** Wearable sensor data collected in the field is prone to sudden movement artifacts and temporary data dropouts [WESAD]. Because Random Forest splits nodes by evaluating localized subsets of data and features via the Gini impurity index, it acts as a robust local estimator, preventing individual extreme outliers or sensor errors from corrupting the global classification boundaries.
 - **Resistance to Temporal Overfitting:** High-frequency biological streams exhibit intense temporal autocorrelation, which can cause standard models to overfit on specific timeline segments. By utilizing independent bootstrap samples for each tree and forcing a structural 80/20 chronological split inside isolated condition blocks, the Random Forest maintains strict out-of-sample operational testing validity [WESAD].
 
-### Data Ingestion
 
-## Data Ingestion and Automated Feature Alignment
+## Analysis and Results
 
-The initial phase of the predictive pipeline establishes a robust data ingestion layer designed to load partitioned datasets, dynamically detect available sensor modalities, and enforce structural timeline isolation.
- Ingestion Protocols and Format Mapping - The processing script programmatically interfaces with two pre-arranged disk files: wesad_wrist_train.csv (the training matrix) and wesad_wrist_test.csv (the holdout evaluation matrix). The ingestion sequence is mapped via the pandas framework using explicit memory allocation constraints:Tabular Parsing: The continuous comma-separated streams are read into isolated memory frames (train_df and test_df) as multi-column tabular arrays.DataFrame Casting: Arrays are strictly enforced as traditional mutable matrices (as.data.frame structural equivalents) to allow downstream indexing and chronological row transformations.Random State Initialization: To stabilize any internal stochastic data handling or bootstrapping mechanisms during the initial load phase, a global seed is instantiated using random_state=42. Dynamic Channel Scanning and Feature Verification - Because wearable sensor platforms can experience hardware dropouts, or variations between chest-worn and wrist-worn sensor matrices, the ingestion layer implements a dynamic channel scanner.
+### Data Exploration and Visualization
 
-The system verifies a default physiological target array consisting of Electrodermal Activity (EDA), Body Temperature (TEMP), and Electrocardiogram (ECG) metrics. Rather than assuming strict structural permanence, the ingestion function runs an inline list comprehension:Valid Features={f∈{ECG, EDA, TEMP}∣f∈CDataFrame}Valid Features equals the set of all f is an element of the set ECG, EDA, TEMP end-set such that f is an element of bold cap C sub DataFrame end-sub end-set
-
-Valid Features={𝑓∈{ECG, EDA, TEMP}∣𝑓∈𝐂DataFrame}
-
- ∣𝑓∈𝐂DataFrame represents the total set of column strings parsed from the file header. Only features that pass this verification step are pushed into the downstream temporal context matrix, preventing runtime compilation failures if a specific signal modality is missing from the wrist file structure.
+-   Random forest script after normalization
 
 
- Chronological Grouping and Boundary Defense - To maintain strict data integrity during ingestion and prevent cross-subject timeline pollution, the loading sequence prevents global, un-grouped data operations.Data matrices are partitioned into isolated historical blocks using a split-apply-combine approach on the categorical subject identifier. This ensures that the chronological continuity of each participant's biometric timeline is preserved:
 
-By isolating the timelines within individual subject blocks and explicitly invoking a index-sorting mechanism (.sort_index()), the ingestion layer provides a clear guarantee: no row from Subject A can accidentally inherit historical lag metrics from Subject B.Any boundary artifacts created by tracking changes at the very beginning of a subject's timeline are handled by a .dropna() filter, leaving a clean, continuous, and fully isolated data structure for model training.
+A study was conducted to determine how...
 
-```{python}
- for subject, group in df.groupby('subject'):
-    group_copy = group.sort_index().copy()
-```
 
 
 ```{python}
