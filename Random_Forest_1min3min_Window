@@ -1,0 +1,230 @@
+import joblib
+import pandas as pd
+import numpy as np
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import classification_report, f1_score, precision_score, recall_score
+
+print("=== Starting Random Forest Model Loop (Lags + 1-min + 3-min Rolling Windows) ===")
+
+# -------------------------------------------------------
+# 1. LOAD PRE-SPLIT, PRE-NORMALIZED WRIST FILES
+# -------------------------------------------------------
+print("Loading data splits...")
+train_df = pd.read_csv("wesad_wrist_train.csv")
+test_df  = pd.read_csv("wesad_wrist_test.csv")
+
+FS = 4  # wrist sensor Hz
+
+# -------------------------------------------------------
+# 2. FEATURE ENGINEERING
+# -------------------------------------------------------
+def engineer_features(df, fs=4):
+    """
+    Per-subject feature engineering (no cross-subject leakage):
+      - Lag features       : t-1 to t-4       (1 second context @ 4Hz)
+      - 1-min rolling      : mean + std        (240 samples @ 4Hz)
+      - 3-min rolling      : mean + std        (720 samples @ 4Hz)
+
+    ECG excluded — wrist sensor does not record ECG.
+    Only EDA and TEMP are valid wrist channels in WESAD.
+    """
+    valid_features = [f for f in ['EDA', 'TEMP'] if f in df.columns]
+    print(f" -> Wrist channels found: {valid_features}")
+
+    win_1min = fs * 60        # 240 samples
+    win_3min = fs * 60 * 3   # 720 samples
+
+    groups = []
+    for subject, group in df.groupby('subject'):
+        g = group.sort_index().copy()
+
+        for col in valid_features:
+            # Lag features (1 second of raw history)
+            for lag in range(1, 5):
+                g[f'{col}_lag_{lag}'] = g[col].shift(lag)
+
+            # 1-min rolling features (acute stress onset)
+            g[f'{col}_roll1min_mean'] = (
+                g[col].rolling(window=win_1min, min_periods=1).mean()
+            )
+            g[f'{col}_roll1min_std'] = (
+                g[col].rolling(window=win_1min, min_periods=2).std()
+            )
+
+            # 3-min rolling features (sustained physiological arousal)
+            g[f'{col}_roll3min_mean'] = (
+                g[col].rolling(window=win_3min, min_periods=1).mean()
+            )
+            g[f'{col}_roll3min_std'] = (
+                g[col].rolling(window=win_3min, min_periods=2).std()
+            )
+
+        groups.append(g.dropna())
+
+    return pd.concat(groups, ignore_index=True)
+
+
+print("Engineering features...")
+train_engineered = engineer_features(train_df)
+test_engineered  = engineer_features(test_df)
+
+feature_columns = [
+    c for c in train_engineered.columns
+    if c not in ['subject', 'label']
+]
+print(f" -> Total feature columns: {len(feature_columns)}")
+print(f"    {feature_columns}")
+
+# -------------------------------------------------------
+# 3. PER-SUBJECT TRAINING LOOP
+# -------------------------------------------------------
+results_summary = []
+all_importances = []
+
+label_names = {1: 'Baseline', 2: 'Stress', 3: 'Amusement'}
+
+for subject, group in train_engineered.groupby('subject'):
+    print(f"\n{'='*50}")
+    print(f"Training RF for {subject}...")
+
+    X_train = group[feature_columns]
+    y_train = group['label']
+
+    test_group = test_engineered[test_engineered['subject'] == subject]
+
+    if test_group.empty:
+        print(f" [SKIP] No test data found for {subject}")
+        continue
+
+    X_test = test_group[feature_columns]
+    y_test = test_group['label']
+
+    print(f" -> Train size: {X_train.shape} | Test size: {X_test.shape}")
+    print(f" -> Train label dist: {y_train.value_counts().to_dict()}")
+    print(f" -> Test  label dist: {y_test.value_counts().to_dict()}")
+
+    rf_model = RandomForestClassifier(
+        n_estimators=100,
+        class_weight='balanced',
+        random_state=42,
+        n_jobs=-1
+    )
+    rf_model.fit(X_train, y_train)
+
+    y_pred = rf_model.predict(X_test)
+
+    macro_f1   = f1_score(y_test, y_pred, average='macro')
+    macro_prec = precision_score(y_test, y_pred, average='macro', zero_division=0)
+    macro_rec  = recall_score(y_test, y_pred, average='macro', zero_division=0)
+
+    print(f"\n[{subject}] Macro Precision : {macro_prec:.4f}")
+    print(f"[{subject}] Macro Recall    : {macro_rec:.4f}")
+    print(f"[{subject}] Macro F1-Score  : {macro_f1:.4f}")
+    print("\nDetailed Per-Class Performance:")
+    print(classification_report(
+        y_test, y_pred,
+        labels=[1, 2, 3],
+        target_names=['Baseline', 'Stress', 'Amusement'],
+        zero_division=0
+    ))
+
+    # --- Feature Importance ---
+    importances = pd.DataFrame({
+        'subject':    subject,
+        'feature':    feature_columns,
+        'importance': rf_model.feature_importances_
+    }).sort_values('importance', ascending=False)
+
+    print(f"Top 10 features for {subject}:")
+    print(importances.head(10).to_string(index=False))
+    importances.to_csv(f"feature_importance_{subject}.csv", index=False)
+    all_importances.append(importances)
+
+    # --- Save Model ---
+    model_filename = f"rf_model_{subject}_rolling.pkl"
+    joblib.dump(rf_model, model_filename)
+    print(f" Saved: {model_filename}")
+
+    results_summary.append({
+        'subject':   subject,
+        'precision': round(macro_prec, 4),
+        'recall':    round(macro_rec, 4),
+        'f1_macro':  round(macro_f1, 4)
+    })
+
+# -------------------------------------------------------
+# 4. SUMMARY TABLE
+# -------------------------------------------------------
+print(f"\n{'='*50}")
+print("=== Per-Subject Results Summary ===")
+summary_df = pd.DataFrame(results_summary)
+print(summary_df.to_string(index=False))
+summary_df.to_csv("rf_rolling_results.csv", index=False)
+print("Saved: rf_rolling_results.csv")
+
+# -------------------------------------------------------
+# 5. AGGREGATE FEATURE IMPORTANCE ACROSS ALL SUBJECTS
+# -------------------------------------------------------
+print("\n=== Aggregate Feature Importance (All Subjects) ===")
+all_imp_df = pd.concat(all_importances, ignore_index=True)
+agg_imp = (
+    all_imp_df.groupby('feature')['importance']
+    .mean()
+    .reset_index()
+    .sort_values('importance', ascending=False)
+)
+print(agg_imp.to_string(index=False))
+agg_imp.to_csv("feature_importance_aggregate.csv", index=False)
+print("Saved: feature_importance_aggregate.csv")
+
+print("\n=== Complete ===")
+
+
+# ==============================================================================
+# PIPELINE DOCUMENTATION
+# ==============================================================================
+#
+# WHAT THIS SCRIPT DOES:
+# Trains a per-subject Random Forest classifier on WESAD wrist signals
+# (EDA, TEMP) with three layers of temporal feature engineering:
+#
+#   Layer 1 — Lag features (t-1 to t-4)
+#     Captures 1 second of raw signal history at 4Hz.
+#     Gives RF explicit row-level memory of recent signal values.
+#
+#   Layer 2 — 1-minute rolling mean + std (240 samples)
+#     Captures acute stress onset — rapid EDA fluctuations within
+#     the first minute of a stressor are physiologically well-documented.
+#
+#   Layer 3 — 3-minute rolling mean + std (720 samples)
+#     Captures sustained physiological arousal — slower TEMP drift
+#     and prolonged EDA elevation under continuous stress conditions.
+#
+# JUSTIFICATION FOR FEATURE COUNT (20 features):
+#   Although multicollinearity exists between lag and rolling features,
+#   Random Forest's ensemble tree-splitting is robust to correlated
+#   predictors. Aggregate feature importance scores confirm which
+#   timescale contributes most to classification — this is reported
+#   as a finding in the capstone results section.
+#
+# OUTPUT FILES:
+#   rf_model_{subject}_rolling.pkl       — trained model per subject
+#   feature_importance_{subject}.csv     — per-subject feature ranks
+#   feature_importance_aggregate.csv     — mean importance across subjects
+#   rf_rolling_results.csv               — macro F1/precision/recall summary
+#
+# CORE RF ASSUMPTIONS AND HOW WE ADDRESS THEM:
+#   1. Sample Independence (violated by time-series)
+#      → Addressed via lag + rolling features encoding temporal context
+#   2. Non-Stationary Invariance
+#      → Addressed via subject-specific StandardScaler in preprocessing
+#   3. Identity Mapping (no sequential order awareness)
+#      → Addressed via multi-scale rolling windows (1-min and 3-min)
+#
+# KNOWN LIMITATIONS:
+#   - 3-min rolling window trims ~720 rows per subject via dropna()
+#   - Wrist EDA has wider spread than chest EDA due to motion artifacts
+#     at 4Hz downsampling via bincount majority vote
+#   - S3 physiological transition overlap may still cause label confusion
+#     (baseline→stress gradual onset documented in original findings)
+# ==============================================================================

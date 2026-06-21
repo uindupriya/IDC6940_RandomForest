@@ -1,9 +1,10 @@
+# R artifacts
 .Rproj.user
 .Rhistory
 .RData
 .Ruserdata
 
-# Ignore large datasets
+# Large datasets — never commit
 Dataset_WESAD/
 wesad_clean.csv
 wesad_chest_clean.csv
@@ -12,8 +13,35 @@ wesad_chest_test.csv
 wesad_chest_train.csv
 wesad_wrist_test.csv
 wesad_wrist_train.csv
+
+# Model files — large binaries
+*.pkl
+
+# Large output/zip files
+*.zip
+windowed_outputs/
+
+# Plots — generated output, not source
+*.png
+
+# Feature importance CSVs — generated output
+feature_importance_*.csv
+
+# All CSVs ignored by default
+*.csv
+
+# Except these key results files
+!rf_rolling_results.csv
+!feature_importance_aggregate.csv
+
 # Python cache
 __pycache__/
+*.pyc
 .ipynb_checkpoints/
+
+# Quarto
 /.quarto/
 **/*.quarto_ipynb
+
+# Positron/VS Code
+.vscode/

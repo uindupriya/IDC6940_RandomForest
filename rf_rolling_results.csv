@@ -1,0 +1,4 @@
+subject,precision,recall,f1_macro
+S2,1.0,1.0,1.0
+S3,0.4535,0.6667,0.51
+S4,1.0,1.0,1.0
