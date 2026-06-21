@@ -31,8 +31,6 @@ Stress detection in real-time, and more importantly biomarkers, have gained inte
 In this paper, we hope to explore whether it is possible for the simpler ARIMA model to predict stress state at the same accuracy of a machine learning model like Random Forest. If the ARIMA can perform similar to or greater, this makes an argument that it is still possible to predict stress in physiological signals without the intensive training needed in machine learning, despite ARIMA’s assumptions and limitations. To explore this, we chose the WESAD dataset, which contains multimodal physiological data collected from participants as they underwent different activities, such as no-stress, stress, and amusement. Based on our literature review, we have found that the best physiological signals for predicting stress state that are also provided by the dataset include HR, HRV, and EDA, and that these metrics can be enhanced with secondary metrics such as RESP and TEMP. One paper, [@oyeleye2022] found that the accuracy of ARIMA prediction can be heavily improved using the “rolling window” approach. This helped the model predict based on the signal during different windows of time instead of treating each sample independently of the other. In our methodology we plan to create a pipeline to preprocess the data, compute our feature metrics, derive rolling windows, and predict a given metric using both ARIMA and Random Forest in order to compare the model’s accuracy. 
 
 
-## Literature review
-
 
 ARIMA, which stands for Autoregressive Integrated Moving Average, is a classical statistical model widely used for time-series forecasting that captures temporal dependencies within a signal using its own past values and error terms. [@kontopoulou2023] found that ARIMA remains a broadly used and interpretable approach, particularly well-suited for structured, lower-dimensional datasets where its linearity assumptions hold reasonably well. Critically, [@ziyadidegan2025] identified ARIMA as an underutilized but promising method specifically for physiological stress research, appearing in only 3 of 119 reviewed cardiovascular stress studies despite its recognized capacity to capture temporal rhythms in cardiovascular and electrodermal signals. Given that ECG-derived metrics reflect the electrical activity of the heart and EDA captures the skin's electrodermal response to psychological arousal, both of which change measurably during stress, the temporal structure of these signals makes them theoretically well-suited for time-series modeling through ARIMA with a rolling window approach. If stress-related changes in ECG and EDA follow predictable temporal patterns, ARIMA may be capable of detecting stress states without the computational demands of machine learning, a question this study directly investigates. 
 
@@ -43,37 +41,23 @@ Random Forest is an ensemble machine learning method that builds multiple decisi
 
 ## Methods
 
-## Analysis
+### Participant Selection
+Before training our models, we must first pre-process the physiological data for participants S2, S3, and S4. These three are participants with complete datasets and show as a proof of concept for predicting stress state using both the ARIMA and RF models. In this project we will compare classification metrics per participant and overall participants using their z-scored values. [paper 9] 
 
+### Preprocessing and Normalization
+Raw physical signals for ECG, EDA, RESP, and TEMP were extracted for the participants. The signals were trimmed to the minimum common length across signals for proper alignment. Physiologically implausible values were treated as artifacts such as temperature ranging outside 25-45 degrees Celsius and negative EDA values. These artifacts were imputed using forward-and-backward filling to preserve temporal continuity. [paper] Only stress, baseline, and amusement states [labels 1-3] were retained for chest signals, and to synchronize with wrist signals, were down sampled from 700Hz to 4Hz using majority-vote labeling within each 175-sample interval.
 
+With our physio data pre-processed, it could then be normalized to meet the assumptions of our models. [@oyeleye2022, @kontopoulou2023] The chest and wrist datasets were split into training (80%) and testing (20%) sets using a block-stratified chronological split. For each participant, the first 80% of each condition block was assigned for training, with the remaining 20% held out for testing. This method preserved temporal order and ensured all conditions (stress, baseline, and amusement) were represented in both sets.
+Feature normalization was performed for each subject separately using StandardScaler. Scaling parameters (mean and standard deviation) was estimated using only the training set and then applied to both the training and the test set. This transformed each physiological feature into a standardized z-score and prevented information leakage from the test set. 
+The z-score transformation can be represented as 
+$$ z = \frac{x - \mu}{\sigma} $$
+Where x is the original observation, $/mu$ is the mean of the training data, and $/sigma$ is the standard deviation. This centers each feature around zero and scales it to unit variance, allowing ECG, EDA, RESP, and TEMP features to be compared on a common scale. 
 
-### Random Forest Classification Framework
+## THE CORE ASSUMPTIONS OF ARIMA 
+TODO
 
-The predictive model used for multi-class affective state classification is the non-parametric Random Forest algorithm. Formally, a Random Forest is an ensemble classifier consisting of a collection of structured decision trees $\{h(x, \theta_k), k = 1, \dots\}$ where the parameters $\{\theta_k\}$ are independent, identically distributed random vectors, and each individual tree casts a single unit vote for the most popular class at input feature vector $x$.
-
-The foundational non-parametric regression and classification framework can be defined by the following sequence:
-
-$$Y_i = m(X_i) + \varepsilon_i$$
-
-where $Y_i$ represents the target affective stress label ($Y_i \in \{1, 2, 3\}$: Neutral, Stress, Amusement), which is defined as the sum of the true underlying physiological mapping function value $m(x)$ for the feature tensor $X_i$, and $\varepsilon_i$ represents the random observation errors.
-
-In this implementation, the target function $m(x)$ is mathematically unknown. With the help of this definition, we create a robust local averaging estimation by aggregating a multitude of decorrelated randomized decision trees ($T$). The ultimate classification function estimation formula is printed below:
-
-$$\hat{m}(x) = \text{mode} \left\{ T_1(x), T_2(x), \dots, T_B(x) \right\}$$
-
-In other words, this means that we are discovering the emotional state boundaries across the physiological multi-sensor space with the help of bootstrap aggregation (bagging) and randomized feature sub-selection across $B$ independent trees ($B = 100$). This collective voting structure decreases the overall structural variance of individual decision trees without increasing the model's bias.
-
-#### Justification of Choices Based on Problem and Data
-We chose the Random Forest algorithm for this comparative time-series framework based on specific properties of the WESAD wearable dataset:
-
-- **Handling of Non-Linear Physiological Interaction:** Autonomic nervous system responses do not follow strict linear bounds; a spike in skin conductance (EDA) combined with a drop in skin temperature (TEMP) creates highly complex, non-linear patterns during stress episodes.
-- **Robustness to Sensor Artifacts and Noise:** Wearable sensor data collected in the field is prone to sudden movement artifacts. Because Random Forest splits nodes by evaluating localized subsets of data and features via the Gini impurity index, it prevents individual extreme outliers or sensor errors from corrupting the global classification boundaries.
-
-### Assumptions of Random Forest
-
-## OPERATIONAL EXPERIMENT FINDINGS:
-  While Random Forest demonstrates near-perfect classification capabilities on baseline individuals (S2 and S4 achieving an F1-macro of 1.00), it remains highly susceptible to physiological transition overlap. For Subject S3, the model completely failed to distinguish between the late baseline neutral state and the early stress onset state, defaulting to global stress classification (Stress recall = 1.00, Neutral recall = 0.00) [WESAD]. This proves that tabular classifiers struggle when human physiological indicators shift gradually rather than abruptly.
-
+### HOW THE VARIABLES WERE TRANSFORMED AND LATER CATEGORIZED BY STATE
+TODO
 
 ## THE CORE ASSUMPTIONS OF RANDOM FOREST (TIME-SERIES CONTEXT):
   - Assumption of Sample Independence (The Time-Series Violation): Random Forest assumes 
@@ -88,7 +72,7 @@ We chose the Random Forest algorithm for this comparative time-series framework 
     recognize sequential order or velocity. It treats a static signal value the same way 
     whether that signal is spiking upward or crashing downward.
 
-  ### HOW THE VARIABLES WERE TRANSFORMED (OUR SOLUTIONS):
+### HOW THE VARIABLES WERE TRANSFORMED (OUR SOLUTIONS):
   To satisfy these assumptions and make the WESAD variables ready for prediction, we 
   implemented three mandatory engineering transformations [WESAD]:
  
@@ -131,6 +115,43 @@ A parametric linear model (Equation 2) assumes a constant, straight-line relatio
 - **Robustness to Sensor Artifacts and Noise:** Wearable sensor data collected in the field is prone to sudden movement artifacts and temporary data dropouts [WESAD]. Because Random Forest splits nodes by evaluating localized subsets of data and features via the Gini impurity index, it acts as a robust local estimator, preventing individual extreme outliers or sensor errors from corrupting the global classification boundaries.
 - **Resistance to Temporal Overfitting:** High-frequency biological streams exhibit intense temporal autocorrelation, which can cause standard models to overfit on specific timeline segments. By utilizing independent bootstrap samples for each tree and forcing a structural 80/20 chronological split inside isolated condition blocks, the Random Forest maintains strict out-of-sample operational testing validity [WESAD].
 
+
+
+
+## Analysis
+
+
+
+### Random Forest Classification Framework
+
+The predictive model used for multi-class affective state classification is the non-parametric Random Forest algorithm. Formally, a Random Forest is an ensemble classifier consisting of a collection of structured decision trees $\{h(x, \theta_k), k = 1, \dots\}$ where the parameters $\{\theta_k\}$ are independent, identically distributed random vectors, and each individual tree casts a single unit vote for the most popular class at input feature vector $x$.
+
+The foundational non-parametric regression and classification framework can be defined by the following sequence:
+
+$$Y_i = m(X_i) + \varepsilon_i$$
+
+where $Y_i$ represents the target affective stress label ($Y_i \in \{1, 2, 3\}$: Neutral, Stress, Amusement), which is defined as the sum of the true underlying physiological mapping function value $m(x)$ for the feature tensor $X_i$, and $\varepsilon_i$ represents the random observation errors.
+
+In this implementation, the target function $m(x)$ is mathematically unknown. With the help of this definition, we create a robust local averaging estimation by aggregating a multitude of decorrelated randomized decision trees ($T$). The ultimate classification function estimation formula is printed below:
+
+$$\hat{m}(x) = \text{mode} \left\{ T_1(x), T_2(x), \dots, T_B(x) \right\}$$
+
+In other words, this means that we are discovering the emotional state boundaries across the physiological multi-sensor space with the help of bootstrap aggregation (bagging) and randomized feature sub-selection across $B$ independent trees ($B = 100$). This collective voting structure decreases the overall structural variance of individual decision trees without increasing the model's bias.
+
+#### Justification of Choices Based on Problem and Data
+We chose the Random Forest algorithm for this comparative time-series framework based on specific properties of the WESAD wearable dataset:
+
+- **Handling of Non-Linear Physiological Interaction:** Autonomic nervous system responses do not follow strict linear bounds; a spike in skin conductance (EDA) combined with a drop in skin temperature (TEMP) creates highly complex, non-linear patterns during stress episodes.
+- **Robustness to Sensor Artifacts and Noise:** Wearable sensor data collected in the field is prone to sudden movement artifacts. Because Random Forest splits nodes by evaluating localized subsets of data and features via the Gini impurity index, it prevents individual extreme outliers or sensor errors from corrupting the global classification boundaries.
+
+### Assumptions of Random Forest
+
+## OPERATIONAL EXPERIMENT FINDINGS:
+  While Random Forest demonstrates near-perfect classification capabilities on baseline individuals (S2 and S4 achieving an F1-macro of 1.00), it remains highly susceptible to physiological transition overlap. For Subject S3, the model completely failed to distinguish between the late baseline neutral state and the early stress onset state, defaulting to global stress classification (Stress recall = 1.00, Neutral recall = 0.00) [WESAD]. This proves that tabular classifiers struggle when human physiological indicators shift gradually rather than abruptly.
+
+
+
+
 ### Data Ingestion
 
 ## Data Ingestion and Automated Feature Alignment
@@ -149,20 +170,20 @@ Valid Features={𝑓∈{ECG, EDA, TEMP}∣𝑓∈𝐂DataFrame}
 
 By isolating the timelines within individual subject blocks and explicitly invoking a index-sorting mechanism (.sort_index()), the ingestion layer provides a clear guarantee: no row from Subject A can accidentally inherit historical lag metrics from Subject B.Any boundary artifacts created by tracking changes at the very beginning of a subject's timeline are handled by a .dropna() filter, leaving a clean, continuous, and fully isolated data structure for model training.
 
-```{python}
- for subject, group in df.groupby('subject'):
-    group_copy = group.sort_index().copy()
+```python
+for subject, group in df.groupby('subject'):
+  group_copy = group.sort_index().copy()
 ```
 
 
-```{python}
+```python
 import pandas as pd
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import classification_report, f1_score, precision_score, recall_score
 
 ```
 
-```{python}
+```python
 # Load Data
 print("=== Starting Random Forest Model Loop ===")
 
@@ -253,13 +274,3 @@ print("\n=== Random Forest Execution Loop Complete ===")
 
 -   Discuss the implications of your results.
 
-## References
-Oyeleye M, Chen T, Titarenko S, Antoniou G. A Predictive Analysis of Heart Rates Using Machine Learning Techniques. Int J Environ Res Public Health. 2022 Feb 19;19(4):2417. doi: 10.3390/ijerph19042417. PMID: 35206603; PMCID: PMC8872524. 
-
-Garg P, Santhosh J, Dengel A, Ishimaru S. Stress Detection by Machine Learning and Wearable Sensors. IUI '21 Companion. 2021. doi: 10.1145/3397482.3450732
-
-Schmidt P, Reiss A. WESAD (Wearable Stress and Affect Detection). ACM ICMI 2018. doi: 10.1145/3242969.3242985
-
-Kontopoulou VI, Panagopoulos AD, Kakkos I, Matsopoulos GK. A Review of ARIMA vs. Machine Learning Approaches for Time Series Forecasting in Data Driven Networks. Future Internet. 2023;15(8):255. doi: 10.3390/fi15080255
-
-Ziyadidegan S, Sadeghi N, Razavi M, Baharlouei E, Janfaza V, Kazeminasab S, Pesarakli H, Javid AH, Sasangohar F. Quantifying Mental Stress Using Cardiovascular Responses: A Scoping Review. 2024. PMC12300869.
