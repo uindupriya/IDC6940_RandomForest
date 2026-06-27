@@ -6,8 +6,8 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-<meta name="author" content="Indupriya Uppaluri, Virginia Vaughan, Chawan Sreelekha (Advisor: Dr. Cohen)">
-<meta name="dcterms.date" content="2026-06-21">
+<meta name="author" content="Indupriya Uppaluri, Virginia Vaughan, Chawan Sreelekha (Advisor: Dr. Cohen)">
+<meta name="dcterms.date" content="2026-06-27">
 
 <title>Stress State Prediction from Wearable Sensors: A Comparative Study of ARIMA and Random Forest on the WESAD Dataset</title>
 <style>
@@ -2308,8 +2308,8 @@ return"test"===t.get(e)&&!1===t["delete"](0)}return!1}catch(a){return!1}})()
 )) {!function(e){var t=Symbol("undef"),r=function a(){if(!(this instanceof a))throw new TypeError('Constructor WeakMap requires "new"');var e=OrdinaryCreateFromConstructor(this,a.prototype,{_keys:[],_values:[],_es6WeakMap:!0}),t=arguments.length>0?arguments[0]:undefined;if(null===t||t===undefined)return e;var r=Get(e,"set");if(!IsCallable(r))throw new TypeError("WeakMap.prototype.set is not a function");try{for(var o=GetIterator(t);;){var p=IteratorStep(o);if(!1===p)return e;var n=IteratorValue(p);if("object"!==Type(n))try{throw new TypeError("Iterator value "+n+" is not an entry object")}catch(s){return IteratorClose(o,s)}try{var i=Get(n,"0"),l=Get(n,"1");Call(r,e,[i,l])}catch(u){return IteratorClose(o,u)}}}catch(u){if(Array.isArray(t)||"[object Arguments]"===Object.prototype.toString.call(t)||t.callee){var y,c=t.length;for(y=0;y<c;y++)i=t[y][0],l=t[y][1],Call(r,e,[i,l])}}return e};Object.defineProperty(r,"prototype",{configurable:!1,enumerable:!1,writable:!1,value:{}}),CreateMethodProperty(r.prototype,"constructor",r),CreateMethodProperty(r.prototype,"delete",function(e){var r=this;if("object"!==Type(r))throw new TypeError("Method WeakMap.prototype.clear called on incompatible receiver "+Object.prototype.toString.call(r));if(!0!==r._es6WeakMap)throw new TypeError("Method WeakMap.prototype.clear called on incompatible receiver "+Object.prototype.toString.call(r));var o=r._keys;if("object"!==Type(e))return!1;for(var a=0;a<o.length;a++)if(r._keys[a]!==t&&SameValue(r._keys[a],e))return this._keys[a]=t,this._values[a]=t,this._size=--this._size,!0;return!1}),CreateMethodProperty(r.prototype,"get",function p(e){var r=this;if("object"!==Type(r))throw new TypeError("Method WeakMap.prototype.get called on incompatible receiver "+Object.prototype.toString.call(r));if(!0!==r._es6WeakMap)throw new TypeError("Method WeakMap.prototype.get called on incompatible receiver "+Object.prototype.toString.call(r));var o=r._keys;if("object"!==Type(e))return undefined;for(var a=0;a<o.length;a++)if(r._keys[a]!==t&&SameValue(r._keys[a],e))return r._values[a];return undefined}),CreateMethodProperty(r.prototype,"has",function n(e){var r=this;if("object"!=typeof r)throw new TypeError("Method WeakMap.prototype.has called on incompatible receiver "+Object.prototype.toString.call(r));if(!0!==r._es6WeakMap)throw new TypeError("Method WeakMap.prototype.has called on incompatible receiver "+Object.prototype.toString.call(r));var o=r._keys;if("object"!==Type(e))return!1;for(var a=0;a<o.length;a++)if(r._keys[a]!==t&&SameValue(r._keys[a],e))return!0;return!1}),CreateMethodProperty(r.prototype,"set",function i(e,r){var o=this;if("object"!==Type(o))throw new TypeError("Method WeakMap.prototype.set called on incompatible receiver "+Object.prototype.toString.call(o));if(!0!==o._es6WeakMap)throw new TypeError("Method WeakMap.prototype.set called on incompatible receiver "+Object.prototype.toString.call(o));var a=o._keys;if("object"!==Type(e))throw new TypeError("Invalid value used as weak map key");for(var p=0;p<a.length;p++)if(o._keys[p]!==t&&SameValue(o._keys[p],e))return o._values[p]=r,o;var n={"[[Key]]":e,"[[Value]]":r};return o._keys.push(n["[[Key]]"]),o._values.push(n["[[Value]]"]),o}),Object.defineProperty(r.prototype,Symbol.toStringTag,{configurable:!0,enumerable:!1,writable:!1,value:"WeakMap"}),"name"in r||Object.defineProperty(r,"name",{configurable:!0,enumerable:!1,writable:!1,value:"WeakMap"});try{CreateMethodProperty(e,"WeakMap",r)}catch(o){e.WeakMap=r}}(self);}if (!((function(e){try{if(Object.prototype.hasOwnProperty.call(e,"WeakSet")&&0===e.WeakSet.length){var t={},r=new e.WeakSet([t])
 return r.has(t)&&!1===r["delete"](0)}return!1}catch(a){return!1}})(self)
 )) {!function(e){var t=Symbol("undef"),r=function a(){if(!(this instanceof a))throw new TypeError('Constructor WeakSet requires "new"');var e=OrdinaryCreateFromConstructor(this,a.prototype,{_values:[],_size:0,_es6WeakSet:!0}),t=arguments.length>0?arguments[0]:undefined;if(null===t||t===undefined)return e;var r=Get(e,"add");if(!IsCallable(r))throw new TypeError("WeakSet.prototype.add is not a function");try{for(var o=GetIterator(t);;){var n=IteratorStep(o);if(!1===n)return e;var l=IteratorValue(n);try{Call(r,e,[l])}catch(c){return IteratorClose(o,c)}}}catch(c){if(IsArray(t)||"[object Arguments]"===Object.prototype.toString.call(t)||t.callee){var p,i=t.length;for(p=0;p<i;p++)Call(r,e,[t[p]])}}return e};Object.defineProperty(r,"prototype",{configurable:!1,enumerable:!1,writable:!1,value:{}}),CreateMethodProperty(r.prototype,"add",function n(e){var r=this;if("object"!==Type(r))throw new TypeError("Method WeakSet.prototype.add called on incompatible receiver "+Object.prototype.toString.call(r));if(!0!==r._es6WeakSet)throw new TypeError("Method WeakSet.prototype.add called on incompatible receiver "+Object.prototype.toString.call(r));if("object"!==Type(e))throw new TypeError("Invalid value used in weak set");for(var o=r._values,a=0;a<o.length;a++){var n=o[a];if(n!==t&&SameValueZero(n,e))return r}return r._values.push(e),r}),CreateMethodProperty(r.prototype,"constructor",r),CreateMethodProperty(r.prototype,"delete",function(e){var r=this;if("object"!==Type(r))throw new TypeError("Method WeakSet.prototype.delete called on incompatible receiver "+Object.prototype.toString.call(r));if(!0!==r._es6WeakSet)throw new TypeError("Method WeakSet.prototype.delete called on incompatible receiver "+Object.prototype.toString.call(r));if("object"!==Type(e))return!1;for(var o=r._values,a=0;a<o.length;a++){var n=o[a];if(n!==t&&SameValueZero(n,e))return o[a]=t,!0}return!1}),CreateMethodProperty(r.prototype,"has",function l(e){var r=this;if("object"!==Type(r))throw new TypeError("Method WeakSet.prototype.has called on incompatible receiver "+Object.prototype.toString.call(r));if(!0!==r._es6WeakSet)throw new TypeError("Method WeakSet.prototype.has called on incompatible receiver "+Object.prototype.toString.call(r));var o=r._values;if("object"!==Type(e))return!1;for(var a=0;a<o.length;a++){var n=o[a];if(n!==t&&SameValueZero(n,e))return!0}return!1}),"name"in r||Object.defineProperty(r,"name",{configurable:!0,enumerable:!1,writable:!1,value:"WeakSet"});try{CreateMethodProperty(e,"WeakSet",r)}catch(o){e.WeakSet=r}}(self);}function TrimString(e,u){var r=RequireObjectCoercible(e),t=ToString(r),n=/[\x09\x0A\x0B\x0C\x0D\x20\xA0\u1680\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u200A\u202F\u205F\u3000\u2028\u2029\uFEFF]+/.source;if("start"===u)var p=String.prototype.replace.call(t,new RegExp("^"+n,"g"),"");else p="end"===u?String.prototype.replace.call(t,new RegExp(n+"$","g"),""):String.prototype.replace.call(t,new RegExp("^"+n+"|"+n+"$","g"),"");return p}if (!("trim"in String.prototype&&function(){var r="​᠎"
-return!"\t\n\x0B\f\r                　\u2028\u2029\ufeff".trim()&&r.trim()===r}()
-)) {CreateMethodProperty(String.prototype,"trim",function t(){"use strict";var t=this;return TrimString(t,"start+end")});}if (!("parseFloat"in Number&&1/parseFloat("\t\n\x0B\f\r                　\u2028\u2029\ufeff-0")==-Infinity
+return!"\t\n\x0B\f\r                　\u2028\u2029\ufeff".trim()&&r.trim()===r}()
+)) {CreateMethodProperty(String.prototype,"trim",function t(){"use strict";var t=this;return TrimString(t,"start+end")});}if (!("parseFloat"in Number&&1/parseFloat("\t\n\x0B\f\r                　\u2028\u2029\ufeff-0")==-Infinity
 )) {!function(r,t){var a=function o(t){var a=String(t).trim(),e=r(a);return 0===e&&"-"==a.charAt(0)?-0:e};try{CreateMethodProperty(t,"parseFloat",a)}catch(e){t.parseFloat=a}CreateMethodProperty(Number,"parseFloat",t.parseFloat)}(parseFloat,this);}if (!("parseInt"in Number&&8===Number.parseInt("08")
 )) {!function(t,r){var e=function a(r,e){var n=String(r).trim();return t(n,e>>>0||(/^[-+]?0[xX]/.test(n)?16:10))};try{CreateMethodProperty(r,"parseInt",e)}catch(n){r.parseInt=e}CreateMethodProperty(Number,"parseInt",r.parseInt)}(parseInt,this);}function UTF16Decode(e,n){return 1024*(e-55296)+(n-56320)+65536}if (!("codePointAt"in String.prototype
 )) {CreateMethodProperty(String.prototype,"codePointAt",function e(t){var r=RequireObjectCoercible(this),o=ToString(r),n=ToInteger(t),i=o.length;if(n<0||n>=i)return undefined;var c=String.prototype.charCodeAt.call(o,n);if(c<55296||c>56319||n+1===i)return c;var a=String.prototype.charCodeAt.call(o,n+1);return a<56320||a>57343?c:UTF16Decode(c,a)});}function UTF16Encoding(n){return n<=65535?n:[Math.floor((n-65536)/1024)+55296,(n-65536)%1024+56320]}if (!("fromCodePoint"in String&&1===String.fromCodePoint.length
@@ -2377,14 +2377,14 @@ window.Quarto = {
     <div>
     <div class="quarto-title-meta-heading">Author</div>
     <div class="quarto-title-meta-contents">
-             <p>Indupriya Uppaluri, Virginia Vaughan, Chawan Sreelekha (Advisor: Dr. Cohen) </p>
+             <p>Indupriya Uppaluri, Virginia Vaughan, Chawan Sreelekha (Advisor: Dr. Cohen) </p>
           </div>
   </div>
     
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">June 21, 2026</p>
+      <p class="date">June 27, 2026</p>
     </div>
   </div>
   
@@ -2401,10 +2401,11 @@ window.Quarto = {
 <h2 class="anchored" data-anchor-id="introduction">Introduction</h2>
 <p>Stress detection in real-time, and more importantly biomarkers, have gained interest as both military and corporate facilities aim to improve the quality of worker health and performance. This has let to extensive research using commercial wearables that record signals such as beats per minute (BPM), heartrate (HR), heart rate variability (HRV), galvanic skin conductance (EDA), respiration (RESP), and temperature (TEMP). These physiological signals are used in tandem with both stochastic models such as ARIMA and machine learning such as Random Forest. Both types of models offer their own positives and negatives when predicting physiological data. For example, ARIMA is a more traditional, linear-based model, requires less data for training and extrapolation, while Random Forest is more data-intensive but does not assume linearity, making it better suited for modeling complex patterns.</p>
 <p>In this paper, we hope to explore whether it is possible for the simpler ARIMA model to predict stress state at the same accuracy of a machine learning model like Random Forest. If the ARIMA can perform similar to or greater, this makes an argument that it is still possible to predict stress in physiological signals without the intensive training needed in machine learning, despite ARIMA’s assumptions and limitations. To explore this, we chose the WESAD dataset, which contains multimodal physiological data collected from participants as they underwent different activities, such as no-stress, stress, and amusement. Based on our literature review, we have found that the best physiological signals for predicting stress state that are also provided by the dataset include HR, HRV, and EDA, and that these metrics can be enhanced with secondary metrics such as RESP and TEMP. One paper, <span class="citation" data-cites="oyeleye2022">(<a href="#ref-oyeleye2022" role="doc-biblioref">Oyeleye et al. 2022</a>)</span> found that the accuracy of ARIMA prediction can be heavily improved using the “rolling window” approach. This helped the model predict based on the signal during different windows of time instead of treating each sample independently of the other. In our methodology we plan to create a pipeline to preprocess the data, compute our feature metrics, derive rolling windows, and predict a given metric using both ARIMA and Random Forest in order to compare the model’s accuracy.</p>
+</section>
+<section id="literature-review" class="level2">
+<h2 class="anchored" data-anchor-id="literature-review">Literature review</h2>
 <p>ARIMA, which stands for Autoregressive Integrated Moving Average, is a classical statistical model widely used for time-series forecasting that captures temporal dependencies within a signal using its own past values and error terms. <span class="citation" data-cites="kontopoulou2023">(<a href="#ref-kontopoulou2023" role="doc-biblioref">Kontopoulou et al. 2023</a>)</span> found that ARIMA remains a broadly used and interpretable approach, particularly well-suited for structured, lower-dimensional datasets where its linearity assumptions hold reasonably well. Critically, <span class="citation" data-cites="ziyadidegan2025">(<a href="#ref-ziyadidegan2025" role="doc-biblioref">Ziyadidegan et al. 2024</a>)</span> identified ARIMA as an underutilized but promising method specifically for physiological stress research, appearing in only 3 of 119 reviewed cardiovascular stress studies despite its recognized capacity to capture temporal rhythms in cardiovascular and electrodermal signals. Given that ECG-derived metrics reflect the electrical activity of the heart and EDA captures the skin’s electrodermal response to psychological arousal, both of which change measurably during stress, the temporal structure of these signals makes them theoretically well-suited for time-series modeling through ARIMA with a rolling window approach. If stress-related changes in ECG and EDA follow predictable temporal patterns, ARIMA may be capable of detecting stress states without the computational demands of machine learning, a question this study directly investigates.</p>
-<p>It is well established that EDA is an excellent parameter of SNS activation, while recent studies have demonstrated that EDA combined with other complementary signals, such as PPG, skin temperature and respiration, provides more reliable stress classification than any single signal. <span class="citation" data-cites="luzz2024">(<a href="#ref-luzz2024" role="doc-biblioref">Luzzani et al. (2024)</a>)</span> examined the statistical correlation between the Photoplethysmogram (PPG), the Electrodermal Activity (EDA) and the skin temperature in relation to stress and mental workload, through the analysis of 43 features of the signals, obtained during cognitive tests, using statistical tests such as Kruskal-Wallis and Mann-Whitney U. They determined that about half of these features possessed strong statistical evidence of differentiating relaxed from altered emotional states, while 15 of them had sufficient information to detect both mental workload and stress level. The finding is directly relevant to our project question, which is what physiological signals that are continuously sensed can be meaningfully categorized, as it gives empirical statistical support for selecting the physiological features that best discriminate stress from non-stress states for the rules of threshold and baseline deviation that we are developing. </p>
-<p>This concords with <span class="citation" data-cites="sosa2026">(<a href="#ref-sosa2026" role="doc-biblioref">Sosa et al. (2026)</a>)</span>, who explained, in their systematic review, that EDA is a strong indicator of the arousal of the sympathetic nervous system, but that EDA is only one part of the response, and therefore multimodal systems utilizing various physiological signals, such as EDA and HRV, PPG, skin temperature, and blood oxygen should be developed. The review also outlines how heart rate variability provides information on the parasympathetic nervous system and EDA provides information on the sympathetic nervous system and sweat gland activity; using both sensors can provide more comprehensive and detailed information about an individual's autonomic state. This paper reinforces our desire to focus on a multimodal approach to stress that combines EDA, respiration and temperature even though we have included heart rate as an additional measurement since, taken by itself, this only provides a partial picture of stress.
- on the classification of multimodal sympathetic and parasympathetic nervous system arousal showed that EDA, a measure of sympathetic nervous system activity, and HRV, a measure of parasympathetic nervous system activity, are a more complete reconstruction of autonomic state than either signal alone. We therefore chose respiration as our indicator of stress because it provides an additional measurement of the changes in breathing pattern that occur when a person is stressed, as well as the electrodermal response measured by EDA.</p>
+<p>A systematic review of the literature on the classification of multimodal sympathetic and parasympathetic nervous system arousal showed that EDA, a measure of sympathetic nervous system activity, and HRV, a measure of parasympathetic nervous system activity, are a more complete reconstruction of autonomic state than either signal alone. We therefore chose respiration as our indicator of stress because it provides an additional measurement of the changes in breathing pattern that occur when a person is stressed, as well as the electrodermal response measured by EDA.</p>
 <p>Random Forest is an ensemble machine learning method that builds multiple decision trees and aggregates their outputs to produce robust classifications, making no assumptions about the linearity or distribution of the underlying data. <span class="citation" data-cites="garg2021">(<a href="#ref-garg2021" role="doc-biblioref">Garg et al. 2021</a>)</span> evaluated Random Forest alongside several other classifiers including k-NN, Linear Discriminant Analysis, AdaBoost, and Support Vector Machine on the WESAD dataset, finding that Random Forest achieved consistently strong performance across both binary stress versus non-stress and three-class neutral, stress, and amusement classification tasks. <span class="citation" data-cites="schmidt2018">(<a href="#ref-schmidt2018" role="doc-biblioref">Schmidt and Reiss 2018</a>)</span>, who originally introduced the WESAD dataset, a multimodal physiological signal collection from 15 subjects recorded across controlled stress, baseline, and amusement conditions using wrist-worn and chest-worn devices capturing signals including ECG and EDA among others, also conducted preliminary Random Forest experiments achieving 88.33% baseline accuracy, further establishing it as the benchmark comparator for this study. Together, these findings position Random Forest as a well-validated and high-performing method for stress classification on WESAD, and the central question of this study is whether the simpler, interpretable ARIMA model can achieve comparable predictive performance on ECG and EDA signals alone.</p>
 </section>
 <section id="methods" class="level2">
@@ -2436,7 +2437,7 @@ window.Quarto = {
 </section>
 <section id="operational-experiment-findings" class="level2">
 <h2 class="anchored" data-anchor-id="operational-experiment-findings">OPERATIONAL EXPERIMENT FINDINGS:</h2>
-<p>While Random Forest demonstrates near-perfect classification capabilities on baseline individuals (S2 and S4 achieving an F1-macro of 1.00), it remains highly susceptible to physiological transition overlap. For Subject S3, the model completely failed to distinguish between the late baseline neutral state and the early stress onset state, defaulting to global stress classification (Stress recall = 1.00, Neutral recall = 0.00) [WESAD]. This proves that tabular classifiers struggle when human physiological indicators shift gradually rather than abruptly.</p>
+<p>While Random Forest demonstrates near-perfect classification capabilities on baseline individuals (S2 and S4 achieving an F1-macro of 1.00), it remains highly susceptible to physiological transition overlap. For Subject S3, the model completely failed to distinguish between the late baseline neutral state and the early stress onset state, defaulting to global stress classification (Stress recall = 1.00, Neutral recall = 0.00<span class="citation" data-cites="schmidt2018">(<a href="#ref-schmidt2018" role="doc-biblioref">Schmidt and Reiss 2018</a>)</span>. This proves that tabular classifiers struggle when human physiological indicators shift gradually rather than abruptly.</p>
 </section>
 <section id="the-core-assumptions-of-random-forest-time-series-context" class="level2">
 <h2 class="anchored" data-anchor-id="the-core-assumptions-of-random-forest-time-series-context">THE CORE ASSUMPTIONS OF RANDOM FOREST (TIME-SERIES CONTEXT):</h2>
@@ -2445,27 +2446,42 @@ window.Quarto = {
 <li>Assumption of Non-Stationary Invariance: Random Forest cannot extrapolate trends outside the maximum and minimum values it saw during training. If a subject’s raw skin conductance drifts over the course of an afternoon, the model’s tree splits will completely lose accuracy on future data.</li>
 <li>Assumption of Identity Mapping: Standard Random Forest has no built-in mechanism to recognize sequential order or velocity. It treats a static signal value the same way whether that signal is spiking upward or crashing downward.</li>
 </ul>
-<p>### HOW THE VARIABLES WERE TRANSFORMED (OUR SOLUTIONS): To satisfy these assumptions and make the WESAD variables ready for prediction, we implemented three mandatory engineering transformations [WESAD]:</p>
+<p>### HOW THE VARIABLES WERE TRANSFORMED (OUR SOLUTIONS): To satisfy these assumptions and make the WESAD variables ready for prediction, we implemented three mandatory engineering transformations <span class="citation" data-cites="garg2021">(<a href="#ref-garg2021" role="doc-biblioref">Garg et al. 2021</a>)</span>:</p>
 <ul>
 <li><p>Transformation A: Subject-Specific Standardization (Locally Scaled) The Action: We transformed the raw variables (ECG, EDA, TEMP) using StandardScaler fitted strictly per subject within their independent training partitions. The Reason: This removes individual baseline human biological variances (e.g., one person naturally sweating more than another) and centers all features around a mean of 0 and a standard deviation of 1. This scales the data safely into a uniform range across all subjects without causing data leakage.</p></li>
 <li><p>Transformation B: Temporal Lag Feature Engineering (Creating Memory) The Action: We engineered four steps of historic back-shifting for each sensor variable (creating new columns: EDA_lag_1, EDA_lag_2, etc.). The Reason: This converts the sequential time dependency into static, structural columns within a single row. It gives the Random Forest an explicit “context window” of the past 1 second of history (at 4Hz), allowing the decision trees to calculate the speed and direction of the physiological shift.</p></li>
-<li><p>Transformation C: Chronological Condition-Block Stratification The Action: We transformed how the training and testing matrices were sliced by performing an 80/20 sequential split inside each isolated experimental condition block (Neutral, Stress, Amusement) [WESAD]. The Reason: This preserves the real-world sequence of the timeline while forcing both the training and testing datasets to hold a representative distribution of all three target states, solving the classification target-mismatch issue [WESAD].</p></li>
+<li><p>Transformation C: Chronological Condition-Block Stratification The Action: We transformed how the training and testing matrices were sliced by performing an 80/20 sequential split inside each isolated experimental condition block (Neutral, Stress, Amusement) <span class="citation" data-cites="schmidt2018">(<a href="#ref-schmidt2018" role="doc-biblioref">Schmidt and Reiss 2018</a>)</span>. The Reason: This preserves the real-world sequence of the timeline while forcing both the training and testing datasets to hold a representative distribution of all three target states, solving the classification target-mismatch issue <span class="citation" data-cites="kontopoulou2023">(<a href="#ref-kontopoulou2023" role="doc-biblioref">Kontopoulou et al. 2023</a>)</span>.</p></li>
 </ul>
 <p><span class="math display">\[ M_n(x) = \sum_{i=1}^{n} W_n (X_i) Y_i \tag{1} \]</span></p>
 <p><em><span class="math inline">\(W_n(x)\)</span> is the sum of weights that belongs to all real numbers. Weights are positive numbers and small if <span class="math inline">\(X_i\)</span> is far from <span class="math inline">\(x\)</span>.</em></p>
 <section id="justification-of-choices-based-on-problem-and-data-1" class="level4">
 <h4 class="anchored" data-anchor-id="justification-of-choices-based-on-problem-and-data-1">Justification of Choices Based on Problem and Data</h4>
-<p>This non-parametric local averaging framework (Equation 1) is explicitly chosen for our WESAD wearable sensor prediction task instead of standard parametric regression algorithms, which typically assume a strict linear profile [WESAD]:</p>
+<p>This non-parametric local averaging framework (Equation 1) is explicitly chosen for our WESAD wearable sensor prediction task instead of standard parametric regression algorithms, which typically assume a strict linear profile <span class="citation" data-cites="schmidt2018">(<a href="#ref-schmidt2018" role="doc-biblioref">Schmidt and Reiss 2018</a>)</span>:</p>
 <p><span class="math display">\[ y_i = \beta_0 + \beta_1 X_1 +\varepsilon_i \tag{2} \]</span></p>
-<p>A parametric linear model (Equation 2) assumes a constant, straight-line relationship that completely fails when applied to the complex, non-linear biological response profiles found within multi-modal wearable sensor streams [WESAD]. We chose the Random Forest framework based on three specific data properties that align with this non-parametric local estimation approach:</p>
+<p>A parametric linear model (Equation 2) assumes a constant, straight-line relationship that completely fails when applied to the complex, non-linear biological response profiles found within multi-modal wearable sensor streams <span class="citation" data-cites="ziyadidegan2025">(<a href="#ref-ziyadidegan2025" role="doc-biblioref">Ziyadidegan et al. 2024</a>)</span>. We chose the Random Forest framework based on three specific data properties that align with this non-parametric local estimation approach:</p>
 <ul>
-<li><strong>Handling of Non-Linear Physiological Interaction:</strong> Autonomic nervous system responses do not follow strict linear bounds; a spike in skin conductance (EDA) combined with a drop in skin temperature (TEMP) creates highly complex, non-linear patterns during stress episodes [WESAD]. Random Forest handles these multi-modal, non-linear relationships out of the box through step-wise feature space partitioning without requiring restrictive linear coefficients like those in Equation 2.</li>
-<li><strong>Robustness to Sensor Artifacts and Noise:</strong> Wearable sensor data collected in the field is prone to sudden movement artifacts and temporary data dropouts [WESAD]. Because Random Forest splits nodes by evaluating localized subsets of data and features via the Gini impurity index, it acts as a robust local estimator, preventing individual extreme outliers or sensor errors from corrupting the global classification boundaries.</li>
-<li><strong>Resistance to Temporal Overfitting:</strong> High-frequency biological streams exhibit intense temporal autocorrelation, which can cause standard models to overfit on specific timeline segments. By utilizing independent bootstrap samples for each tree and forcing a structural 80/20 chronological split inside isolated condition blocks, the Random Forest maintains strict out-of-sample operational testing validity [WESAD].</li>
+<li><strong>Handling of Non-Linear Physiological Interaction:</strong> Autonomic nervous system responses do not follow strict linear bounds; a spike in skin conductance (EDA) combined with a drop in skin temperature (TEMP) creates highly complex, non-linear patterns during stress episodes <span class="citation" data-cites="ziyadidegan2025">(<a href="#ref-ziyadidegan2025" role="doc-biblioref">Ziyadidegan et al. 2024</a>)</span>. Random Forest handles these multi-modal, non-linear relationships out of the box through step-wise feature space partitioning without requiring restrictive linear coefficients like those in Equation 2.</li>
+<li><strong>Robustness to Sensor Artifacts and Noise:</strong> Wearable sensor data collected in the field is prone to sudden movement artifacts and temporary data dropouts <span class="citation" data-cites="garg2021">(<a href="#ref-garg2021" role="doc-biblioref">Garg et al. 2021</a>)</span>. Because Random Forest splits nodes by evaluating localized subsets of data and features via the Gini impurity index, it acts as a robust local estimator, preventing individual extreme outliers or sensor errors from corrupting the global classification boundaries.</li>
+<li><strong>Resistance to Temporal Overfitting:</strong> High-frequency biological streams exhibit intense temporal autocorrelation, which can cause standard models to overfit on specific timeline segments. By utilizing independent bootstrap samples for each tree and forcing a structural 80/20 chronological split inside isolated condition blocks, the Random Forest maintains strict out-of-sample operational testing validity <span class="citation" data-cites="kontopoulou2023">(<a href="#ref-kontopoulou2023" role="doc-biblioref">Kontopoulou et al. 2023</a>)</span>.</li>
 </ul>
 </section>
-<section id="data-ingestion" class="level3">
-<h3 class="anchored" data-anchor-id="data-ingestion">Data Ingestion</h3>
+<section id="normalization" class="level4">
+<h4 class="anchored" data-anchor-id="normalization">Normalization</h4>
+<p>Prior to model training, raw physiological signals (ECG, EDA) were normalized using subject-specific StandardScaler to remove individual baseline biological variance. Each subject’s training partition was fitted independently to prevent data leakage across subjects. The normalization formula applied is:</p>
+<p><span class="math display">\[z = \frac{x - \mu}{\sigma}\]</span></p>
+<p>where <span class="math inline">\(x\)</span> is the raw signal value, <span class="math inline">\(\mu\)</span> is the subject-specific mean, and <span class="math inline">\(\sigma\)</span> is the subject-specific standard deviation computed strictly within the training partition <span class="citation" data-cites="schmidt2018">(<a href="#ref-schmidt2018" role="doc-biblioref">Schmidt and Reiss 2018</a>)</span>.</p>
+</section>
+<section id="rolling-window-features" class="level4">
+<h4 class="anchored" data-anchor-id="rolling-window-features">Rolling Window Features</h4>
+<p>To capture the temporal dynamics of physiological stress responses, rolling window features were engineered from the normalized ECG and EDA signals. For each signal at time <span class="math inline">\(t\)</span>, a window of size <span class="math inline">\(w\)</span> was applied to compute the rolling mean:</p>
+<p><span class="math display">\[\mu_{t,w} = \frac{1}{w}\sum_{i=t-w+1}^{t} x_i\]</span></p>
+<p>and rolling standard deviation:</p>
+<p><span class="math display">\[\sigma_{t,w} = \sqrt{\frac{1}{w}\sum_{i=t-w+1}^{t}(x_i - \mu_{t,w})^2}\]</span></p>
+<p>Two window sizes were applied which are 1-minute and 3-minute windows inorder to capture both short-term stress onset patterns and longer-term sustained stress responses <span class="citation" data-cites="ziyadidegan2025">(<a href="#ref-ziyadidegan2025" role="doc-biblioref">Ziyadidegan et al. 2024</a>)</span>. These rolling features give the Random Forest model an explicit temporal context window, partially compensating for its lack of built-in sequential awareness <span class="citation" data-cites="kontopoulou2023">(<a href="#ref-kontopoulou2023" role="doc-biblioref">Kontopoulou et al. 2023</a>)</span>.</p>
+</section>
+<section id="feature-importance" class="level4">
+<h4 class="anchored" data-anchor-id="feature-importance">Feature Importance</h4>
+<p>Random Forest provides a built-in feature importance measure based on the mean decrease in impurity across all trees for each feature. This was used to identify which physiological signals and rolling window features most strongly predicted stress state classification across subjects S2, S3, and S4 from the WESAD dataset <span class="citation" data-cites="garg2021">(<a href="#ref-garg2021" role="doc-biblioref">Garg et al. 2021</a>)</span>.</p>
 </section>
 </section>
 <section id="data-ingestion-and-automated-feature-alignment" class="level2">
@@ -2476,110 +2492,271 @@ window.Quarto = {
 <p>∣𝑓∈𝐂DataFrame represents the total set of column strings parsed from the file header. Only features that pass this verification step are pushed into the downstream temporal context matrix, preventing runtime compilation failures if a specific signal modality is missing from the wrist file structure.</p>
 <p>Chronological Grouping and Boundary Defense - To maintain strict data integrity during ingestion and prevent cross-subject timeline pollution, the loading sequence prevents global, un-grouped data operations.Data matrices are partitioned into isolated historical blocks using a split-apply-combine approach on the categorical subject identifier. This ensures that the chronological continuity of each participant’s biometric timeline is preserved:</p>
 <p>By isolating the timelines within individual subject blocks and explicitly invoking a index-sorting mechanism (.sort_index()), the ingestion layer provides a clear guarantee: no row from Subject A can accidentally inherit historical lag metrics from Subject B.Any boundary artifacts created by tracking changes at the very beginning of a subject’s timeline are handled by a .dropna() filter, leaving a clean, continuous, and fully isolated data structure for model training.</p>
+<section id="pre-processing" class="level3">
+<h3 class="anchored" data-anchor-id="pre-processing">Pre processing</h3>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.ensemble <span class="im">import</span> RandomForestClassifier</span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.metrics <span class="im">import</span> classification_report, f1_score, precision_score, recall_score</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pickle</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> os</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>subjects <span class="op">=</span> [</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>    <span class="st">&#39;S2&#39;</span>,<span class="st">&#39;S3&#39;</span>,<span class="st">&#39;S4&#39;</span>,<span class="st">&#39;S5&#39;</span>,<span class="st">&#39;S6&#39;</span>,<span class="st">&#39;S7&#39;</span>,<span class="st">&#39;S8&#39;</span>,<span class="st">&#39;S9&#39;</span>,</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>    <span class="st">&#39;S10&#39;</span>,<span class="st">&#39;S11&#39;</span>,<span class="st">&#39;S13&#39;</span>,<span class="st">&#39;S14&#39;</span>,<span class="st">&#39;S15&#39;</span>,<span class="st">&#39;S16&#39;</span>,<span class="st">&#39;S17&#39;</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>]</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>VALID_LABELS <span class="op">=</span> [<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>]</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>chest_dfs <span class="op">=</span> []</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>wrist_dfs <span class="op">=</span> []</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">&quot;Starting WESAD preprocessing pipeline...&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Starting WESAD preprocessing pipeline...</code></pre>
+</div>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># ----------------------------------------------------</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="co"># MAIN LOOP</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="co"># ----------------------------------------------------</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> subject <span class="kw">in</span> subjects:</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>    path <span class="op">=</span> <span class="ss">f&#39;/home/iu6/IDC6940_RandomForest/Dataset_WESAD/</span><span class="sc">{</span>subject<span class="sc">}</span><span class="ss">/</span><span class="sc">{</span>subject<span class="sc">}</span><span class="ss">.pkl&#39;</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="kw">not</span> os.path.exists(path):</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="ss">f&quot;[SKIP] </span><span class="sc">{</span>subject<span class="sc">}</span><span class="ss"> not found&quot;</span>)</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>        <span class="cf">continue</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f&quot;</span><span class="ch">\n</span><span class="ss">Processing </span><span class="sc">{</span>subject<span class="sc">}</span><span class="ss">...&quot;</span>)</span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>    <span class="cf">with</span> <span class="bu">open</span>(path, <span class="st">&#39;rb&#39;</span>) <span class="im">as</span> f:</span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>        data <span class="op">=</span> pickle.load(f, encoding<span class="op">=</span><span class="st">&#39;latin1&#39;</span>)</span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Get the raw, unbroken 700Hz timeline bounds</span></span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>    raw_labels <span class="op">=</span> np.array(data[<span class="st">&#39;label&#39;</span>]).flatten()</span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>    raw_ecg <span class="op">=</span> np.array(data[<span class="st">&#39;signal&#39;</span>][<span class="st">&#39;chest&#39;</span>][<span class="st">&#39;ECG&#39;</span>]).flatten()</span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>    raw_eda <span class="op">=</span> np.array(data[<span class="st">&#39;signal&#39;</span>][<span class="st">&#39;chest&#39;</span>][<span class="st">&#39;EDA&#39;</span>]).flatten()</span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>    raw_temp <span class="op">=</span> np.array(data[<span class="st">&#39;signal&#39;</span>][<span class="st">&#39;chest&#39;</span>][<span class="st">&#39;Temp&#39;</span>]).flatten()</span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>    raw_resp <span class="op">=</span> np.array(data[<span class="st">&#39;signal&#39;</span>][<span class="st">&#39;chest&#39;</span>][<span class="st">&#39;Resp&#39;</span>]).flatten()</span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Track minimum length to trim trailing-end sensor shutoff mismatches safely</span></span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>    min_len <span class="op">=</span> <span class="bu">min</span>(<span class="bu">len</span>(raw_labels), <span class="bu">len</span>(raw_ecg), <span class="bu">len</span>(raw_eda), <span class="bu">len</span>(raw_temp), <span class="bu">len</span>(raw_resp))</span>
+<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a>    <span class="co"># -------------------------</span></span>
+<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a>    <span class="co"># CHEST SIGNALS (100% continuous for NeuroKit2 windowing)</span></span>
+<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a>    <span class="co"># -------------------------</span></span>
+<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a>    chest_df <span class="op">=</span> pd.DataFrame({</span>
+<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a>        <span class="st">&#39;subject&#39;</span>: subject,</span>
+<span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a>        <span class="st">&#39;ECG&#39;</span>: raw_ecg[:min_len],</span>
+<span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a>        <span class="st">&#39;EDA&#39;</span>: raw_eda[:min_len],</span>
+<span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a>        <span class="st">&#39;TEMP&#39;</span>: raw_temp[:min_len],</span>
+<span id="cb3-32"><a href="#cb3-32" aria-hidden="true" tabindex="-1"></a>        <span class="st">&#39;RESP&#39;</span>: raw_resp[:min_len],</span>
+<span id="cb3-33"><a href="#cb3-33" aria-hidden="true" tabindex="-1"></a>        <span class="st">&#39;label&#39;</span>: raw_labels[:min_len]  <span class="co"># Keeps ALL labels (0,1,2,3,4...) so data stays unbroken</span></span>
+<span id="cb3-34"><a href="#cb3-34" aria-hidden="true" tabindex="-1"></a>    })</span>
+<span id="cb3-35"><a href="#cb3-35" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb3-36"><a href="#cb3-36" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Handle artifacts without changing the shape or deleting rows</span></span>
+<span id="cb3-37"><a href="#cb3-37" aria-hidden="true" tabindex="-1"></a>    chest_df.loc[(chest_df[<span class="st">&#39;TEMP&#39;</span>] <span class="op">&lt;=</span> <span class="dv">20</span>) <span class="op">|</span> (chest_df[<span class="st">&#39;TEMP&#39;</span>] <span class="op">&gt;=</span> <span class="dv">45</span>), <span class="st">&#39;TEMP&#39;</span>] <span class="op">=</span> np.nan</span>
+<span id="cb3-38"><a href="#cb3-38" aria-hidden="true" tabindex="-1"></a>    chest_df.loc[chest_df[<span class="st">&#39;EDA&#39;</span>] <span class="op">&lt;</span> <span class="dv">0</span>, <span class="st">&#39;EDA&#39;</span>] <span class="op">=</span> np.nan</span>
+<span id="cb3-39"><a href="#cb3-39" aria-hidden="true" tabindex="-1"></a>    chest_df <span class="op">=</span> chest_df.ffill().bfill()  <span class="co"># Cleans sensor errors seamlessly</span></span>
+<span id="cb3-40"><a href="#cb3-40" aria-hidden="true" tabindex="-1"></a>    chest_df <span class="op">=</span> chest_df[chest_df[<span class="st">&#39;label&#39;</span>].isin(VALID_LABELS)]</span>
+<span id="cb3-41"><a href="#cb3-41" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-42"><a href="#cb3-42" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb3-43"><a href="#cb3-43" aria-hidden="true" tabindex="-1"></a>    chest_dfs.append(chest_df)</span>
+<span id="cb3-44"><a href="#cb3-44" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f&quot;[CHEST CONTINUOUS] </span><span class="sc">{</span>subject<span class="sc">}</span><span class="ss">: </span><span class="sc">{</span>chest_df<span class="sc">.</span>shape<span class="sc">}</span><span class="ss">&quot;</span>)</span>
+<span id="cb3-45"><a href="#cb3-45" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-46"><a href="#cb3-46" aria-hidden="true" tabindex="-1"></a>    <span class="co"># -------------------------</span></span>
+<span id="cb3-47"><a href="#cb3-47" aria-hidden="true" tabindex="-1"></a>    <span class="co"># WRIST SIGNALS (Downsampled labels to match native 4Hz sensors)</span></span>
+<span id="cb3-48"><a href="#cb3-48" aria-hidden="true" tabindex="-1"></a>    <span class="co"># -------------------------</span></span>
+<span id="cb3-49"><a href="#cb3-49" aria-hidden="true" tabindex="-1"></a>    wrist_eda <span class="op">=</span> np.array(data[<span class="st">&#39;signal&#39;</span>][<span class="st">&#39;wrist&#39;</span>][<span class="st">&#39;EDA&#39;</span>]).flatten()</span>
+<span id="cb3-50"><a href="#cb3-50" aria-hidden="true" tabindex="-1"></a>    wrist_temp <span class="op">=</span> np.array(data[<span class="st">&#39;signal&#39;</span>][<span class="st">&#39;wrist&#39;</span>][<span class="st">&#39;TEMP&#39;</span>]).flatten()</span>
+<span id="cb3-51"><a href="#cb3-51" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb3-52"><a href="#cb3-52" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb3-53"><a href="#cb3-53" aria-hidden="true" tabindex="-1"></a>    wrist_len <span class="op">=</span> <span class="bu">min</span>(<span class="bu">len</span>(wrist_eda), <span class="bu">len</span>(wrist_temp))</span>
+<span id="cb3-54"><a href="#cb3-54" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Pick every 175th label to match the slow 4Hz wrist sensors perfectly by time</span></span>
+<span id="cb3-55"><a href="#cb3-55" aria-hidden="true" tabindex="-1"></a>    wrist_labels <span class="op">=</span> np.array([np.bincount(raw_labels[i:i<span class="op">+</span><span class="dv">175</span>]).argmax() <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">0</span>, <span class="bu">len</span>(raw_labels), <span class="dv">175</span>)])[:wrist_len]</span>
+<span id="cb3-56"><a href="#cb3-56" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb3-57"><a href="#cb3-57" aria-hidden="true" tabindex="-1"></a>    wrist_df <span class="op">=</span> pd.DataFrame({</span>
+<span id="cb3-58"><a href="#cb3-58" aria-hidden="true" tabindex="-1"></a>        <span class="st">&#39;subject&#39;</span>: subject,</span>
+<span id="cb3-59"><a href="#cb3-59" aria-hidden="true" tabindex="-1"></a>        <span class="st">&#39;EDA&#39;</span>: wrist_eda[:wrist_len],</span>
+<span id="cb3-60"><a href="#cb3-60" aria-hidden="true" tabindex="-1"></a>        <span class="st">&#39;TEMP&#39;</span>: wrist_temp[:wrist_len],</span>
+<span id="cb3-61"><a href="#cb3-61" aria-hidden="true" tabindex="-1"></a>        <span class="st">&#39;label&#39;</span>: wrist_labels</span>
+<span id="cb3-62"><a href="#cb3-62" aria-hidden="true" tabindex="-1"></a>    })</span>
+<span id="cb3-63"><a href="#cb3-63" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb3-64"><a href="#cb3-64" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Wrist can be filtered row-by-row because her NeuroKit pipeline isn&#39;t analyzing the wrist</span></span>
+<span id="cb3-65"><a href="#cb3-65" aria-hidden="true" tabindex="-1"></a>    wrist_df <span class="op">=</span> wrist_df[wrist_df[<span class="st">&#39;label&#39;</span>].isin(VALID_LABELS)]</span>
+<span id="cb3-66"><a href="#cb3-66" aria-hidden="true" tabindex="-1"></a>    wrist_df <span class="op">=</span> wrist_df.dropna()</span>
+<span id="cb3-67"><a href="#cb3-67" aria-hidden="true" tabindex="-1"></a>    wrist_dfs.append(wrist_df)</span>
+<span id="cb3-68"><a href="#cb3-68" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f&quot;[WRIST CLEAN] </span><span class="sc">{</span>subject<span class="sc">}</span><span class="ss">: </span><span class="sc">{</span>wrist_df<span class="sc">.</span>shape<span class="sc">}</span><span class="ss">&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Processing S2...
+[CHEST CONTINUOUS] S2: (1484700, 6)
+[WRIST CLEAN] S2: (8484, 4)
+
+Processing S3...
+[CHEST CONTINUOUS] S3: (1508500, 6)
+[WRIST CLEAN] S3: (8620, 4)
+
+Processing S4...
+[CHEST CONTINUOUS] S4: (1515501, 6)
+[WRIST CLEAN] S4: (8660, 4)
+[SKIP] S5 not found
+[SKIP] S6 not found
+[SKIP] S7 not found
+[SKIP] S8 not found
+[SKIP] S9 not found
+[SKIP] S10 not found
+[SKIP] S11 not found
+[SKIP] S13 not found
+[SKIP] S14 not found
+[SKIP] S15 not found
+[SKIP] S16 not found
+[SKIP] S17 not found</code></pre>
+</div>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># ----------------------------------------------------</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="co"># FINAL DATASET EXPORT</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="co"># ----------------------------------------------------</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">&quot;</span><span class="ch">\n</span><span class="st">Combining datasets...&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Combining datasets...</code></pre>
+</div>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>chest_final <span class="op">=</span> pd.concat(chest_dfs, ignore_index<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>wrist_final <span class="op">=</span> pd.concat(wrist_dfs, ignore_index<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">&quot;</span><span class="ch">\n</span><span class="st">Final Chest shape (Continuous):&quot;</span>, chest_final.shape)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Final Chest shape (Continuous): (4508701, 6)</code></pre>
+</div>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">&quot;Final Wrist shape (Clean Tabular):&quot;</span>, wrist_final.shape)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Final Wrist shape (Clean Tabular): (25764, 4)</code></pre>
+</div>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>chest_final.to_csv(<span class="st">&quot;wesad_chest_clean.csv&quot;</span>, index<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>wrist_final.to_csv(<span class="st">&quot;wesad_wrist_clean.csv&quot;</span>, index<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">&quot;</span><span class="ch">\n</span><span class="st">Saved cleaned datasets successfully. Ready for handoff!&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Saved cleaned datasets successfully. Ready for handoff!</code></pre>
+</div>
+</div>
+<p>#| code-fold: true</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.ensemble <span class="im">import</span> RandomForestClassifier</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.metrics <span class="im">import</span> classification_report, f1_score, precision_score, recall_score</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 </div>
 <p>#| code-fold: true</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Load Data</span></span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">&quot;=== Starting Random Forest Model Loop ===&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Load Data</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">&quot;=== Starting Random Forest Model Loop ===&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>=== Starting Random Forest Model Loop ===</code></pre>
 </div>
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 1. READ PRE-SPLIT, PRE-NORMALIZED FILES</span></span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">&quot;Loading data splits...&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 1. READ PRE-SPLIT, PRE-NORMALIZED FILES</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">&quot;Loading data splits...&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>Loading data splits...</code></pre>
 </div>
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>train_df <span class="op">=</span> pd.read_csv(<span class="st">&quot;wesad_wrist_train.csv&quot;</span>)</span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>test_df <span class="op">=</span> pd.read_csv(<span class="st">&quot;wesad_wrist_test.csv&quot;</span>)</span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="co"># 2. FEATURE ENGINEERING: COMPUTE TEMPORAL LAG ARRAYS WITH ECG INCLUDED</span></span>
-<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Updated default list to scan for ECG, EDA, and TEMP features dynamically</span></span>
-<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> apply_time_lags(df, features<span class="op">=</span>[<span class="st">&#39;ECG&#39;</span>, <span class="st">&#39;EDA&#39;</span>, <span class="st">&#39;TEMP&#39;</span>]):</span>
-<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Filter features list to match only columns that exist inside the CSV file</span></span>
-<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>    valid_features <span class="op">=</span> [f <span class="cf">for</span> f <span class="kw">in</span> features <span class="cf">if</span> f <span class="kw">in</span> df.columns]</span>
-<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f&quot; -&gt; Engineering lag features for existing channels: </span><span class="sc">{</span>valid_features<span class="sc">}</span><span class="ss">&quot;</span>)</span>
-<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>    lagged_groups <span class="op">=</span> []</span>
-<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Loop ensures lags are calculated within each subject timeline independently</span></span>
-<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> subject, group <span class="kw">in</span> df.groupby(<span class="st">&#39;subject&#39;</span>):</span>
-<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>        group_copy <span class="op">=</span> group.sort_index().copy()</span>
-<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> col <span class="kw">in</span> valid_features:</span>
-<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>            <span class="cf">for</span> lag <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">1</span>, <span class="dv">5</span>): <span class="co"># 4 lags = 1 second of context at 4Hz</span></span>
-<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a>                group_copy[<span class="ss">f&#39;</span><span class="sc">{</span>col<span class="sc">}</span><span class="ss">_lag_</span><span class="sc">{</span>lag<span class="sc">}</span><span class="ss">&#39;</span>] <span class="op">=</span> group_copy[col].shift(lag)</span>
-<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a>        lagged_groups.append(group_copy.dropna())</span>
-<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> pd.concat(lagged_groups, ignore_index<span class="op">=</span><span class="va">True</span>)</span>
-<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">&quot;Engineering lag context windows...&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>train_df <span class="op">=</span> pd.read_csv(<span class="st">&quot;wesad_wrist_train.csv&quot;</span>)</span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>test_df <span class="op">=</span> pd.read_csv(<span class="st">&quot;wesad_wrist_test.csv&quot;</span>)</span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a><span class="co"># 2. FEATURE ENGINEERING: COMPUTE TEMPORAL LAG ARRAYS WITH ECG INCLUDED</span></span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Updated default list to scan for ECG, EDA, and TEMP features dynamically</span></span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> apply_time_lags(df, features<span class="op">=</span>[<span class="st">&#39;ECG&#39;</span>, <span class="st">&#39;EDA&#39;</span>, <span class="st">&#39;TEMP&#39;</span>]):</span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Filter features list to match only columns that exist inside the CSV file</span></span>
+<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a>    valid_features <span class="op">=</span> [f <span class="cf">for</span> f <span class="kw">in</span> features <span class="cf">if</span> f <span class="kw">in</span> df.columns]</span>
+<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f&quot; -&gt; Engineering lag features for existing channels: </span><span class="sc">{</span>valid_features<span class="sc">}</span><span class="ss">&quot;</span>)</span>
+<span id="cb18-10"><a href="#cb18-10" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb18-11"><a href="#cb18-11" aria-hidden="true" tabindex="-1"></a>    lagged_groups <span class="op">=</span> []</span>
+<span id="cb18-12"><a href="#cb18-12" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Loop ensures lags are calculated within each subject timeline independently</span></span>
+<span id="cb18-13"><a href="#cb18-13" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> subject, group <span class="kw">in</span> df.groupby(<span class="st">&#39;subject&#39;</span>):</span>
+<span id="cb18-14"><a href="#cb18-14" aria-hidden="true" tabindex="-1"></a>        group_copy <span class="op">=</span> group.sort_index().copy()</span>
+<span id="cb18-15"><a href="#cb18-15" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> col <span class="kw">in</span> valid_features:</span>
+<span id="cb18-16"><a href="#cb18-16" aria-hidden="true" tabindex="-1"></a>            <span class="cf">for</span> lag <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">1</span>, <span class="dv">5</span>): <span class="co"># 4 lags = 1 second of context at 4Hz</span></span>
+<span id="cb18-17"><a href="#cb18-17" aria-hidden="true" tabindex="-1"></a>                group_copy[<span class="ss">f&#39;</span><span class="sc">{</span>col<span class="sc">}</span><span class="ss">_lag_</span><span class="sc">{</span>lag<span class="sc">}</span><span class="ss">&#39;</span>] <span class="op">=</span> group_copy[col].shift(lag)</span>
+<span id="cb18-18"><a href="#cb18-18" aria-hidden="true" tabindex="-1"></a>        lagged_groups.append(group_copy.dropna())</span>
+<span id="cb18-19"><a href="#cb18-19" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> pd.concat(lagged_groups, ignore_index<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb18-20"><a href="#cb18-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-21"><a href="#cb18-21" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">&quot;Engineering lag context windows...&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>Engineering lag context windows...</code></pre>
 </div>
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>train_lagged <span class="op">=</span> apply_time_lags(train_df)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb20"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>train_lagged <span class="op">=</span> apply_time_lags(train_df)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code> -&gt; Engineering lag features for existing channels: [&#39;EDA&#39;, &#39;TEMP&#39;]</code></pre>
 </div>
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>test_lagged <span class="op">=</span> apply_time_lags(test_df)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb22"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>test_lagged <span class="op">=</span> apply_time_lags(test_df)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code> -&gt; Engineering lag features for existing channels: [&#39;EDA&#39;, &#39;TEMP&#39;]</code></pre>
 </div>
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Filter feature columns out from metadata columns</span></span>
-<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>feature_columns <span class="op">=</span> [c <span class="cf">for</span> c <span class="kw">in</span> train_lagged.columns <span class="cf">if</span> c <span class="kw">not</span> <span class="kw">in</span> [<span class="st">&#39;subject&#39;</span>, <span class="st">&#39;label&#39;</span>]]</span>
-<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a><span class="co"># ====================================================</span></span>
-<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a><span class="co"># 3. INDEPENDENT SUBJECT TRAINING LOOP</span></span>
-<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a><span class="co"># ====================================================</span></span>
-<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> subject, group <span class="kw">in</span> train_lagged.groupby(<span class="st">&#39;subject&#39;</span>):</span>
-<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f&quot;</span><span class="ch">\n</span><span class="ss">Training Random Forest Classifier for </span><span class="sc">{</span>subject<span class="sc">}</span><span class="ss">...&quot;</span>)</span>
-<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Isolate training inputs for this subject</span></span>
-<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>    X_train <span class="op">=</span> group[feature_columns]</span>
-<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>    y_train <span class="op">=</span> group[<span class="st">&#39;label&#39;</span>]</span>
-<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Isolate testing inputs from the matching hidden test split file</span></span>
-<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a>    test_group <span class="op">=</span> test_lagged[test_lagged[<span class="st">&#39;subject&#39;</span>] <span class="op">==</span> subject]</span>
-<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a>    X_test <span class="op">=</span> test_group[feature_columns]</span>
-<span id="cb12-17"><a href="#cb12-17" aria-hidden="true" tabindex="-1"></a>    y_test <span class="op">=</span> test_group[<span class="st">&#39;label&#39;</span>]</span>
-<span id="cb12-18"><a href="#cb12-18" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb12-19"><a href="#cb12-19" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Initialize Random Forest with balanced class weights to address label skew</span></span>
-<span id="cb12-20"><a href="#cb12-20" aria-hidden="true" tabindex="-1"></a>    rf_model <span class="op">=</span> RandomForestClassifier(n_estimators<span class="op">=</span><span class="dv">100</span>, class_weight<span class="op">=</span><span class="st">&#39;balanced&#39;</span>, random_state<span class="op">=</span><span class="dv">42</span>)</span>
-<span id="cb12-21"><a href="#cb12-21" aria-hidden="true" tabindex="-1"></a>    rf_model.fit(X_train, y_train)</span>
-<span id="cb12-22"><a href="#cb12-22" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb12-23"><a href="#cb12-23" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Evaluate performance</span></span>
-<span id="cb12-24"><a href="#cb12-24" aria-hidden="true" tabindex="-1"></a>    y_pred <span class="op">=</span> rf_model.predict(X_test)</span>
-<span id="cb12-25"><a href="#cb12-25" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb12-26"><a href="#cb12-26" aria-hidden="true" tabindex="-1"></a>    macro_f1 <span class="op">=</span> f1_score(y_test, y_pred, average<span class="op">=</span><span class="st">&#39;macro&#39;</span>)</span>
-<span id="cb12-27"><a href="#cb12-27" aria-hidden="true" tabindex="-1"></a>    macro_prec <span class="op">=</span> precision_score(y_test, y_pred, average<span class="op">=</span><span class="st">&#39;macro&#39;</span>, zero_division<span class="op">=</span><span class="dv">0</span>)</span>
-<span id="cb12-28"><a href="#cb12-28" aria-hidden="true" tabindex="-1"></a>    macro_rec <span class="op">=</span> recall_score(y_test, y_pred, average<span class="op">=</span><span class="st">&#39;macro&#39;</span>, zero_division<span class="op">=</span><span class="dv">0</span>)</span>
-<span id="cb12-29"><a href="#cb12-29" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb12-30"><a href="#cb12-30" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f&quot;[</span><span class="sc">{</span>subject<span class="sc">}</span><span class="ss"> Metrics Summary]&quot;</span>)</span>
-<span id="cb12-31"><a href="#cb12-31" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f&quot; -&gt; Macro Precision : </span><span class="sc">{</span>macro_prec<span class="sc">:.4f}</span><span class="ss">&quot;</span>)</span>
-<span id="cb12-32"><a href="#cb12-32" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f&quot; -&gt; Macro Recall    : </span><span class="sc">{</span>macro_rec<span class="sc">:.4f}</span><span class="ss">&quot;</span>)</span>
-<span id="cb12-33"><a href="#cb12-33" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f&quot; -&gt; Macro F1-Score  : </span><span class="sc">{</span>macro_f1<span class="sc">:.4f}</span><span class="ss">&quot;</span>)</span>
-<span id="cb12-34"><a href="#cb12-34" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">&quot;</span><span class="ch">\n</span><span class="st">Detailed Per-Class Performance:&quot;</span>)</span>
-<span id="cb12-35"><a href="#cb12-35" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(classification_report(y_test, y_pred, labels<span class="op">=</span>[<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>], target_names<span class="op">=</span>[<span class="st">&#39;Neutral&#39;</span>, <span class="st">&#39;Stress&#39;</span>, <span class="st">&#39;Amusement&#39;</span>], zero_division<span class="op">=</span><span class="dv">0</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb24"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Filter feature columns out from metadata columns</span></span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>feature_columns <span class="op">=</span> [c <span class="cf">for</span> c <span class="kw">in</span> train_lagged.columns <span class="cf">if</span> c <span class="kw">not</span> <span class="kw">in</span> [<span class="st">&#39;subject&#39;</span>, <span class="st">&#39;label&#39;</span>]]</span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a><span class="co"># ====================================================</span></span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a><span class="co"># 3. INDEPENDENT SUBJECT TRAINING LOOP</span></span>
+<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a><span class="co"># ====================================================</span></span>
+<span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> subject, group <span class="kw">in</span> train_lagged.groupby(<span class="st">&#39;subject&#39;</span>):</span>
+<span id="cb24-8"><a href="#cb24-8" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f&quot;</span><span class="ch">\n</span><span class="ss">Training Random Forest Classifier for </span><span class="sc">{</span>subject<span class="sc">}</span><span class="ss">...&quot;</span>)</span>
+<span id="cb24-9"><a href="#cb24-9" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb24-10"><a href="#cb24-10" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Isolate training inputs for this subject</span></span>
+<span id="cb24-11"><a href="#cb24-11" aria-hidden="true" tabindex="-1"></a>    X_train <span class="op">=</span> group[feature_columns]</span>
+<span id="cb24-12"><a href="#cb24-12" aria-hidden="true" tabindex="-1"></a>    y_train <span class="op">=</span> group[<span class="st">&#39;label&#39;</span>]</span>
+<span id="cb24-13"><a href="#cb24-13" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb24-14"><a href="#cb24-14" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Isolate testing inputs from the matching hidden test split file</span></span>
+<span id="cb24-15"><a href="#cb24-15" aria-hidden="true" tabindex="-1"></a>    test_group <span class="op">=</span> test_lagged[test_lagged[<span class="st">&#39;subject&#39;</span>] <span class="op">==</span> subject]</span>
+<span id="cb24-16"><a href="#cb24-16" aria-hidden="true" tabindex="-1"></a>    X_test <span class="op">=</span> test_group[feature_columns]</span>
+<span id="cb24-17"><a href="#cb24-17" aria-hidden="true" tabindex="-1"></a>    y_test <span class="op">=</span> test_group[<span class="st">&#39;label&#39;</span>]</span>
+<span id="cb24-18"><a href="#cb24-18" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb24-19"><a href="#cb24-19" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Initialize Random Forest with balanced class weights to address label skew</span></span>
+<span id="cb24-20"><a href="#cb24-20" aria-hidden="true" tabindex="-1"></a>    rf_model <span class="op">=</span> RandomForestClassifier(n_estimators<span class="op">=</span><span class="dv">100</span>, class_weight<span class="op">=</span><span class="st">&#39;balanced&#39;</span>, random_state<span class="op">=</span><span class="dv">42</span>)</span>
+<span id="cb24-21"><a href="#cb24-21" aria-hidden="true" tabindex="-1"></a>    rf_model.fit(X_train, y_train)</span>
+<span id="cb24-22"><a href="#cb24-22" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb24-23"><a href="#cb24-23" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Evaluate performance</span></span>
+<span id="cb24-24"><a href="#cb24-24" aria-hidden="true" tabindex="-1"></a>    y_pred <span class="op">=</span> rf_model.predict(X_test)</span>
+<span id="cb24-25"><a href="#cb24-25" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb24-26"><a href="#cb24-26" aria-hidden="true" tabindex="-1"></a>    macro_f1 <span class="op">=</span> f1_score(y_test, y_pred, average<span class="op">=</span><span class="st">&#39;macro&#39;</span>)</span>
+<span id="cb24-27"><a href="#cb24-27" aria-hidden="true" tabindex="-1"></a>    macro_prec <span class="op">=</span> precision_score(y_test, y_pred, average<span class="op">=</span><span class="st">&#39;macro&#39;</span>, zero_division<span class="op">=</span><span class="dv">0</span>)</span>
+<span id="cb24-28"><a href="#cb24-28" aria-hidden="true" tabindex="-1"></a>    macro_rec <span class="op">=</span> recall_score(y_test, y_pred, average<span class="op">=</span><span class="st">&#39;macro&#39;</span>, zero_division<span class="op">=</span><span class="dv">0</span>)</span>
+<span id="cb24-29"><a href="#cb24-29" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb24-30"><a href="#cb24-30" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f&quot;[</span><span class="sc">{</span>subject<span class="sc">}</span><span class="ss"> Metrics Summary]&quot;</span>)</span>
+<span id="cb24-31"><a href="#cb24-31" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f&quot; -&gt; Macro Precision : </span><span class="sc">{</span>macro_prec<span class="sc">:.4f}</span><span class="ss">&quot;</span>)</span>
+<span id="cb24-32"><a href="#cb24-32" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f&quot; -&gt; Macro Recall    : </span><span class="sc">{</span>macro_rec<span class="sc">:.4f}</span><span class="ss">&quot;</span>)</span>
+<span id="cb24-33"><a href="#cb24-33" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f&quot; -&gt; Macro F1-Score  : </span><span class="sc">{</span>macro_f1<span class="sc">:.4f}</span><span class="ss">&quot;</span>)</span>
+<span id="cb24-34"><a href="#cb24-34" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">&quot;</span><span class="ch">\n</span><span class="st">Detailed Per-Class Performance:&quot;</span>)</span>
+<span id="cb24-35"><a href="#cb24-35" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(classification_report(y_test, y_pred, labels<span class="op">=</span>[<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>], target_names<span class="op">=</span>[<span class="st">&#39;Neutral&#39;</span>, <span class="st">&#39;Stress&#39;</span>, <span class="st">&#39;Amusement&#39;</span>], zero_division<span class="op">=</span><span class="dv">0</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output-display">
 <style>#sk-container-id-1 {
@@ -3467,129 +3644,130 @@ forceTheme('sk-container-id-1');</script>
 </div>
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">&quot;</span><span class="ch">\n</span><span class="st">=== Random Forest Execution Loop Complete ===&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb25"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">&quot;</span><span class="ch">\n</span><span class="st">=== Random Forest Execution Loop Complete ===&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>
 === Random Forest Execution Loop Complete ===</code></pre>
 </div>
 </div>
+</section>
 <section id="data-and-visualization" class="level3">
 <h3 class="anchored" data-anchor-id="data-and-visualization">Data and Visualization</h3>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
-<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
-<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> seaborn <span class="im">as</span> sns</span>
-<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
-<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>label_map <span class="op">=</span> {<span class="dv">1</span>: <span class="st">&#39;Baseline&#39;</span>, <span class="dv">2</span>: <span class="st">&#39;Stress&#39;</span>, <span class="dv">3</span>: <span class="st">&#39;Amusement&#39;</span>}</span>
-<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>palette   <span class="op">=</span> {<span class="st">&#39;Baseline&#39;</span>: <span class="st">&#39;#378ADD&#39;</span>, <span class="st">&#39;Stress&#39;</span>: <span class="st">&#39;#D85A30&#39;</span>, <span class="st">&#39;Amusement&#39;</span>: <span class="st">&#39;#1D9E75&#39;</span>}</span>
-<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>FS <span class="op">=</span> <span class="dv">4</span></span>
-<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a><span class="co"># -------------------------------------------------------</span></span>
-<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a><span class="co"># HELPER: same engineer_features as RF pipeline</span></span>
-<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a><span class="co"># -------------------------------------------------------</span></span>
-<span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> engineer_features(df, fs<span class="op">=</span><span class="dv">4</span>):</span>
-<span id="cb15-14"><a href="#cb15-14" aria-hidden="true" tabindex="-1"></a>    valid_features <span class="op">=</span> [f <span class="cf">for</span> f <span class="kw">in</span> [<span class="st">&#39;EDA&#39;</span>, <span class="st">&#39;TEMP&#39;</span>] <span class="cf">if</span> f <span class="kw">in</span> df.columns]</span>
-<span id="cb15-15"><a href="#cb15-15" aria-hidden="true" tabindex="-1"></a>    win_1min <span class="op">=</span> fs <span class="op">*</span> <span class="dv">60</span></span>
-<span id="cb15-16"><a href="#cb15-16" aria-hidden="true" tabindex="-1"></a>    win_3min <span class="op">=</span> fs <span class="op">*</span> <span class="dv">60</span> <span class="op">*</span> <span class="dv">3</span></span>
-<span id="cb15-17"><a href="#cb15-17" aria-hidden="true" tabindex="-1"></a>    groups <span class="op">=</span> []</span>
-<span id="cb15-18"><a href="#cb15-18" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> subject, group <span class="kw">in</span> df.groupby(<span class="st">&#39;subject&#39;</span>):</span>
-<span id="cb15-19"><a href="#cb15-19" aria-hidden="true" tabindex="-1"></a>        g <span class="op">=</span> group.sort_index().copy()</span>
-<span id="cb15-20"><a href="#cb15-20" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> col <span class="kw">in</span> valid_features:</span>
-<span id="cb15-21"><a href="#cb15-21" aria-hidden="true" tabindex="-1"></a>            <span class="cf">for</span> lag <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">1</span>, <span class="dv">5</span>):</span>
-<span id="cb15-22"><a href="#cb15-22" aria-hidden="true" tabindex="-1"></a>                g[<span class="ss">f&#39;</span><span class="sc">{</span>col<span class="sc">}</span><span class="ss">_lag_</span><span class="sc">{</span>lag<span class="sc">}</span><span class="ss">&#39;</span>] <span class="op">=</span> g[col].shift(lag)</span>
-<span id="cb15-23"><a href="#cb15-23" aria-hidden="true" tabindex="-1"></a>            g[<span class="ss">f&#39;</span><span class="sc">{</span>col<span class="sc">}</span><span class="ss">_roll1min_mean&#39;</span>] <span class="op">=</span> g[col].rolling(window<span class="op">=</span>win_1min, min_periods<span class="op">=</span><span class="dv">1</span>).mean()</span>
-<span id="cb15-24"><a href="#cb15-24" aria-hidden="true" tabindex="-1"></a>            g[<span class="ss">f&#39;</span><span class="sc">{</span>col<span class="sc">}</span><span class="ss">_roll1min_std&#39;</span>]  <span class="op">=</span> g[col].rolling(window<span class="op">=</span>win_1min, min_periods<span class="op">=</span><span class="dv">2</span>).std()</span>
-<span id="cb15-25"><a href="#cb15-25" aria-hidden="true" tabindex="-1"></a>            g[<span class="ss">f&#39;</span><span class="sc">{</span>col<span class="sc">}</span><span class="ss">_roll3min_mean&#39;</span>] <span class="op">=</span> g[col].rolling(window<span class="op">=</span>win_3min, min_periods<span class="op">=</span><span class="dv">1</span>).mean()</span>
-<span id="cb15-26"><a href="#cb15-26" aria-hidden="true" tabindex="-1"></a>            g[<span class="ss">f&#39;</span><span class="sc">{</span>col<span class="sc">}</span><span class="ss">_roll3min_std&#39;</span>]  <span class="op">=</span> g[col].rolling(window<span class="op">=</span>win_3min, min_periods<span class="op">=</span><span class="dv">2</span>).std()</span>
-<span id="cb15-27"><a href="#cb15-27" aria-hidden="true" tabindex="-1"></a>        groups.append(g.dropna())</span>
-<span id="cb15-28"><a href="#cb15-28" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> pd.concat(groups, ignore_index<span class="op">=</span><span class="va">True</span>)</span>
-<span id="cb15-29"><a href="#cb15-29" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-30"><a href="#cb15-30" aria-hidden="true" tabindex="-1"></a><span class="co"># -------------------------------------------------------</span></span>
-<span id="cb15-31"><a href="#cb15-31" aria-hidden="true" tabindex="-1"></a><span class="co"># 1. CHEST PAIRPLOT — raw signals, pre-normalization</span></span>
-<span id="cb15-32"><a href="#cb15-32" aria-hidden="true" tabindex="-1"></a><span class="co"># -------------------------------------------------------</span></span>
-<span id="cb15-33"><a href="#cb15-33" aria-hidden="true" tabindex="-1"></a>chest <span class="op">=</span> pd.read_csv(<span class="st">&quot;wesad_chest_clean.csv&quot;</span>)</span>
-<span id="cb15-34"><a href="#cb15-34" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-35"><a href="#cb15-35" aria-hidden="true" tabindex="-1"></a>sample_c <span class="op">=</span> pd.concat([</span>
-<span id="cb15-36"><a href="#cb15-36" aria-hidden="true" tabindex="-1"></a>    grp.sample(<span class="bu">min</span>(<span class="dv">3000</span>, <span class="bu">len</span>(grp)), random_state<span class="op">=</span><span class="dv">42</span>)</span>
-<span id="cb15-37"><a href="#cb15-37" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> _, grp <span class="kw">in</span> chest.groupby(<span class="st">&#39;label&#39;</span>)</span>
-<span id="cb15-38"><a href="#cb15-38" aria-hidden="true" tabindex="-1"></a>]).reset_index(drop<span class="op">=</span><span class="va">True</span>)</span>
-<span id="cb15-39"><a href="#cb15-39" aria-hidden="true" tabindex="-1"></a>sample_c[<span class="st">&#39;Condition&#39;</span>] <span class="op">=</span> sample_c[<span class="st">&#39;label&#39;</span>].<span class="bu">map</span>(label_map)</span>
-<span id="cb15-40"><a href="#cb15-40" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-41"><a href="#cb15-41" aria-hidden="true" tabindex="-1"></a>g <span class="op">=</span> sns.pairplot(</span>
-<span id="cb15-42"><a href="#cb15-42" aria-hidden="true" tabindex="-1"></a>    sample_c[[<span class="st">&#39;ECG&#39;</span>, <span class="st">&#39;EDA&#39;</span>, <span class="st">&#39;TEMP&#39;</span>, <span class="st">&#39;RESP&#39;</span>, <span class="st">&#39;Condition&#39;</span>]],</span>
-<span id="cb15-43"><a href="#cb15-43" aria-hidden="true" tabindex="-1"></a>    hue<span class="op">=</span><span class="st">&#39;Condition&#39;</span>,</span>
-<span id="cb15-44"><a href="#cb15-44" aria-hidden="true" tabindex="-1"></a>    palette<span class="op">=</span>palette,</span>
-<span id="cb15-45"><a href="#cb15-45" aria-hidden="true" tabindex="-1"></a>    plot_kws<span class="op">=</span>{<span class="st">&#39;alpha&#39;</span>: <span class="fl">0.3</span>, <span class="st">&#39;s&#39;</span>: <span class="dv">8</span>},</span>
-<span id="cb15-46"><a href="#cb15-46" aria-hidden="true" tabindex="-1"></a>    diag_kind<span class="op">=</span><span class="st">&#39;kde&#39;</span>,</span>
-<span id="cb15-47"><a href="#cb15-47" aria-hidden="true" tabindex="-1"></a>    corner<span class="op">=</span><span class="va">True</span></span>
-<span id="cb15-48"><a href="#cb15-48" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb15-49"><a href="#cb15-49" aria-hidden="true" tabindex="-1"></a>g.figure.suptitle(<span class="st">&#39;WESAD Chest Signals — Pre-normalization&#39;</span>, y<span class="op">=</span><span class="fl">1.01</span>, fontsize<span class="op">=</span><span class="dv">13</span>)</span>
-<span id="cb15-50"><a href="#cb15-50" aria-hidden="true" tabindex="-1"></a>plt.savefig(<span class="st">&quot;wesad_chest_pairplot.png&quot;</span>, dpi<span class="op">=</span><span class="dv">150</span>, bbox_inches<span class="op">=</span><span class="st">&#39;tight&#39;</span>)</span>
-<span id="cb15-51"><a href="#cb15-51" aria-hidden="true" tabindex="-1"></a>plt.show()</span>
-<span id="cb15-52"><a href="#cb15-52" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">&quot;Saved: wesad_chest_pairplot.png&quot;</span>)</span>
-<span id="cb15-53"><a href="#cb15-53" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-54"><a href="#cb15-54" aria-hidden="true" tabindex="-1"></a><span class="co"># -------------------------------------------------------</span></span>
-<span id="cb15-55"><a href="#cb15-55" aria-hidden="true" tabindex="-1"></a><span class="co"># 2. WRIST — raw EDA vs TEMP (from train split)</span></span>
-<span id="cb15-56"><a href="#cb15-56" aria-hidden="true" tabindex="-1"></a><span class="co"># -------------------------------------------------------</span></span>
-<span id="cb15-57"><a href="#cb15-57" aria-hidden="true" tabindex="-1"></a>train_df <span class="op">=</span> pd.read_csv(<span class="st">&quot;wesad_wrist_train.csv&quot;</span>)</span>
-<span id="cb15-58"><a href="#cb15-58" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-59"><a href="#cb15-59" aria-hidden="true" tabindex="-1"></a>sample_w <span class="op">=</span> pd.concat([</span>
-<span id="cb15-60"><a href="#cb15-60" aria-hidden="true" tabindex="-1"></a>    grp.sample(<span class="bu">min</span>(<span class="dv">3000</span>, <span class="bu">len</span>(grp)), random_state<span class="op">=</span><span class="dv">42</span>)</span>
-<span id="cb15-61"><a href="#cb15-61" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> _, grp <span class="kw">in</span> train_df.groupby(<span class="st">&#39;label&#39;</span>)</span>
-<span id="cb15-62"><a href="#cb15-62" aria-hidden="true" tabindex="-1"></a>]).reset_index(drop<span class="op">=</span><span class="va">True</span>)</span>
-<span id="cb15-63"><a href="#cb15-63" aria-hidden="true" tabindex="-1"></a>sample_w[<span class="st">&#39;Condition&#39;</span>] <span class="op">=</span> sample_w[<span class="st">&#39;label&#39;</span>].<span class="bu">map</span>(label_map)</span>
-<span id="cb15-64"><a href="#cb15-64" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-65"><a href="#cb15-65" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">6</span>, <span class="dv">5</span>))</span>
-<span id="cb15-66"><a href="#cb15-66" aria-hidden="true" tabindex="-1"></a>sns.scatterplot(data<span class="op">=</span>sample_w, x<span class="op">=</span><span class="st">&#39;TEMP&#39;</span>, y<span class="op">=</span><span class="st">&#39;EDA&#39;</span>,</span>
-<span id="cb15-67"><a href="#cb15-67" aria-hidden="true" tabindex="-1"></a>                hue<span class="op">=</span><span class="st">&#39;Condition&#39;</span>, palette<span class="op">=</span>palette,</span>
-<span id="cb15-68"><a href="#cb15-68" aria-hidden="true" tabindex="-1"></a>                alpha<span class="op">=</span><span class="fl">0.4</span>, s<span class="op">=</span><span class="dv">12</span>, ax<span class="op">=</span>ax)</span>
-<span id="cb15-69"><a href="#cb15-69" aria-hidden="true" tabindex="-1"></a>ax.set_title(<span class="st">&#39;Wrist: EDA vs TEMP — Raw (Train Split)&#39;</span>)</span>
-<span id="cb15-70"><a href="#cb15-70" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
-<span id="cb15-71"><a href="#cb15-71" aria-hidden="true" tabindex="-1"></a>plt.savefig(<span class="st">&quot;wesad_wrist_raw_scatter.png&quot;</span>, dpi<span class="op">=</span><span class="dv">150</span>)</span>
-<span id="cb15-72"><a href="#cb15-72" aria-hidden="true" tabindex="-1"></a>plt.show()</span>
-<span id="cb15-73"><a href="#cb15-73" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">&quot;Saved: wesad_wrist_raw_scatter.png&quot;</span>)</span>
-<span id="cb15-74"><a href="#cb15-74" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-75"><a href="#cb15-75" aria-hidden="true" tabindex="-1"></a><span class="co"># -------------------------------------------------------</span></span>
-<span id="cb15-76"><a href="#cb15-76" aria-hidden="true" tabindex="-1"></a><span class="co"># 3. WRIST — rolling window features (1-min and 3-min)</span></span>
-<span id="cb15-77"><a href="#cb15-77" aria-hidden="true" tabindex="-1"></a><span class="co"># -------------------------------------------------------</span></span>
-<span id="cb15-78"><a href="#cb15-78" aria-hidden="true" tabindex="-1"></a>train_engineered <span class="op">=</span> engineer_features(train_df)</span>
-<span id="cb15-79"><a href="#cb15-79" aria-hidden="true" tabindex="-1"></a>train_engineered[<span class="st">&#39;Condition&#39;</span>] <span class="op">=</span> train_engineered[<span class="st">&#39;label&#39;</span>].<span class="bu">map</span>(label_map)</span>
-<span id="cb15-80"><a href="#cb15-80" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-81"><a href="#cb15-81" aria-hidden="true" tabindex="-1"></a>sample_e <span class="op">=</span> pd.concat([</span>
-<span id="cb15-82"><a href="#cb15-82" aria-hidden="true" tabindex="-1"></a>    grp.sample(<span class="bu">min</span>(<span class="dv">3000</span>, <span class="bu">len</span>(grp)), random_state<span class="op">=</span><span class="dv">42</span>)</span>
-<span id="cb15-83"><a href="#cb15-83" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> _, grp <span class="kw">in</span> train_engineered.groupby(<span class="st">&#39;label&#39;</span>)</span>
-<span id="cb15-84"><a href="#cb15-84" aria-hidden="true" tabindex="-1"></a>]).reset_index(drop<span class="op">=</span><span class="va">True</span>)</span>
-<span id="cb15-85"><a href="#cb15-85" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-86"><a href="#cb15-86" aria-hidden="true" tabindex="-1"></a>fig, axes <span class="op">=</span> plt.subplots(<span class="dv">2</span>, <span class="dv">2</span>, figsize<span class="op">=</span>(<span class="dv">14</span>, <span class="dv">10</span>))</span>
-<span id="cb15-87"><a href="#cb15-87" aria-hidden="true" tabindex="-1"></a>fig.suptitle(<span class="st">&#39;Wrist: Rolling Window Features by Condition&#39;</span>, fontsize<span class="op">=</span><span class="dv">13</span>)</span>
-<span id="cb15-88"><a href="#cb15-88" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-89"><a href="#cb15-89" aria-hidden="true" tabindex="-1"></a>plot_pairs <span class="op">=</span> [</span>
-<span id="cb15-90"><a href="#cb15-90" aria-hidden="true" tabindex="-1"></a>    (<span class="st">&#39;EDA_roll1min_mean&#39;</span>, <span class="st">&#39;EDA_roll1min_std&#39;</span>,  <span class="st">&#39;EDA — 1-min window&#39;</span>),</span>
-<span id="cb15-91"><a href="#cb15-91" aria-hidden="true" tabindex="-1"></a>    (<span class="st">&#39;EDA_roll3min_mean&#39;</span>, <span class="st">&#39;EDA_roll3min_std&#39;</span>,  <span class="st">&#39;EDA — 3-min window&#39;</span>),</span>
-<span id="cb15-92"><a href="#cb15-92" aria-hidden="true" tabindex="-1"></a>    (<span class="st">&#39;TEMP_roll1min_mean&#39;</span>,<span class="st">&#39;TEMP_roll1min_std&#39;</span>, <span class="st">&#39;TEMP — 1-min window&#39;</span>),</span>
-<span id="cb15-93"><a href="#cb15-93" aria-hidden="true" tabindex="-1"></a>    (<span class="st">&#39;TEMP_roll3min_mean&#39;</span>,<span class="st">&#39;TEMP_roll3min_std&#39;</span>, <span class="st">&#39;TEMP — 3-min window&#39;</span>),</span>
-<span id="cb15-94"><a href="#cb15-94" aria-hidden="true" tabindex="-1"></a>]</span>
-<span id="cb15-95"><a href="#cb15-95" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-96"><a href="#cb15-96" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> ax, (xcol, ycol, title) <span class="kw">in</span> <span class="bu">zip</span>(axes.flatten(), plot_pairs):</span>
-<span id="cb15-97"><a href="#cb15-97" aria-hidden="true" tabindex="-1"></a>    sns.scatterplot(</span>
-<span id="cb15-98"><a href="#cb15-98" aria-hidden="true" tabindex="-1"></a>        data<span class="op">=</span>sample_e, x<span class="op">=</span>xcol, y<span class="op">=</span>ycol,</span>
-<span id="cb15-99"><a href="#cb15-99" aria-hidden="true" tabindex="-1"></a>        hue<span class="op">=</span><span class="st">&#39;Condition&#39;</span>, palette<span class="op">=</span>palette,</span>
-<span id="cb15-100"><a href="#cb15-100" aria-hidden="true" tabindex="-1"></a>        alpha<span class="op">=</span><span class="fl">0.4</span>, s<span class="op">=</span><span class="dv">12</span>, ax<span class="op">=</span>ax, legend<span class="op">=</span>(ax <span class="op">==</span> axes[<span class="dv">0</span>][<span class="dv">0</span>])</span>
-<span id="cb15-101"><a href="#cb15-101" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb15-102"><a href="#cb15-102" aria-hidden="true" tabindex="-1"></a>    ax.set_title(title, fontsize<span class="op">=</span><span class="dv">10</span>)</span>
-<span id="cb15-103"><a href="#cb15-103" aria-hidden="true" tabindex="-1"></a>    ax.set_xlabel(<span class="st">&#39;Rolling Mean&#39;</span>, fontsize<span class="op">=</span><span class="dv">9</span>)</span>
-<span id="cb15-104"><a href="#cb15-104" aria-hidden="true" tabindex="-1"></a>    ax.set_ylabel(<span class="st">&#39;Rolling Std&#39;</span>, fontsize<span class="op">=</span><span class="dv">9</span>)</span>
-<span id="cb15-105"><a href="#cb15-105" aria-hidden="true" tabindex="-1"></a>    ax.spines[[<span class="st">&#39;top&#39;</span>, <span class="st">&#39;right&#39;</span>]].set_visible(<span class="va">False</span>)</span>
-<span id="cb15-106"><a href="#cb15-106" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-107"><a href="#cb15-107" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">0</span>][<span class="dv">0</span>].legend(title<span class="op">=</span><span class="st">&#39;Condition&#39;</span>, fontsize<span class="op">=</span><span class="dv">8</span>, title_fontsize<span class="op">=</span><span class="dv">9</span>)</span>
-<span id="cb15-108"><a href="#cb15-108" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
-<span id="cb15-109"><a href="#cb15-109" aria-hidden="true" tabindex="-1"></a>plt.savefig(<span class="st">&quot;wesad_wrist_rolling_scatter.png&quot;</span>, dpi<span class="op">=</span><span class="dv">150</span>, bbox_inches<span class="op">=</span><span class="st">&#39;tight&#39;</span>)</span>
-<span id="cb15-110"><a href="#cb15-110" aria-hidden="true" tabindex="-1"></a>plt.show()</span>
-<span id="cb15-111"><a href="#cb15-111" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">&quot;Saved: wesad_wrist_rolling_scatter.png&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb27"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> seaborn <span class="im">as</span> sns</span>
+<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-6"><a href="#cb27-6" aria-hidden="true" tabindex="-1"></a>label_map <span class="op">=</span> {<span class="dv">1</span>: <span class="st">&#39;Baseline&#39;</span>, <span class="dv">2</span>: <span class="st">&#39;Stress&#39;</span>, <span class="dv">3</span>: <span class="st">&#39;Amusement&#39;</span>}</span>
+<span id="cb27-7"><a href="#cb27-7" aria-hidden="true" tabindex="-1"></a>palette   <span class="op">=</span> {<span class="st">&#39;Baseline&#39;</span>: <span class="st">&#39;#378ADD&#39;</span>, <span class="st">&#39;Stress&#39;</span>: <span class="st">&#39;#D85A30&#39;</span>, <span class="st">&#39;Amusement&#39;</span>: <span class="st">&#39;#1D9E75&#39;</span>}</span>
+<span id="cb27-8"><a href="#cb27-8" aria-hidden="true" tabindex="-1"></a>FS <span class="op">=</span> <span class="dv">4</span></span>
+<span id="cb27-9"><a href="#cb27-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-10"><a href="#cb27-10" aria-hidden="true" tabindex="-1"></a><span class="co"># -------------------------------------------------------</span></span>
+<span id="cb27-11"><a href="#cb27-11" aria-hidden="true" tabindex="-1"></a><span class="co"># HELPER: same engineer_features as RF pipeline</span></span>
+<span id="cb27-12"><a href="#cb27-12" aria-hidden="true" tabindex="-1"></a><span class="co"># -------------------------------------------------------</span></span>
+<span id="cb27-13"><a href="#cb27-13" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> engineer_features(df, fs<span class="op">=</span><span class="dv">4</span>):</span>
+<span id="cb27-14"><a href="#cb27-14" aria-hidden="true" tabindex="-1"></a>    valid_features <span class="op">=</span> [f <span class="cf">for</span> f <span class="kw">in</span> [<span class="st">&#39;EDA&#39;</span>, <span class="st">&#39;TEMP&#39;</span>] <span class="cf">if</span> f <span class="kw">in</span> df.columns]</span>
+<span id="cb27-15"><a href="#cb27-15" aria-hidden="true" tabindex="-1"></a>    win_1min <span class="op">=</span> fs <span class="op">*</span> <span class="dv">60</span></span>
+<span id="cb27-16"><a href="#cb27-16" aria-hidden="true" tabindex="-1"></a>    win_3min <span class="op">=</span> fs <span class="op">*</span> <span class="dv">60</span> <span class="op">*</span> <span class="dv">3</span></span>
+<span id="cb27-17"><a href="#cb27-17" aria-hidden="true" tabindex="-1"></a>    groups <span class="op">=</span> []</span>
+<span id="cb27-18"><a href="#cb27-18" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> subject, group <span class="kw">in</span> df.groupby(<span class="st">&#39;subject&#39;</span>):</span>
+<span id="cb27-19"><a href="#cb27-19" aria-hidden="true" tabindex="-1"></a>        g <span class="op">=</span> group.sort_index().copy()</span>
+<span id="cb27-20"><a href="#cb27-20" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> col <span class="kw">in</span> valid_features:</span>
+<span id="cb27-21"><a href="#cb27-21" aria-hidden="true" tabindex="-1"></a>            <span class="cf">for</span> lag <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">1</span>, <span class="dv">5</span>):</span>
+<span id="cb27-22"><a href="#cb27-22" aria-hidden="true" tabindex="-1"></a>                g[<span class="ss">f&#39;</span><span class="sc">{</span>col<span class="sc">}</span><span class="ss">_lag_</span><span class="sc">{</span>lag<span class="sc">}</span><span class="ss">&#39;</span>] <span class="op">=</span> g[col].shift(lag)</span>
+<span id="cb27-23"><a href="#cb27-23" aria-hidden="true" tabindex="-1"></a>            g[<span class="ss">f&#39;</span><span class="sc">{</span>col<span class="sc">}</span><span class="ss">_roll1min_mean&#39;</span>] <span class="op">=</span> g[col].rolling(window<span class="op">=</span>win_1min, min_periods<span class="op">=</span><span class="dv">1</span>).mean()</span>
+<span id="cb27-24"><a href="#cb27-24" aria-hidden="true" tabindex="-1"></a>            g[<span class="ss">f&#39;</span><span class="sc">{</span>col<span class="sc">}</span><span class="ss">_roll1min_std&#39;</span>]  <span class="op">=</span> g[col].rolling(window<span class="op">=</span>win_1min, min_periods<span class="op">=</span><span class="dv">2</span>).std()</span>
+<span id="cb27-25"><a href="#cb27-25" aria-hidden="true" tabindex="-1"></a>            g[<span class="ss">f&#39;</span><span class="sc">{</span>col<span class="sc">}</span><span class="ss">_roll3min_mean&#39;</span>] <span class="op">=</span> g[col].rolling(window<span class="op">=</span>win_3min, min_periods<span class="op">=</span><span class="dv">1</span>).mean()</span>
+<span id="cb27-26"><a href="#cb27-26" aria-hidden="true" tabindex="-1"></a>            g[<span class="ss">f&#39;</span><span class="sc">{</span>col<span class="sc">}</span><span class="ss">_roll3min_std&#39;</span>]  <span class="op">=</span> g[col].rolling(window<span class="op">=</span>win_3min, min_periods<span class="op">=</span><span class="dv">2</span>).std()</span>
+<span id="cb27-27"><a href="#cb27-27" aria-hidden="true" tabindex="-1"></a>        groups.append(g.dropna())</span>
+<span id="cb27-28"><a href="#cb27-28" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> pd.concat(groups, ignore_index<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb27-29"><a href="#cb27-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-30"><a href="#cb27-30" aria-hidden="true" tabindex="-1"></a><span class="co"># -------------------------------------------------------</span></span>
+<span id="cb27-31"><a href="#cb27-31" aria-hidden="true" tabindex="-1"></a><span class="co"># 1. CHEST PAIRPLOT — raw signals, pre-normalization</span></span>
+<span id="cb27-32"><a href="#cb27-32" aria-hidden="true" tabindex="-1"></a><span class="co"># -------------------------------------------------------</span></span>
+<span id="cb27-33"><a href="#cb27-33" aria-hidden="true" tabindex="-1"></a>chest <span class="op">=</span> pd.read_csv(<span class="st">&quot;wesad_chest_clean.csv&quot;</span>)</span>
+<span id="cb27-34"><a href="#cb27-34" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-35"><a href="#cb27-35" aria-hidden="true" tabindex="-1"></a>sample_c <span class="op">=</span> pd.concat([</span>
+<span id="cb27-36"><a href="#cb27-36" aria-hidden="true" tabindex="-1"></a>    grp.sample(<span class="bu">min</span>(<span class="dv">3000</span>, <span class="bu">len</span>(grp)), random_state<span class="op">=</span><span class="dv">42</span>)</span>
+<span id="cb27-37"><a href="#cb27-37" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> _, grp <span class="kw">in</span> chest.groupby(<span class="st">&#39;label&#39;</span>)</span>
+<span id="cb27-38"><a href="#cb27-38" aria-hidden="true" tabindex="-1"></a>]).reset_index(drop<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb27-39"><a href="#cb27-39" aria-hidden="true" tabindex="-1"></a>sample_c[<span class="st">&#39;Condition&#39;</span>] <span class="op">=</span> sample_c[<span class="st">&#39;label&#39;</span>].<span class="bu">map</span>(label_map)</span>
+<span id="cb27-40"><a href="#cb27-40" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-41"><a href="#cb27-41" aria-hidden="true" tabindex="-1"></a>g <span class="op">=</span> sns.pairplot(</span>
+<span id="cb27-42"><a href="#cb27-42" aria-hidden="true" tabindex="-1"></a>    sample_c[[<span class="st">&#39;ECG&#39;</span>, <span class="st">&#39;EDA&#39;</span>, <span class="st">&#39;TEMP&#39;</span>, <span class="st">&#39;RESP&#39;</span>, <span class="st">&#39;Condition&#39;</span>]],</span>
+<span id="cb27-43"><a href="#cb27-43" aria-hidden="true" tabindex="-1"></a>    hue<span class="op">=</span><span class="st">&#39;Condition&#39;</span>,</span>
+<span id="cb27-44"><a href="#cb27-44" aria-hidden="true" tabindex="-1"></a>    palette<span class="op">=</span>palette,</span>
+<span id="cb27-45"><a href="#cb27-45" aria-hidden="true" tabindex="-1"></a>    plot_kws<span class="op">=</span>{<span class="st">&#39;alpha&#39;</span>: <span class="fl">0.3</span>, <span class="st">&#39;s&#39;</span>: <span class="dv">8</span>},</span>
+<span id="cb27-46"><a href="#cb27-46" aria-hidden="true" tabindex="-1"></a>    diag_kind<span class="op">=</span><span class="st">&#39;kde&#39;</span>,</span>
+<span id="cb27-47"><a href="#cb27-47" aria-hidden="true" tabindex="-1"></a>    corner<span class="op">=</span><span class="va">True</span></span>
+<span id="cb27-48"><a href="#cb27-48" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb27-49"><a href="#cb27-49" aria-hidden="true" tabindex="-1"></a>g.figure.suptitle(<span class="st">&#39;WESAD Chest Signals — Pre-normalization&#39;</span>, y<span class="op">=</span><span class="fl">1.01</span>, fontsize<span class="op">=</span><span class="dv">13</span>)</span>
+<span id="cb27-50"><a href="#cb27-50" aria-hidden="true" tabindex="-1"></a>plt.savefig(<span class="st">&quot;wesad_chest_pairplot.png&quot;</span>, dpi<span class="op">=</span><span class="dv">150</span>, bbox_inches<span class="op">=</span><span class="st">&#39;tight&#39;</span>)</span>
+<span id="cb27-51"><a href="#cb27-51" aria-hidden="true" tabindex="-1"></a>plt.show()</span>
+<span id="cb27-52"><a href="#cb27-52" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">&quot;Saved: wesad_chest_pairplot.png&quot;</span>)</span>
+<span id="cb27-53"><a href="#cb27-53" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-54"><a href="#cb27-54" aria-hidden="true" tabindex="-1"></a><span class="co"># -------------------------------------------------------</span></span>
+<span id="cb27-55"><a href="#cb27-55" aria-hidden="true" tabindex="-1"></a><span class="co"># 2. WRIST — raw EDA vs TEMP (from train split)</span></span>
+<span id="cb27-56"><a href="#cb27-56" aria-hidden="true" tabindex="-1"></a><span class="co"># -------------------------------------------------------</span></span>
+<span id="cb27-57"><a href="#cb27-57" aria-hidden="true" tabindex="-1"></a>train_df <span class="op">=</span> pd.read_csv(<span class="st">&quot;wesad_wrist_train.csv&quot;</span>)</span>
+<span id="cb27-58"><a href="#cb27-58" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-59"><a href="#cb27-59" aria-hidden="true" tabindex="-1"></a>sample_w <span class="op">=</span> pd.concat([</span>
+<span id="cb27-60"><a href="#cb27-60" aria-hidden="true" tabindex="-1"></a>    grp.sample(<span class="bu">min</span>(<span class="dv">3000</span>, <span class="bu">len</span>(grp)), random_state<span class="op">=</span><span class="dv">42</span>)</span>
+<span id="cb27-61"><a href="#cb27-61" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> _, grp <span class="kw">in</span> train_df.groupby(<span class="st">&#39;label&#39;</span>)</span>
+<span id="cb27-62"><a href="#cb27-62" aria-hidden="true" tabindex="-1"></a>]).reset_index(drop<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb27-63"><a href="#cb27-63" aria-hidden="true" tabindex="-1"></a>sample_w[<span class="st">&#39;Condition&#39;</span>] <span class="op">=</span> sample_w[<span class="st">&#39;label&#39;</span>].<span class="bu">map</span>(label_map)</span>
+<span id="cb27-64"><a href="#cb27-64" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-65"><a href="#cb27-65" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">6</span>, <span class="dv">5</span>))</span>
+<span id="cb27-66"><a href="#cb27-66" aria-hidden="true" tabindex="-1"></a>sns.scatterplot(data<span class="op">=</span>sample_w, x<span class="op">=</span><span class="st">&#39;TEMP&#39;</span>, y<span class="op">=</span><span class="st">&#39;EDA&#39;</span>,</span>
+<span id="cb27-67"><a href="#cb27-67" aria-hidden="true" tabindex="-1"></a>                hue<span class="op">=</span><span class="st">&#39;Condition&#39;</span>, palette<span class="op">=</span>palette,</span>
+<span id="cb27-68"><a href="#cb27-68" aria-hidden="true" tabindex="-1"></a>                alpha<span class="op">=</span><span class="fl">0.4</span>, s<span class="op">=</span><span class="dv">12</span>, ax<span class="op">=</span>ax)</span>
+<span id="cb27-69"><a href="#cb27-69" aria-hidden="true" tabindex="-1"></a>ax.set_title(<span class="st">&#39;Wrist: EDA vs TEMP — Raw (Train Split)&#39;</span>)</span>
+<span id="cb27-70"><a href="#cb27-70" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
+<span id="cb27-71"><a href="#cb27-71" aria-hidden="true" tabindex="-1"></a>plt.savefig(<span class="st">&quot;wesad_wrist_raw_scatter.png&quot;</span>, dpi<span class="op">=</span><span class="dv">150</span>)</span>
+<span id="cb27-72"><a href="#cb27-72" aria-hidden="true" tabindex="-1"></a>plt.show()</span>
+<span id="cb27-73"><a href="#cb27-73" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">&quot;Saved: wesad_wrist_raw_scatter.png&quot;</span>)</span>
+<span id="cb27-74"><a href="#cb27-74" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-75"><a href="#cb27-75" aria-hidden="true" tabindex="-1"></a><span class="co"># -------------------------------------------------------</span></span>
+<span id="cb27-76"><a href="#cb27-76" aria-hidden="true" tabindex="-1"></a><span class="co"># 3. WRIST — rolling window features (1-min and 3-min)</span></span>
+<span id="cb27-77"><a href="#cb27-77" aria-hidden="true" tabindex="-1"></a><span class="co"># -------------------------------------------------------</span></span>
+<span id="cb27-78"><a href="#cb27-78" aria-hidden="true" tabindex="-1"></a>train_engineered <span class="op">=</span> engineer_features(train_df)</span>
+<span id="cb27-79"><a href="#cb27-79" aria-hidden="true" tabindex="-1"></a>train_engineered[<span class="st">&#39;Condition&#39;</span>] <span class="op">=</span> train_engineered[<span class="st">&#39;label&#39;</span>].<span class="bu">map</span>(label_map)</span>
+<span id="cb27-80"><a href="#cb27-80" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-81"><a href="#cb27-81" aria-hidden="true" tabindex="-1"></a>sample_e <span class="op">=</span> pd.concat([</span>
+<span id="cb27-82"><a href="#cb27-82" aria-hidden="true" tabindex="-1"></a>    grp.sample(<span class="bu">min</span>(<span class="dv">3000</span>, <span class="bu">len</span>(grp)), random_state<span class="op">=</span><span class="dv">42</span>)</span>
+<span id="cb27-83"><a href="#cb27-83" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> _, grp <span class="kw">in</span> train_engineered.groupby(<span class="st">&#39;label&#39;</span>)</span>
+<span id="cb27-84"><a href="#cb27-84" aria-hidden="true" tabindex="-1"></a>]).reset_index(drop<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb27-85"><a href="#cb27-85" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-86"><a href="#cb27-86" aria-hidden="true" tabindex="-1"></a>fig, axes <span class="op">=</span> plt.subplots(<span class="dv">2</span>, <span class="dv">2</span>, figsize<span class="op">=</span>(<span class="dv">14</span>, <span class="dv">10</span>))</span>
+<span id="cb27-87"><a href="#cb27-87" aria-hidden="true" tabindex="-1"></a>fig.suptitle(<span class="st">&#39;Wrist: Rolling Window Features by Condition&#39;</span>, fontsize<span class="op">=</span><span class="dv">13</span>)</span>
+<span id="cb27-88"><a href="#cb27-88" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-89"><a href="#cb27-89" aria-hidden="true" tabindex="-1"></a>plot_pairs <span class="op">=</span> [</span>
+<span id="cb27-90"><a href="#cb27-90" aria-hidden="true" tabindex="-1"></a>    (<span class="st">&#39;EDA_roll1min_mean&#39;</span>, <span class="st">&#39;EDA_roll1min_std&#39;</span>,  <span class="st">&#39;EDA — 1-min window&#39;</span>),</span>
+<span id="cb27-91"><a href="#cb27-91" aria-hidden="true" tabindex="-1"></a>    (<span class="st">&#39;EDA_roll3min_mean&#39;</span>, <span class="st">&#39;EDA_roll3min_std&#39;</span>,  <span class="st">&#39;EDA — 3-min window&#39;</span>),</span>
+<span id="cb27-92"><a href="#cb27-92" aria-hidden="true" tabindex="-1"></a>    (<span class="st">&#39;TEMP_roll1min_mean&#39;</span>,<span class="st">&#39;TEMP_roll1min_std&#39;</span>, <span class="st">&#39;TEMP — 1-min window&#39;</span>),</span>
+<span id="cb27-93"><a href="#cb27-93" aria-hidden="true" tabindex="-1"></a>    (<span class="st">&#39;TEMP_roll3min_mean&#39;</span>,<span class="st">&#39;TEMP_roll3min_std&#39;</span>, <span class="st">&#39;TEMP — 3-min window&#39;</span>),</span>
+<span id="cb27-94"><a href="#cb27-94" aria-hidden="true" tabindex="-1"></a>]</span>
+<span id="cb27-95"><a href="#cb27-95" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-96"><a href="#cb27-96" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> ax, (xcol, ycol, title) <span class="kw">in</span> <span class="bu">zip</span>(axes.flatten(), plot_pairs):</span>
+<span id="cb27-97"><a href="#cb27-97" aria-hidden="true" tabindex="-1"></a>    sns.scatterplot(</span>
+<span id="cb27-98"><a href="#cb27-98" aria-hidden="true" tabindex="-1"></a>        data<span class="op">=</span>sample_e, x<span class="op">=</span>xcol, y<span class="op">=</span>ycol,</span>
+<span id="cb27-99"><a href="#cb27-99" aria-hidden="true" tabindex="-1"></a>        hue<span class="op">=</span><span class="st">&#39;Condition&#39;</span>, palette<span class="op">=</span>palette,</span>
+<span id="cb27-100"><a href="#cb27-100" aria-hidden="true" tabindex="-1"></a>        alpha<span class="op">=</span><span class="fl">0.4</span>, s<span class="op">=</span><span class="dv">12</span>, ax<span class="op">=</span>ax, legend<span class="op">=</span>(ax <span class="op">==</span> axes[<span class="dv">0</span>][<span class="dv">0</span>])</span>
+<span id="cb27-101"><a href="#cb27-101" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb27-102"><a href="#cb27-102" aria-hidden="true" tabindex="-1"></a>    ax.set_title(title, fontsize<span class="op">=</span><span class="dv">10</span>)</span>
+<span id="cb27-103"><a href="#cb27-103" aria-hidden="true" tabindex="-1"></a>    ax.set_xlabel(<span class="st">&#39;Rolling Mean&#39;</span>, fontsize<span class="op">=</span><span class="dv">9</span>)</span>
+<span id="cb27-104"><a href="#cb27-104" aria-hidden="true" tabindex="-1"></a>    ax.set_ylabel(<span class="st">&#39;Rolling Std&#39;</span>, fontsize<span class="op">=</span><span class="dv">9</span>)</span>
+<span id="cb27-105"><a href="#cb27-105" aria-hidden="true" tabindex="-1"></a>    ax.spines[[<span class="st">&#39;top&#39;</span>, <span class="st">&#39;right&#39;</span>]].set_visible(<span class="va">False</span>)</span>
+<span id="cb27-106"><a href="#cb27-106" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-107"><a href="#cb27-107" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">0</span>][<span class="dv">0</span>].legend(title<span class="op">=</span><span class="st">&#39;Condition&#39;</span>, fontsize<span class="op">=</span><span class="dv">8</span>, title_fontsize<span class="op">=</span><span class="dv">9</span>)</span>
+<span id="cb27-108"><a href="#cb27-108" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
+<span id="cb27-109"><a href="#cb27-109" aria-hidden="true" tabindex="-1"></a>plt.savefig(<span class="st">&quot;wesad_wrist_rolling_scatter.png&quot;</span>, dpi<span class="op">=</span><span class="dv">150</span>, bbox_inches<span class="op">=</span><span class="st">&#39;tight&#39;</span>)</span>
+<span id="cb27-110"><a href="#cb27-110" aria-hidden="true" tabindex="-1"></a>plt.show()</span>
+<span id="cb27-111"><a href="#cb27-111" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">&quot;Saved: wesad_wrist_rolling_scatter.png&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 </div>
 <pre><code>Before normalization, raw signal distributions were examined across 
@@ -3638,6 +3816,15 @@ all three conditions to identify class separation patterns.
 </ul>
 </section>
 </section>
+<section id="references" class="level2">
+<h2 class="anchored" data-anchor-id="references">References</h2>
+<p>Oyeleye M, Chen T, Titarenko S, Antoniou G. A Predictive Analysis of Heart Rates Using Machine Learning Techniques. Int J Environ Res Public Health. 2022 Feb 19;19(4):2417. doi: 10.3390/ijerph19042417. PMID: 35206603; PMCID: PMC8872524.</p>
+<p>Garg P, Santhosh J, Dengel A, Ishimaru S. Stress Detection by Machine Learning and Wearable Sensors. IUI ’21 Companion. 2021. doi: 10.1145/3397482.3450732</p>
+<p>Schmidt P, Reiss A. WESAD (Wearable Stress and Affect Detection). ACM ICMI 2018. doi: 10.1145/3242969.3242985</p>
+<p>Kontopoulou VI, Panagopoulos AD, Kakkos I, Matsopoulos GK. A Review of ARIMA vs. Machine Learning Approaches for Time Series Forecasting in Data Driven Networks. Future Internet. 2023;15(8):255. doi: 10.3390/fi15080255</p>
+<p>Ziyadidegan S, Sadeghi N, Razavi M, Baharlouei E, Janfaza V, Kazeminasab S, Pesarakli H, Javid AH, Sasangohar F. Quantifying Mental Stress Using Cardiovascular Responses: A Scoping Review. 2024. PMC12300869.</p>
+
+</section>
 
 <div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" role="doc-bibliography" id="quarto-bibliography"><h2 class="anchored quarto-appendix-heading">References</h2><div id="refs" class="references csl-bib-body hanging-indent" role="list">
 <div id="ref-garg2021" class="csl-entry" role="listitem">
@@ -3648,13 +3835,6 @@ Kontopoulou, Vaia I, Athanasios D Panagopoulos, Ioannis Kakkos, and George K Mat
 </div>
 <div id="ref-oyeleye2022" class="csl-entry" role="listitem">
 Oyeleye, Matthew, Tao Chen, Sofya Titarenko, and Georgios Antoniou. 2022. <span>“A Predictive Analysis of Heart Rates Using Machine Learning Techniques.”</span> <em>International Journal of Environmental Research and Public Health</em> 19 (4): 2417. <a href="https://doi.org/10.3390/ijerph19042417">https://doi.org/10.3390/ijerph19042417</a>.
-</div>
-<div id="ref-luzz2024" class="csl-entry" role="listitem">
-Luzzani, Giorgio, Irene Buraioli, Giorgio Guglieri, and Danilo Demarchi. 2024. "EDA, PPG and Skin Temperature as Predictive Signals for Mental Failure by a Statistical Analysis on Stress and Mental Workload." IEEE Open Journal of Engineering in Medicine and Biology, ahead of print. <a href="https://doi.org/10.1109/OJEMB.2024.3515473">https://doi.org/10.1109/OJEMB.2024.3515473</a>.
-</div>
-
-<div id="ref-sosa2026" class="csl-entry" role="listitem">
-Sosa, Santiago, Adam K. Fontecchio, Evangelia G. Chrysikou, and Jennifer S. Atchison. 2026. "Beyond EDA: A Systematic Review of Multimodal Sympathetic Nervous System Arousal Classification for Stress Detection." Sensors 26 (5): 1584. <a href=" https://doi.org/10.3390/s26051584">https://doi.org/10.3390/s26051584</a>.
 </div>
 <div id="ref-schmidt2018" class="csl-entry" role="listitem">
 Schmidt, Philip, and Attila Reiss. 2018. <span>“WESAD (Wearable Stress and Affect Detection).”</span> <em>ACM ICMI 2018</em>, ahead of print. <a href="https://doi.org/10.1145/3242969.3242985">https://doi.org/10.1145/3242969.3242985</a>.

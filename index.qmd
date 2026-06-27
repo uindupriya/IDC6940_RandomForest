@@ -72,7 +72,7 @@ We chose the Random Forest algorithm for this comparative time-series framework 
 ### Assumptions of Random Forest
 
 ## OPERATIONAL EXPERIMENT FINDINGS:
-  While Random Forest demonstrates near-perfect classification capabilities on baseline individuals (S2 and S4 achieving an F1-macro of 1.00), it remains highly susceptible to physiological transition overlap. For Subject S3, the model completely failed to distinguish between the late baseline neutral state and the early stress onset state, defaulting to global stress classification (Stress recall = 1.00, Neutral recall = 0.00) [WESAD]. This proves that tabular classifiers struggle when human physiological indicators shift gradually rather than abruptly.
+  While Random Forest demonstrates near-perfect classification capabilities on baseline individuals (S2 and S4 achieving an F1-macro of 1.00), it remains highly susceptible to physiological transition overlap. For Subject S3, the model completely failed to distinguish between the late baseline neutral state and the early stress onset state, defaulting to global stress classification (Stress recall = 1.00, Neutral recall = 0.00[@schmidt2018]. This proves that tabular classifiers struggle when human physiological indicators shift gradually rather than abruptly.
 
 
 ## THE CORE ASSUMPTIONS OF RANDOM FOREST (TIME-SERIES CONTEXT):
@@ -90,7 +90,7 @@ We chose the Random Forest algorithm for this comparative time-series framework 
 
   ### HOW THE VARIABLES WERE TRANSFORMED (OUR SOLUTIONS):
   To satisfy these assumptions and make the WESAD variables ready for prediction, we 
-  implemented three mandatory engineering transformations [WESAD]:
+  implemented three mandatory engineering transformations [@garg2021]:
  
   - Transformation A: Subject-Specific Standardization (Locally Scaled)
     The Action: We transformed the raw variables (ECG, EDA, TEMP) using StandardScaler 
@@ -111,27 +111,54 @@ We chose the Random Forest algorithm for this comparative time-series framework 
   - Transformation C: Chronological Condition-Block Stratification
     The Action: We transformed how the training and testing matrices were sliced by performing 
     an 80/20 sequential split inside each isolated experimental condition block (Neutral, Stress, 
-    Amusement) [WESAD].
+    Amusement) [@schmidt2018].
     The Reason: This preserves the real-world sequence of the timeline while forcing both the 
     training and testing datasets to hold a representative distribution of all three target 
-    states, solving the classification target-mismatch issue [WESAD].
+    states, solving the classification target-mismatch issue [@kontopoulou2023].
 
 $$ M_n(x) = \sum_{i=1}^{n} W_n (X_i) Y_i \tag{1} $$
 
 *$W_n(x)$ is the sum of weights that belongs to all real numbers. Weights are positive numbers and small if $X_i$ is far from $x$.*
 
 #### Justification of Choices Based on Problem and Data
-This non-parametric local averaging framework (Equation 1) is explicitly chosen for our WESAD wearable sensor prediction task instead of standard parametric regression algorithms, which typically assume a strict linear profile [WESAD]:
+This non-parametric local averaging framework (Equation 1) is explicitly chosen for our WESAD wearable sensor prediction task instead of standard parametric regression algorithms, which typically assume a strict linear profile [@schmidt2018]:
 
 $$ y_i = \beta_0 + \beta_1 X_1 +\varepsilon_i \tag{2} $$
 
-A parametric linear model (Equation 2) assumes a constant, straight-line relationship that completely fails when applied to the complex, non-linear biological response profiles found within multi-modal wearable sensor streams [WESAD]. We chose the Random Forest framework based on three specific data properties that align with this non-parametric local estimation approach:
+A parametric linear model (Equation 2) assumes a constant, straight-line relationship that completely fails when applied to the complex, non-linear biological response profiles found within multi-modal wearable sensor streams [@ziyadidegan2025]. We chose the Random Forest framework based on three specific data properties that align with this non-parametric local estimation approach:
 
-- **Handling of Non-Linear Physiological Interaction:** Autonomic nervous system responses do not follow strict linear bounds; a spike in skin conductance (EDA) combined with a drop in skin temperature (TEMP) creates highly complex, non-linear patterns during stress episodes [WESAD]. Random Forest handles these multi-modal, non-linear relationships out of the box through step-wise feature space partitioning without requiring restrictive linear coefficients like those in Equation 2.
-- **Robustness to Sensor Artifacts and Noise:** Wearable sensor data collected in the field is prone to sudden movement artifacts and temporary data dropouts [WESAD]. Because Random Forest splits nodes by evaluating localized subsets of data and features via the Gini impurity index, it acts as a robust local estimator, preventing individual extreme outliers or sensor errors from corrupting the global classification boundaries.
-- **Resistance to Temporal Overfitting:** High-frequency biological streams exhibit intense temporal autocorrelation, which can cause standard models to overfit on specific timeline segments. By utilizing independent bootstrap samples for each tree and forcing a structural 80/20 chronological split inside isolated condition blocks, the Random Forest maintains strict out-of-sample operational testing validity [WESAD].
+- **Handling of Non-Linear Physiological Interaction:** Autonomic nervous system responses do not follow strict linear bounds; a spike in skin conductance (EDA) combined with a drop in skin temperature (TEMP) creates highly complex, non-linear patterns during stress episodes [@ziyadidegan2025]. Random Forest handles these multi-modal, non-linear relationships out of the box through step-wise feature space partitioning without requiring restrictive linear coefficients like those in Equation 2.
+- **Robustness to Sensor Artifacts and Noise:** Wearable sensor data collected in the field is prone to sudden movement artifacts and temporary data dropouts [@garg2021]. Because Random Forest splits nodes by evaluating localized subsets of data and features via the Gini impurity index, it acts as a robust local estimator, preventing individual extreme outliers or sensor errors from corrupting the global classification boundaries.
+- **Resistance to Temporal Overfitting:** High-frequency biological streams exhibit intense temporal autocorrelation, which can cause standard models to overfit on specific timeline segments. By utilizing independent bootstrap samples for each tree and forcing a structural 80/20 chronological split inside isolated condition blocks, the Random Forest maintains strict out-of-sample operational testing validity [@kontopoulou2023].
 
-### Data Ingestion
+
+
+#### Normalization
+
+Prior to model training, raw physiological signals (ECG, EDA) were normalized using subject-specific StandardScaler to remove individual baseline biological variance. Each subject's training partition was fitted independently to prevent data leakage across subjects. The normalization formula applied is:
+
+$$z = \frac{x - \mu}{\sigma}$$
+
+where $x$ is the raw signal value, $\mu$ is the subject-specific mean, 
+and $\sigma$ is the subject-specific standard deviation computed strictly 
+within the training partition [@schmidt2018].
+
+#### Rolling Window Features
+
+To capture the temporal dynamics of physiological stress responses, rolling window features were engineered from the normalized ECG and EDA signals. For each signal at time $t$, a window of size $w$ was applied to compute the rolling mean:
+
+$$\mu_{t,w} = \frac{1}{w}\sum_{i=t-w+1}^{t} x_i$$
+
+and rolling standard deviation:
+
+$$\sigma_{t,w} = \sqrt{\frac{1}{w}\sum_{i=t-w+1}^{t}(x_i - \mu_{t,w})^2}$$
+
+Two window sizes were applied which are 1-minute and 3-minute windows inorder to capture both short-term stress onset patterns and longer-term sustained stress responses [@ziyadidegan2025]. These rolling features give the Random Forest model an explicit temporal context window, partially 
+compensating for its lack of built-in sequential awareness [@kontopoulou2023].
+
+#### Feature Importance
+
+Random Forest provides a built-in feature importance measure based on the mean decrease in impurity across all trees for each feature. This was used to identify which physiological signals and rolling window features most strongly predicted stress state classification across subjects S2, S3, and S4 from the WESAD dataset [@garg2021].
 
 ## Data Ingestion and Automated Feature Alignment
 
@@ -149,6 +176,110 @@ Valid Features={𝑓∈{ECG, EDA, TEMP}∣𝑓∈𝐂DataFrame}
 
 By isolating the timelines within individual subject blocks and explicitly invoking a index-sorting mechanism (.sort_index()), the ingestion layer provides a clear guarantee: no row from Subject A can accidentally inherit historical lag metrics from Subject B.Any boundary artifacts created by tracking changes at the very beginning of a subject's timeline are handled by a .dropna() filter, leaving a clean, continuous, and fully isolated data structure for model training.
 
+### Pre processing
+
+```{python}
+import pickle
+import numpy as np
+import pandas as pd
+import os
+
+subjects = [
+    'S2','S3','S4','S5','S6','S7','S8','S9',
+    'S10','S11','S13','S14','S15','S16','S17'
+]
+VALID_LABELS = [1, 2, 3]
+chest_dfs = []
+wrist_dfs = []
+
+print("Starting WESAD preprocessing pipeline...")
+
+# ----------------------------------------------------
+# MAIN LOOP
+# ----------------------------------------------------
+for subject in subjects:
+    path = f'/home/iu6/IDC6940_RandomForest/Dataset_WESAD/{subject}/{subject}.pkl'
+    if not os.path.exists(path):
+        print(f"[SKIP] {subject} not found")
+        continue
+        
+    print(f"\nProcessing {subject}...")
+    with open(path, 'rb') as f:
+        data = pickle.load(f, encoding='latin1')
+        
+    # Get the raw, unbroken 700Hz timeline bounds
+    raw_labels = np.array(data['label']).flatten()
+    raw_ecg = np.array(data['signal']['chest']['ECG']).flatten()
+    raw_eda = np.array(data['signal']['chest']['EDA']).flatten()
+    raw_temp = np.array(data['signal']['chest']['Temp']).flatten()
+    raw_resp = np.array(data['signal']['chest']['Resp']).flatten()
+    
+    # Track minimum length to trim trailing-end sensor shutoff mismatches safely
+    min_len = min(len(raw_labels), len(raw_ecg), len(raw_eda), len(raw_temp), len(raw_resp))
+
+    # -------------------------
+    # CHEST SIGNALS (100% continuous for NeuroKit2 windowing)
+    # -------------------------
+    chest_df = pd.DataFrame({
+        'subject': subject,
+        'ECG': raw_ecg[:min_len],
+        'EDA': raw_eda[:min_len],
+        'TEMP': raw_temp[:min_len],
+        'RESP': raw_resp[:min_len],
+        'label': raw_labels[:min_len]  # Keeps ALL labels (0,1,2,3,4...) so data stays unbroken
+    })
+    
+    # Handle artifacts without changing the shape or deleting rows
+    chest_df.loc[(chest_df['TEMP'] <= 20) | (chest_df['TEMP'] >= 45), 'TEMP'] = np.nan
+    chest_df.loc[chest_df['EDA'] < 0, 'EDA'] = np.nan
+    chest_df = chest_df.ffill().bfill()  # Cleans sensor errors seamlessly
+    chest_df = chest_df[chest_df['label'].isin(VALID_LABELS)]
+
+    
+    chest_dfs.append(chest_df)
+    print(f"[CHEST CONTINUOUS] {subject}: {chest_df.shape}")
+
+    # -------------------------
+    # WRIST SIGNALS (Downsampled labels to match native 4Hz sensors)
+    # -------------------------
+    wrist_eda = np.array(data['signal']['wrist']['EDA']).flatten()
+    wrist_temp = np.array(data['signal']['wrist']['TEMP']).flatten()
+    
+    
+    wrist_len = min(len(wrist_eda), len(wrist_temp))
+    # Pick every 175th label to match the slow 4Hz wrist sensors perfectly by time
+    wrist_labels = np.array([np.bincount(raw_labels[i:i+175]).argmax() for i in range(0, len(raw_labels), 175)])[:wrist_len]
+    
+    wrist_df = pd.DataFrame({
+        'subject': subject,
+        'EDA': wrist_eda[:wrist_len],
+        'TEMP': wrist_temp[:wrist_len],
+        'label': wrist_labels
+    })
+    
+    # Wrist can be filtered row-by-row because her NeuroKit pipeline isn't analyzing the wrist
+    wrist_df = wrist_df[wrist_df['label'].isin(VALID_LABELS)]
+    wrist_df = wrist_df.dropna()
+    wrist_dfs.append(wrist_df)
+    print(f"[WRIST CLEAN] {subject}: {wrist_df.shape}")
+
+# ----------------------------------------------------
+# FINAL DATASET EXPORT
+# ----------------------------------------------------
+print("\nCombining datasets...")
+chest_final = pd.concat(chest_dfs, ignore_index=True)
+wrist_final = pd.concat(wrist_dfs, ignore_index=True)
+
+print("\nFinal Chest shape (Continuous):", chest_final.shape)
+print("Final Wrist shape (Clean Tabular):", wrist_final.shape)
+
+chest_final.to_csv("wesad_chest_clean.csv", index=False)
+wrist_final.to_csv("wesad_wrist_clean.csv", index=False)
+print("\nSaved cleaned datasets successfully. Ready for handoff!")
+
+
+```
+#| code-fold: true
 
 
 ```{python}
