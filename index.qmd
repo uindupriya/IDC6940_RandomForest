@@ -31,20 +31,118 @@ Stress detection in real-time, and more importantly biomarkers, have gained inte
 In this paper, we hope to explore whether it is possible for the simpler ARIMA model to predict stress state at the same accuracy of a machine learning model like Random Forest. If the ARIMA can perform similar to or greater, this makes an argument that it is still possible to predict stress in physiological signals without the intensive training needed in machine learning, despite ARIMA’s assumptions and limitations. To explore this, we chose the WESAD dataset, which contains multimodal physiological data collected from participants as they underwent different activities, such as no-stress, stress, and amusement. Based on our literature review, we have found that the best physiological signals for predicting stress state that are also provided by the dataset include HR, HRV, and EDA, and that these metrics can be enhanced with secondary metrics such as RESP and TEMP. One paper, [@oyeleye2022] found that the accuracy of ARIMA prediction can be heavily improved using the “rolling window” approach. This helped the model predict based on the signal during different windows of time instead of treating each sample independently of the other. In our methodology we plan to create a pipeline to preprocess the data, compute our feature metrics, derive rolling windows, and predict a given metric using both ARIMA and Random Forest in order to compare the model’s accuracy. 
 
 
-## Literature review
-
-
 ARIMA, which stands for Autoregressive Integrated Moving Average, is a classical statistical model widely used for time-series forecasting that captures temporal dependencies within a signal using its own past values and error terms. [@kontopoulou2023] found that ARIMA remains a broadly used and interpretable approach, particularly well-suited for structured, lower-dimensional datasets where its linearity assumptions hold reasonably well. Critically, [@ziyadidegan2025] identified ARIMA as an underutilized but promising method specifically for physiological stress research, appearing in only 3 of 119 reviewed cardiovascular stress studies despite its recognized capacity to capture temporal rhythms in cardiovascular and electrodermal signals. Given that ECG-derived metrics reflect the electrical activity of the heart and EDA captures the skin's electrodermal response to psychological arousal, both of which change measurably during stress, the temporal structure of these signals makes them theoretically well-suited for time-series modeling through ARIMA with a rolling window approach. If stress-related changes in ECG and EDA follow predictable temporal patterns, ARIMA may be capable of detecting stress states without the computational demands of machine learning, a question this study directly investigates. 
 
 A systematic review of the literature on the classification of multimodal sympathetic and parasympathetic nervous system arousal showed that EDA, a measure of sympathetic nervous system activity, and HRV, a measure of parasympathetic nervous system activity, are a more complete reconstruction of autonomic state than either signal alone. We therefore chose respiration as our indicator of stress because it provides an additional measurement of the changes in breathing pattern that occur when a person is stressed, as well as the electrodermal response measured by EDA.
 
 Random Forest is an ensemble machine learning method that builds multiple decision trees and aggregates their outputs to produce robust classifications, making no assumptions about the linearity or distribution of the underlying data. [@garg2021] evaluated Random Forest alongside several other classifiers including k-NN, Linear Discriminant Analysis, AdaBoost, and Support Vector Machine on the WESAD dataset, finding that Random Forest achieved consistently strong performance across both binary stress versus non-stress and three-class neutral, stress, and amusement classification tasks. [@schmidt2018], who originally introduced the WESAD dataset, a multimodal physiological signal collection from 15 subjects recorded across controlled stress, baseline, and amusement conditions using wrist-worn and chest-worn devices capturing signals including ECG and EDA among others, also conducted preliminary Random Forest experiments achieving 88.33% baseline accuracy, further establishing it as the benchmark comparator for this study. Together, these findings position Random Forest as a well-validated and high-performing method for stress classification on WESAD, and the central question of this study is whether the simpler, interpretable ARIMA model can achieve comparable predictive performance on ECG and EDA signals alone.
 
+### Descriptive Statistics
+
+Table 1 presents descriptive statistics for the four physiological 
+signals across the three stress conditions. EDA shows the most notable 
+difference across conditions, with mean EDA rising from 3.43 during 
+Neutral to 4.79 during Stress — a 40% increase — confirming 
+electrodermal activity as a reliable stress indicator [@ziyadidegan2025]. 
+RESP also shows higher variability during Stress (std = 3.57) compared 
+to Neutral (std = 2.08), suggesting irregular breathing patterns under 
+stress. ECG mean values remain consistent across conditions but show 
+slightly higher standard deviation during Stress (0.252 vs 0.227), 
+reflecting increased heart rate variability. TEMP shows minimal 
+difference across conditions.
+
+| Condition | ECG Mean | ECG Std | EDA Mean | EDA Std | TEMP Mean | TEMP Std | RESP Mean | RESP Std |
+|-----------|----------|---------|----------|---------|-----------|----------|-----------|----------|
+| Neutral   | 0.001    | 0.227   | 3.426    | 2.622   | 31.039    | 1.787    | 0.051     | 2.078    |
+| Stress    | 0.001    | 0.252   | 4.790    | 2.834   | 32.476    | 1.083    | 0.049     | 3.574    |
+| Amusement | 0.001    | 0.215   | 3.400    | 3.288   | 32.764    | 0.460    | 0.054     | 2.164    |
+
+*Table 1: Descriptive statistics (mean and standard deviation) for ECG, 
+EDA, TEMP, and RESP signals across Neutral, Stress, and Amusement 
+conditions from the WESAD chest sensor dataset (N = 15 subjects) 
+[@schmidt2018].*
+
+Before normalization, raw signal distributions were examined across 
+all three conditions to identify class separation patterns.
+
+![WESAD Chest Signals — Pre-normalization](wesad_chest_pairplot.png){width=100%}
+
+![Wrist: EDA vs TEMP — Raw](wesad_wrist_raw_scatter.png){width=70%}
+
+![Wrist: Rolling Window Features by Condition](wesad_wrist_rolling_scatter.png){width=90%}
+
+
+![WESAD Chest Signals — Post-normalization](wesad_wrist_normalization_comparison.png){width=100%}
+
 
 ## Methods
 
-## Analysis
+### Participant Selection
+Before training our models, we must first pre-process the physiological data for participants S2, S3, and S4. These three are participants with complete datasets and show as a proof of concept for predicting stress state using both the ARIMA and RF models. In this project we will compare classification metrics per participant and overall participants using their z-scored values. [paper 9] 
 
+### Preprocessing and Normalization
+Raw physical signals for ECG, EDA, RESP, and TEMP were extracted for the participants. The signals were trimmed to the minimum common length across signals for proper alignment. Physiologically implausible values were treated as artifacts such as temperature ranging outside 25-45 degrees Celsius and negative EDA values. These artifacts were imputed using forward-and-backward filling to preserve temporal continuity. [paper] Only stress, baseline, and amusement states [labels 1-3] were retained for chest signals, and to synchronize with wrist signals, were down sampled from 700Hz to 4Hz using majority-vote labeling within each 175-sample interval.
+
+With our physio data pre-processed, it could then be normalized to meet the assumptions of our models. [@oyeleye2022, @kontopoulou2023] The chest and wrist datasets were split into training (80%) and testing (20%) sets using a block-stratified chronological split. For each participant, the first 80% of each condition block was assigned for training, with the remaining 20% held out for testing. This method preserved temporal order and ensured all conditions (stress, baseline, and amusement) were represented in both sets.
+Feature normalization was performed for each subject separately using StandardScaler. Scaling parameters (mean and standard deviation) was estimated using only the training set and then applied to both the training and the test set. This transformed each physiological feature into a standardized z-score and prevented information leakage from the test set. 
+The z-score transformation can be represented as 
+$$ z = \frac{x - \mu}{\sigma} $$
+Where x is the original observation, $/mu$ is the mean of the training data, and $/sigma$ is the standard deviation. This centers each feature around zero and scales it to unit variance, allowing ECG, EDA, RESP, and TEMP features to be compared on a common scale. 
+
+#### Rolling Window Features
+
+To capture the temporal dynamics of physiological stress responses, rolling window features were engineered from the normalized ECG and EDA signals. For each signal at time $t$, a window of size $w$ was applied to compute the rolling mean:
+
+$$\mu_{t,w} = \frac{1}{w}\sum_{i=t-w+1}^{t} x_i$$
+
+and rolling standard deviation:
+
+$$\sigma_{t,w} = \sqrt{\frac{1}{w}\sum_{i=t-w+1}^{t}(x_i - \mu_{t,w})^2}$$
+
+Two window sizes were applied which are 1-minute and 3-minute windows in order to capture both short-term stress onset patterns and longer-term sustained stress responses [@ziyadidegan2025]. These rolling features give the Random Forest model an explicit temporal context window, partially 
+compensating for its lack of built-in sequential awareness [@kontopoulou2023].
+
+## Assumptions of ARIMA
+
+ARIMA, or Autoregressive Integrated Moving Average, predicts a future observation using a combination of past observations and forecasting errors.
+
+$$
+\text{ARIMA}(p,d,q)
+$$
+
+where:
+
+- $p$ = number of autoregressive (AR) terms, which use previous observations to predict the current value.
+- $d$ = number of differencing operations applied to make the time series stationary.
+- $q$ = number of moving average (MA) terms, which use previous forecast errors to improve future predictions.
+
+### The Core Assumptions:
+ - Assumption of Stationarity: ARIMA assumes that the series is stationary, meaning that the statistical properties of the time series are relatively constant over time. In physiological data, trends/shift may occur during changes in activity. 
+ - Assumptions of Linear Temporal Dependence: ARIMA assumes the future predicted values can be explained by a linear combination of previous observations (autoregression) and previous forecasting errors (moving average). It cannot model complex nonlinear relationships between physio signals directly, because of this the autoregressive parameter 'p' is usually much higher when predicting physio data, weighing heavily previous observations.
+ 
+An ARIMA$(p,d,q)$ model is defined as
+
+$$
+\phi(B)(1-B)^d y_t = c + \theta(B)\varepsilon_t
+$$
+
+where:
+
+- $y_t$ is the observed physiological signal at time $t$,
+- $B$ is the backshift operator ($By_t = y_{t-1}$),
+- $d$ is the order of differencing required to achieve stationarity,
+- $\phi(B)$ is the autoregressive polynomial of order $p$,
+- $\theta(B)$ is the moving average polynomial of order $q$,
+- $c$ is a constant term,
+- $\varepsilon_t$ represents random white-noise errors.
+ 
+### ARIMA Classification Framework
+ - Transformation A Continuous Forecast Generation: 
+  The Action: When later categorizing a continuous variable, it is necessary for the continuous variable to remain continuous for as long as possible.  ARIMA produced continuous forecasts for each physiological signal. 
+  The Result: Taking the rolling windows, the model was able to make predictions in a way that helped preserve the physiological trend as outlined in [@oyeleye2022]
+ - Transformation B Participant-Specific State Classification:
+  The Action: To then categorize the ARIMA prediction, the forecast was compared against participant-specific ranges derived from the training data (rolling windows) during the activities to assign Baseline, Stress, or Amusement labels. [@aigrain2015, @beltran2024]
+  The Reason: With the ARIMA output categorized, it can then by evaluated using the same classification metrics as Random Forest in order to answer our hypothesis.
 
 
 ### Random Forest Classification Framework
@@ -71,11 +169,7 @@ We chose the Random Forest algorithm for this comparative time-series framework 
 
 ### Assumptions of Random Forest
 
-## OPERATIONAL EXPERIMENT FINDINGS:
-  While Random Forest demonstrates near-perfect classification capabilities on baseline individuals (S2 and S4 achieving an F1-macro of 1.00), it remains highly susceptible to physiological transition overlap. For Subject S3, the model completely failed to distinguish between the late baseline neutral state and the early stress onset state, defaulting to global stress classification (Stress recall = 1.00, Neutral recall = 0.00) [WESAD]. This proves that tabular classifiers struggle when human physiological indicators shift gradually rather than abruptly.
-
-
-## THE CORE ASSUMPTIONS OF RANDOM FOREST (TIME-SERIES CONTEXT):
+#### The Core Assumptions:
   - Assumption of Sample Independence (The Time-Series Violation): Random Forest assumes 
     that each row of data is an independent observation. In time-series physiological data, 
     this assumption is completely violated due to temporal autocorrelation (your heart rate 
@@ -88,9 +182,9 @@ We chose the Random Forest algorithm for this comparative time-series framework 
     recognize sequential order or velocity. It treats a static signal value the same way 
     whether that signal is spiking upward or crashing downward.
 
-  ### HOW THE VARIABLES WERE TRANSFORMED (OUR SOLUTIONS):
+  ## How the variables are transformed (Our Solution):
   To satisfy these assumptions and make the WESAD variables ready for prediction, we 
-  implemented three mandatory engineering transformations [WESAD]:
+  implemented three mandatory engineering transformations [@garg2021]:
  
   - Transformation A: Subject-Specific Standardization (Locally Scaled)
     The Action: We transformed the raw variables (ECG, EDA, TEMP) using StandardScaler 
@@ -111,47 +205,152 @@ We chose the Random Forest algorithm for this comparative time-series framework 
   - Transformation C: Chronological Condition-Block Stratification
     The Action: We transformed how the training and testing matrices were sliced by performing 
     an 80/20 sequential split inside each isolated experimental condition block (Neutral, Stress, 
-    Amusement) [WESAD].
+    Amusement) [@schmidt2018].
     The Reason: This preserves the real-world sequence of the timeline while forcing both the 
     training and testing datasets to hold a representative distribution of all three target 
-    states, solving the classification target-mismatch issue [WESAD].
+    states, solving the classification target-mismatch issue [@kontopoulou2023].
 
 $$ M_n(x) = \sum_{i=1}^{n} W_n (X_i) Y_i \tag{1} $$
 
 *$W_n(x)$ is the sum of weights that belongs to all real numbers. Weights are positive numbers and small if $X_i$ is far from $x$.*
 
 #### Justification of Choices Based on Problem and Data
-This non-parametric local averaging framework (Equation 1) is explicitly chosen for our WESAD wearable sensor prediction task instead of standard parametric regression algorithms, which typically assume a strict linear profile [WESAD]:
+This non-parametric local averaging framework (Equation 1) is explicitly chosen for our WESAD wearable sensor prediction task instead of standard parametric regression algorithms, which typically assume a strict linear profile [@schmidt2018]:
 
 $$ y_i = \beta_0 + \beta_1 X_1 +\varepsilon_i \tag{2} $$
 
-A parametric linear model (Equation 2) assumes a constant, straight-line relationship that completely fails when applied to the complex, non-linear biological response profiles found within multi-modal wearable sensor streams [WESAD]. We chose the Random Forest framework based on three specific data properties that align with this non-parametric local estimation approach:
+A parametric linear model (Equation 2) assumes a constant, straight-line relationship that completely fails when applied to the complex, non-linear biological response profiles found within multi-modal wearable sensor streams [@ziyadidegan2025]. We chose the Random Forest framework based on three specific data properties that align with this non-parametric local estimation approach:
 
-- **Handling of Non-Linear Physiological Interaction:** Autonomic nervous system responses do not follow strict linear bounds; a spike in skin conductance (EDA) combined with a drop in skin temperature (TEMP) creates highly complex, non-linear patterns during stress episodes [WESAD]. Random Forest handles these multi-modal, non-linear relationships out of the box through step-wise feature space partitioning without requiring restrictive linear coefficients like those in Equation 2.
-- **Robustness to Sensor Artifacts and Noise:** Wearable sensor data collected in the field is prone to sudden movement artifacts and temporary data dropouts [WESAD]. Because Random Forest splits nodes by evaluating localized subsets of data and features via the Gini impurity index, it acts as a robust local estimator, preventing individual extreme outliers or sensor errors from corrupting the global classification boundaries.
-- **Resistance to Temporal Overfitting:** High-frequency biological streams exhibit intense temporal autocorrelation, which can cause standard models to overfit on specific timeline segments. By utilizing independent bootstrap samples for each tree and forcing a structural 80/20 chronological split inside isolated condition blocks, the Random Forest maintains strict out-of-sample operational testing validity [WESAD].
+- **Handling of Non-Linear Physiological Interaction:** Autonomic nervous system responses do not follow strict linear bounds; a spike in skin conductance (EDA) combined with a drop in skin temperature (TEMP) creates highly complex, non-linear patterns during stress episodes [@ziyadidegan2025]. Random Forest handles these multi-modal, non-linear relationships out of the box through step-wise feature space partitioning without requiring restrictive linear coefficients like those in Equation 2.
+- **Robustness to Sensor Artifacts and Noise:** Wearable sensor data collected in the field is prone to sudden movement artifacts and temporary data dropouts [@garg2021]. Because Random Forest splits nodes by evaluating localized subsets of data and features via the Gini impurity index, it acts as a robust local estimator, preventing individual extreme outliers or sensor errors from corrupting the global classification boundaries.
+- **Resistance to Temporal Overfitting:** High-frequency biological streams exhibit intense temporal autocorrelation, which can cause standard models to overfit on specific timeline segments. By utilizing independent bootstrap samples for each tree and forcing a structural 80/20 chronological split inside isolated condition blocks, the Random Forest maintains strict out-of-sample operational testing validity [@kontopoulou2023].
 
-### Data Ingestion
+
+#### Feature Importance
+
+Random Forest provides a built-in feature importance measure based on the mean decrease in impurity across all trees for each feature. This was used to identify which physiological signals and rolling window features most strongly predicted stress state classification across subjects S2, S3, and S4 from the WESAD dataset [@garg2021].
 
 ## Data Ingestion and Automated Feature Alignment
 
 The initial phase of the predictive pipeline establishes a robust data ingestion layer designed to load partitioned datasets, dynamically detect available sensor modalities, and enforce structural timeline isolation.
  Ingestion Protocols and Format Mapping - The processing script programmatically interfaces with two pre-arranged disk files: wesad_wrist_train.csv (the training matrix) and wesad_wrist_test.csv (the holdout evaluation matrix). The ingestion sequence is mapped via the pandas framework using explicit memory allocation constraints:Tabular Parsing: The continuous comma-separated streams are read into isolated memory frames (train_df and test_df) as multi-column tabular arrays.DataFrame Casting: Arrays are strictly enforced as traditional mutable matrices (as.data.frame structural equivalents) to allow downstream indexing and chronological row transformations.Random State Initialization: To stabilize any internal stochastic data handling or bootstrapping mechanisms during the initial load phase, a global seed is instantiated using random_state=42. Dynamic Channel Scanning and Feature Verification - Because wearable sensor platforms can experience hardware dropouts, or variations between chest-worn and wrist-worn sensor matrices, the ingestion layer implements a dynamic channel scanner.
 
-The system verifies a default physiological target array consisting of Electrodermal Activity (EDA), Body Temperature (TEMP), and Electrocardiogram (ECG) metrics. Rather than assuming strict structural permanence, the ingestion function runs an inline list comprehension:Valid Features={f∈{ECG, EDA, TEMP}∣f∈CDataFrame}Valid Features equals the set of all f is an element of the set ECG, EDA, TEMP end-set such that f is an element of bold cap C sub DataFrame end-sub end-set
+The system verifies a default physiological target array consisting of Electrodermal Activity (EDA), Body Temperature (TEMP), and Electrocardiogram (ECG) metrics. Rather than assuming strict structural permanence, the ingestion function runs an inline list comprehension.
+The ingestion layer dynamically scans for available sensor channels rather than assuming fixed column structure. Only signals present in 
+the loaded CSV are passed downstream — if a sensor modality is missing, the pipeline skips it gracefully without crashing. This makes the 
+pipeline robust to differences between chest and wrist sensor files.
 
-Valid Features={𝑓∈{ECG, EDA, TEMP}∣𝑓∈𝐂DataFrame}
 
- ∣𝑓∈𝐂DataFrame represents the total set of column strings parsed from the file header. Only features that pass this verification step are pushed into the downstream temporal context matrix, preventing runtime compilation failures if a specific signal modality is missing from the wrist file structure.
-
-
- Chronological Grouping and Boundary Defense - To maintain strict data integrity during ingestion and prevent cross-subject timeline pollution, the loading sequence prevents global, un-grouped data operations.Data matrices are partitioned into isolated historical blocks using a split-apply-combine approach on the categorical subject identifier. This ensures that the chronological continuity of each participant's biometric timeline is preserved:
+Chronological Grouping and Boundary Defense - To maintain strict data integrity during ingestion and prevent cross-subject timeline pollution, the loading sequence prevents global, un-grouped data operations.Data matrices are partitioned into isolated historical blocks using a split-apply-combine approach on the categorical subject identifier. This ensures that the chronological continuity of each participant's biometric timeline is preserved:
 
 By isolating the timelines within individual subject blocks and explicitly invoking a index-sorting mechanism (.sort_index()), the ingestion layer provides a clear guarantee: no row from Subject A can accidentally inherit historical lag metrics from Subject B.Any boundary artifacts created by tracking changes at the very beginning of a subject's timeline are handled by a .dropna() filter, leaving a clean, continuous, and fully isolated data structure for model training.
 
+### Pre processing
+
+```python
+import pickle
+import numpy as np
+import pandas as pd
+import os
+
+subjects = [
+    'S2','S3','S4','S5','S6','S7','S8','S9',
+    'S10','S11','S13','S14','S15','S16','S17'
+]
+VALID_LABELS = [1, 2, 3]
+chest_dfs = []
+wrist_dfs = []
 
 
-```{python}
+# ----------------------------------------------------
+# MAIN LOOP
+# ----------------------------------------------------
+for subject in subjects:
+    path = f'/home/iu6/IDC6940_RandomForest/Dataset_WESAD/{subject}/{subject}.pkl'
+    if not os.path.exists(path):
+        print(f"[SKIP] {subject} not found")
+        continue
+        
+    print(f"\nProcessing {subject}...")
+    with open(path, 'rb') as f:
+        data = pickle.load(f, encoding='latin1')
+        
+    # Get the raw, unbroken 700Hz timeline bounds
+    raw_labels = np.array(data['label']).flatten()
+    raw_ecg = np.array(data['signal']['chest']['ECG']).flatten()
+    raw_eda = np.array(data['signal']['chest']['EDA']).flatten()
+    raw_temp = np.array(data['signal']['chest']['Temp']).flatten()
+    raw_resp = np.array(data['signal']['chest']['Resp']).flatten()
+    
+    # Track minimum length to trim trailing-end sensor shutoff mismatches safely
+    min_len = min(len(raw_labels), len(raw_ecg), len(raw_eda), len(raw_temp), len(raw_resp))
+
+    # -------------------------
+    # CHEST SIGNALS (100% continuous for NeuroKit2 windowing)
+    # -------------------------
+    chest_df = pd.DataFrame({
+        'subject': subject,
+        'ECG': raw_ecg[:min_len],
+        'EDA': raw_eda[:min_len],
+        'TEMP': raw_temp[:min_len],
+        'RESP': raw_resp[:min_len],
+        'label': raw_labels[:min_len]  # Keeps ALL labels (0,1,2,3,4...) so data stays unbroken
+    })
+    
+    # Handle artifacts without changing the shape or deleting rows
+    chest_df.loc[(chest_df['TEMP'] <= 20) | (chest_df['TEMP'] >= 45), 'TEMP'] = np.nan
+    chest_df.loc[chest_df['EDA'] < 0, 'EDA'] = np.nan
+    chest_df = chest_df.ffill().bfill()  # Cleans sensor errors seamlessly
+    chest_df = chest_df[chest_df['label'].isin(VALID_LABELS)]
+
+    
+    chest_dfs.append(chest_df)
+    print(f"[CHEST CONTINUOUS] {subject}: {chest_df.shape}")
+
+    # -------------------------
+    # WRIST SIGNALS (Downsampled labels to match native 4Hz sensors)
+    # -------------------------
+    wrist_eda = np.array(data['signal']['wrist']['EDA']).flatten()
+    wrist_temp = np.array(data['signal']['wrist']['TEMP']).flatten()
+    
+    
+    wrist_len = min(len(wrist_eda), len(wrist_temp))
+    # Pick every 175th label to match the slow 4Hz wrist sensors perfectly by time
+    wrist_labels = np.array([np.bincount(raw_labels[i:i+175]).argmax() for i in range(0, len(raw_labels), 175)])[:wrist_len]
+    
+    wrist_df = pd.DataFrame({
+        'subject': subject,
+        'EDA': wrist_eda[:wrist_len],
+        'TEMP': wrist_temp[:wrist_len],
+        'label': wrist_labels
+    })
+    
+    # Wrist can be filtered row-by-row because her NeuroKit pipeline isn't analyzing the wrist
+    wrist_df = wrist_df[wrist_df['label'].isin(VALID_LABELS)]
+    wrist_df = wrist_df.dropna()
+    wrist_dfs.append(wrist_df)
+    print(f"[WRIST CLEAN] {subject}: {wrist_df.shape}")
+
+# ----------------------------------------------------
+# FINAL DATASET EXPORT
+# ----------------------------------------------------
+print("\nCombining datasets...")
+chest_final = pd.concat(chest_dfs, ignore_index=True)
+wrist_final = pd.concat(wrist_dfs, ignore_index=True)
+
+print("\nFinal Chest shape (Continuous):", chest_final.shape)
+print("Final Wrist shape (Clean Tabular):", wrist_final.shape)
+
+chest_final.to_csv("wesad_chest_clean.csv", index=False)
+wrist_final.to_csv("wesad_wrist_clean.csv", index=False)
+print("\nSaved cleaned datasets successfully. Ready for handoff!")
+
+
+```
+#| code-fold: true
+
+
+```python
 import pandas as pd
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import classification_report, f1_score, precision_score, recall_score
@@ -159,7 +358,7 @@ from sklearn.metrics import classification_report, f1_score, precision_score, re
 ```
 #| code-fold: true
 
-```{python}
+```python
 # Load Data
 print("=== Starting Random Forest Model Loop ===")
 
@@ -230,7 +429,7 @@ print("\n=== Random Forest Execution Loop Complete ===")
 
 ```
 ### Data and Visualization
-```{python}
+```python
 #| code-fold: true
 #| eval: false
 #| label: scatter-visualization
@@ -345,20 +544,53 @@ plt.tight_layout()
 plt.savefig("wesad_wrist_rolling_scatter.png", dpi=150, bbox_inches='tight')
 plt.show()
 print("Saved: wesad_wrist_rolling_scatter.png")
+
 ```
+# Analysis
 
-    Before normalization, raw signal distributions were examined across 
-    all three conditions to identify class separation patterns.
+## Classification metrics:
 
-    ![WESAD Chest Signals — Pre-normalization](wesad_chest_pairplot.png){width=100%}
+The following metrics are standard for evaluating the performance of classification models. 
 
-![Wrist: EDA vs TEMP — Raw](wesad_wrist_raw_scatter.png){width=70%}
+$$
+\begin{array}{c|cc}
+ & \textbf{Predicted Positive} & \textbf{Predicted Negative} \\
+\hline
+\textbf{Actual Positive} & TP & FN \\
+\textbf{Actual Negative} & FP & TN \\
+\end{array}
+$$
 
-![Wrist: Rolling Window Features by Condition](wesad_wrist_rolling_scatter.png){width=90%}
+ - Accuracy: the proportion of correctly classified observations
+$$
+\text{Accuracy} = \frac{TP + TN}{TP + TN + FP + FN}
+$$
 
-![WESAD Chest Signals — Pre-normalization](wesad_chest_pairplot.png){width=100%}
+ - Precision: measures the proportion of predicted positive observations that are actually positive
+$$
+\text{Precision} = \frac{TP}{TP + FP}
+$$
 
-![WESAD Chest Signals — Post-normalization](wesad_wrist_normalization_comparison.png){width=100%}
+ - Recall (Sensitivity): the proportion of actual positive observations that are correctly identified
+$$
+\text{Recall} = \frac{TP}{TP + FN}
+$$
+
+- F1: the harmonic mean of precision and recall. 
+$$
+F1 = 2 \times
+\frac{\text{Precision} \times \text{Recall}}
+{\text{Precision} + \text{Recall}}
+$$
+or
+$$
+F1 = \frac{2TP}{2TP + FP + FN}
+$$
+
+## Operational findings:
+  While Random Forest demonstrates near-perfect classification capabilities on baseline individuals (S2 and S4 achieving an F1-macro of 1.00), it remains highly susceptible to physiological transition overlap. For Subject S3, the model completely failed to distinguish between the late baseline neutral state and the early stress onset state, defaulting to global stress classification (Stress recall = 1.00, Neutral recall = 0.00[@schmidt2018]. This proves that tabular classifiers struggle when human physiological indicators shift gradually rather than abruptly.
+
+
 
 ### Modeling and Results
 
@@ -379,14 +611,3 @@ print("Saved: wesad_wrist_rolling_scatter.png")
 -   Summarize your key findings.
 
 -   Discuss the implications of your results.
-
-## References
-Oyeleye M, Chen T, Titarenko S, Antoniou G. A Predictive Analysis of Heart Rates Using Machine Learning Techniques. Int J Environ Res Public Health. 2022 Feb 19;19(4):2417. doi: 10.3390/ijerph19042417. PMID: 35206603; PMCID: PMC8872524. 
-
-Garg P, Santhosh J, Dengel A, Ishimaru S. Stress Detection by Machine Learning and Wearable Sensors. IUI '21 Companion. 2021. doi: 10.1145/3397482.3450732
-
-Schmidt P, Reiss A. WESAD (Wearable Stress and Affect Detection). ACM ICMI 2018. doi: 10.1145/3242969.3242985
-
-Kontopoulou VI, Panagopoulos AD, Kakkos I, Matsopoulos GK. A Review of ARIMA vs. Machine Learning Approaches for Time Series Forecasting in Data Driven Networks. Future Internet. 2023;15(8):255. doi: 10.3390/fi15080255
-
-Ziyadidegan S, Sadeghi N, Razavi M, Baharlouei E, Janfaza V, Kazeminasab S, Pesarakli H, Javid AH, Sasangohar F. Quantifying Mental Stress Using Cardiovascular Responses: A Scoping Review. 2024. PMC12300869.
