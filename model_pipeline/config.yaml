@@ -1,14 +1,14 @@
 # Configuration file
 
 # Absolute WESAD dataset path
-dataset_path: 'C:\Users\vgvau\PycharmProjects\IDC6940_RandomForest\cleaned_input'
+dataset_path: 'C:\Users\vgvau\PycharmProjects\IDC6940_RandomForest\windowed_outputs'
 
 # Processing
 multithread: false
 
 # Participants
 composite_participants: false # using all participants to train model (NOT default and has limitations)
-participants: ["S2"]#, "S3"] # array of participants to predict for
+participants: ["S4"]#, "S3"] # array of participants to predict for
 
 # Variables
 variables: {
@@ -16,6 +16,6 @@ variables: {
 }
 
 # ARIMA parameters, if all are NONE, parameters will be selected using AutoARIMA()
-p: None
-d: None
-q: None
+p: 5
+d: 0
+q: 0

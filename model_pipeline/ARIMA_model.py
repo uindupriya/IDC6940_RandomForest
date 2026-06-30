@@ -33,46 +33,29 @@ def compute_continuous_scores(y_true, y_pred) -> dict:
         "MAPE": mape
     }
 
-
 def run_arima(train_df, test_df, target_col: str, p=None, d=None, q=None):
     y_train = train_df[target_col].dropna()
     y_test = test_df[target_col].dropna()
 
-
-
-    if p is None or d is None or q is None:
-        if auto_arima is None:
-            raise ImportError(
-                "pmdarima is not installed. Install it with: pip install pmdarima"
-            )
-
-        print("Using AutoARIMA...")
-
-        auto_model = auto_arima(
-            y_train,
-            seasonal=False,
-            stepwise=True,
-            suppress_warnings=True,
-            error_action="ignore"
-        )
-
-        order = auto_model.order
-
-    else:
-        order = (p, d, q)
+    order = (p, d, q)
 
     print(f"Using ARIMA order: {order}")
 
-    model = ARIMA(
-        y_train,
-        order=order
-    )
-
+    model = ARIMA(y_train, order=order)
     fitted_model = model.fit()
 
-    predictions = fitted_model.forecast(
-        steps=len(y_test)
-    )
+    predictions = []
+
+    for actual in y_test:
+        pred = fitted_model.forecast(steps=1).iloc[0]
+        predictions.append(pred)
+
+        fitted_model = fitted_model.append(
+            [actual],
+            refit=False
+        )
+
+    predictions = pd.Series(predictions, index=y_test.index)
 
     scores = compute_continuous_scores(
         y_true=y_test,
