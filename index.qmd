@@ -37,19 +37,9 @@ A systematic review of the literature on the classification of multimodal sympat
 
 Random Forest is an ensemble machine learning method that builds multiple decision trees and aggregates their outputs to produce robust classifications, making no assumptions about the linearity or distribution of the underlying data. [@garg2021] evaluated Random Forest alongside several other classifiers including k-NN, Linear Discriminant Analysis, AdaBoost, and Support Vector Machine on the WESAD dataset, finding that Random Forest achieved consistently strong performance across both binary stress versus non-stress and three-class neutral, stress, and amusement classification tasks. [@schmidt2018], who originally introduced the WESAD dataset, a multimodal physiological signal collection from 15 subjects recorded across controlled stress, baseline, and amusement conditions using wrist-worn and chest-worn devices capturing signals including ECG and EDA among others, also conducted preliminary Random Forest experiments achieving 88.33% baseline accuracy, further establishing it as the benchmark comparator for this study. Together, these findings position Random Forest as a well-validated and high-performing method for stress classification on WESAD, and the central question of this study is whether the simpler, interpretable ARIMA model can achieve comparable predictive performance on ECG and EDA signals alone.
 
-### Descriptive Statistics
+### Statistics table and variable selection 
 
-Table 1 presents descriptive statistics for the four physiological 
-signals across the three stress conditions. EDA shows the most notable 
-difference across conditions, with mean EDA rising from 3.43 during 
-Neutral to 4.79 during Stress — a 40% increase — confirming 
-electrodermal activity as a reliable stress indicator [@ziyadidegan2025]. 
-RESP also shows higher variability during Stress (std = 3.57) compared 
-to Neutral (std = 2.08), suggesting irregular breathing patterns under 
-stress. ECG mean values remain consistent across conditions but show 
-slightly higher standard deviation during Stress (0.252 vs 0.227), 
-reflecting increased heart rate variability. TEMP shows minimal 
-difference across conditions.
+Based on our literature review, we selected ECG, EDA, TEMP and RESP as our primary physiological signals for stress detection. ECG captures heart rate and heart rate variability which consistently change during stress, as supported by Ziyadidegan et al. (2025) and Oyeleye et al. (2022). EDA directly reflects sympathetic nervous system activity, the system activated during stress, while skin temperature complements it by capturing additional autonomic responses, both supported by Sosa et al. (2024). Respiration was included based on Sosa et al. (2024) recommendation that combining EDA, RESP and TEMP provides a more complete picture of autonomic stress response than any single signal alone.
 
 | Condition | ECG Mean | ECG Std | EDA Mean | EDA Std | TEMP Mean | TEMP Std | RESP Mean | RESP Std |
 |-----------|----------|---------|----------|---------|-----------|----------|-----------|----------|
@@ -182,7 +172,7 @@ We chose the Random Forest algorithm for this comparative time-series framework 
     recognize sequential order or velocity. It treats a static signal value the same way 
     whether that signal is spiking upward or crashing downward.
 
-  ## How the variables are transformed (Our Solution):
+#### How the variables are transformed (Our Solution):
   To satisfy these assumptions and make the WESAD variables ready for prediction, we 
   implemented three mandatory engineering transformations [@garg2021]:
  
