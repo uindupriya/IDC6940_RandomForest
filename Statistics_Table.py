@@ -6,7 +6,8 @@ from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
 # LOAD DATA
 # ==================================================
 
-df = pd.read_csv('/home/iu6/IDC6940_RandomForest/wesad_chest_clean.csv')
+chest_df = pd.read_csv('/home/iu6/IDC6940_RandomForest/wesad_chest_clean.csv')
+wrist_df = pd.read_csv('/home/iu6/IDC6940_RandomForest/wesad_wrist_clean.csv')
 
 # ==================================================
 # 1. CONFUSION MATRICES (PER SUBJECT)
@@ -45,12 +46,12 @@ for s in subjects:
         print(f"Missing file: {file_path}")
 
 # ==================================================
-# 2. DATA EXPLORATION TABLE
+# 2. CHEST DATA EXPLORATION TABLE
 # ==================================================
 
-print("\n=== Generating Data Exploration Table ===\n")
+print("\n=== Generating Chest Data Exploration Table ===\n")
 
-exploration = {
+chest_exploration = {
     'Statistic': [
         'Total observations (S2, S3, S4)',
         'Number of subjects',
@@ -58,34 +59,68 @@ exploration = {
         'Stress observations (label 2)',
         'Amusement observations (label 3)',
         'Missing values (any signal)',
-        'Sampling rate (chest signals)',
+        'Sampling rate',
         'Signals used',
     ],
     'Value': [
-        f"{len(df):,}",
-        df['subject'].nunique(),
-        f"{(df['label']==1).sum():,}",
-        f"{(df['label']==2).sum():,}",
-        f"{(df['label']==3).sum():,}",
-        df[['ECG','EDA','TEMP','RESP']].isnull().sum().sum(),
+        f"{len(chest_df):,}",
+        chest_df['subject'].nunique(),
+        f"{(chest_df['label']==1).sum():,}",
+        f"{(chest_df['label']==2).sum():,}",
+        f"{(chest_df['label']==3).sum():,}",
+        chest_df[['ECG','EDA','TEMP','RESP']].isnull().sum().sum(),
         '700 Hz',
         'ECG, EDA, TEMP, RESP',
     ]
 }
 
-exploration_df = pd.DataFrame(exploration)
-print(exploration_df.to_string(index=False))
-exploration_df.to_csv('/home/iu6/IDC6940_RandomForest/WESAD_Data_Exploration.csv', index=False)
-print("\nSaved: WESAD_Data_Exploration.csv")
+chest_exploration_df = pd.DataFrame(chest_exploration)
+print(chest_exploration_df.to_string(index=False))
+chest_exploration_df.to_csv('/home/iu6/IDC6940_RandomForest/Chest_Data_Exploration.csv', index=False)
+print("\nSaved: Chest_Data_Exploration.csv")
 
 # ==================================================
-# 3. DESCRIPTIVE STATISTICS TABLE
+# 3. WRIST DATA EXPLORATION TABLE
 # ==================================================
 
-print("\n=== Generating Descriptive Statistics Table ===\n")
+print("\n=== Generating Wrist Data Exploration Table ===\n")
 
-desc = df[['ECG','EDA','TEMP','RESP']].describe().T
-desc = desc.rename(columns={
+wrist_exploration = {
+    'Statistic': [
+        'Total observations (S2, S3, S4)',
+        'Number of subjects',
+        'Baseline observations (label 1)',
+        'Stress observations (label 2)',
+        'Amusement observations (label 3)',
+        'Missing values (any signal)',
+        'Sampling rate',
+        'Signals used',
+    ],
+    'Value': [
+        f"{len(wrist_df):,}",
+        wrist_df['subject'].nunique(),
+        f"{(wrist_df['label']==1).sum():,}",
+        f"{(wrist_df['label']==2).sum():,}",
+        f"{(wrist_df['label']==3).sum():,}",
+        wrist_df[['EDA','TEMP']].isnull().sum().sum(),
+        '4 Hz',
+        'EDA, TEMP',
+    ]
+}
+
+wrist_exploration_df = pd.DataFrame(wrist_exploration)
+print(wrist_exploration_df.to_string(index=False))
+wrist_exploration_df.to_csv('/home/iu6/IDC6940_RandomForest/Wrist_Data_Exploration.csv', index=False)
+print("\nSaved: Wrist_Data_Exploration.csv")
+
+# ==================================================
+# 4. CHEST DESCRIPTIVE STATISTICS TABLE
+# ==================================================
+
+print("\n=== Generating Chest Descriptive Statistics Table ===\n")
+
+chest_desc = chest_df[['ECG','EDA','TEMP','RESP']].describe().T
+chest_desc = chest_desc.rename(columns={
     'count': 'N',
     'mean': 'Mean',
     'std': 'SD',
@@ -95,39 +130,78 @@ desc = desc.rename(columns={
     'min': 'Min',
     'max': 'Max'
 })
-desc = desc.round(4)
-desc.index.name = 'Variable'
-desc = desc.reset_index()
-print(desc.to_string(index=False))
-desc.to_csv('/home/iu6/IDC6940_RandomForest/WESAD_Descriptive_Stats.csv', index=False)
-print("\nSaved: WESAD_Descriptive_Stats.csv")
+chest_desc = chest_desc.round(4)
+chest_desc.index.name = 'Variable'
+chest_desc = chest_desc.reset_index()
+print(chest_desc.to_string(index=False))
+chest_desc.to_csv('/home/iu6/IDC6940_RandomForest/Chest_Descriptive_Stats.csv', index=False)
+print("\nSaved: Chest_Descriptive_Stats.csv")
 
 # ==================================================
-# 4. PARTICIPANT FEATURE TABLE
+# 5. WRIST DESCRIPTIVE STATISTICS TABLE
 # ==================================================
 
-print("\n=== Generating Participant Feature Table ===\n")
+print("\n=== Generating Wrist Descriptive Statistics Table ===\n")
 
-feature_table = (
-    df.groupby("subject")[["ECG","EDA","TEMP","RESP"]]
-      .agg(["mean","std"])
+wrist_desc = wrist_df[['EDA','TEMP']].describe().T
+wrist_desc = wrist_desc.rename(columns={
+    'count': 'N',
+    'mean': 'Mean',
+    'std': 'SD',
+    '25%': 'Q1',
+    '50%': 'Median',
+    '75%': 'Q3',
+    'min': 'Min',
+    'max': 'Max'
+})
+wrist_desc = wrist_desc.round(4)
+wrist_desc.index.name = 'Variable'
+wrist_desc = wrist_desc.reset_index()
+print(wrist_desc.to_string(index=False))
+wrist_desc.to_csv('/home/iu6/IDC6940_RandomForest/Wrist_Descriptive_Stats.csv', index=False)
+print("\nSaved: Wrist_Descriptive_Stats.csv")
+
+# ==================================================
+# 6. CHEST PARTICIPANT FEATURE TABLE
+# ==================================================
+
+print("\n=== Generating Chest Participant Feature Table ===\n")
+
+chest_feature = (
+    chest_df.groupby("subject")[["ECG","EDA","TEMP","RESP"]]
+    .agg(["mean","std"])
 )
+chest_feature.columns = [f"{col}_{stat}" for col, stat in chest_feature.columns]
+chest_feature = chest_feature.reset_index()
+print(chest_feature.to_string(index=False))
+chest_feature.to_csv('/home/iu6/IDC6940_RandomForest/Chest_Participant_Feature_Table.csv', index=False)
+print("\nSaved: Chest_Participant_Feature_Table.csv")
 
-feature_table.columns = [
-    f"{col}_{stat}" for col, stat in feature_table.columns
-]
+# ==================================================
+# 7. WRIST PARTICIPANT FEATURE TABLE
+# ==================================================
 
-feature_table = feature_table.reset_index()
-print(feature_table.to_string(index=False))
-feature_table.to_csv('/home/iu6/IDC6940_RandomForest/Participant_Feature_Table.csv', index=False)
-print("\nSaved: Participant_Feature_Table.csv")
+print("\n=== Generating Wrist Participant Feature Table ===\n")
+
+wrist_feature = (
+    wrist_df.groupby("subject")[["EDA","TEMP"]]
+    .agg(["mean","std"])
+)
+wrist_feature.columns = [f"{col}_{stat}" for col, stat in wrist_feature.columns]
+wrist_feature = wrist_feature.reset_index()
+print(wrist_feature.to_string(index=False))
+wrist_feature.to_csv('/home/iu6/IDC6940_RandomForest/Wrist_Participant_Feature_Table.csv', index=False)
+print("\nSaved: Wrist_Participant_Feature_Table.csv")
 
 print("\n==============================")
 print(" ALL TABLES GENERATED ")
 print("==============================")
 print("""
-WESAD_Data_Exploration.csv
-WESAD_Descriptive_Stats.csv
-Participant_Feature_Table.csv
+Chest_Data_Exploration.csv
+Wrist_Data_Exploration.csv
+Chest_Descriptive_Stats.csv
+Wrist_Descriptive_Stats.csv
+Chest_Participant_Feature_Table.csv
+Wrist_Participant_Feature_Table.csv
 """)
 print("\nDONE")
