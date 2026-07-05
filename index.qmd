@@ -65,6 +65,56 @@ all three conditions to identify class separation patterns.
 ![WESAD Chest Signals — Post-normalization](wesad_wrist_normalization_comparison.png){width=100%}
 
 
+## Analysis and Results
+
+### Data Exploration and Visualization
+
+The WESAD dataset was preprocessed using chest and wrist sensor signals from three subjects (S2, S3, S4). Chest signals included ECG, EDA, TEMP, and RESP sampled at 700Hz, while wrist signals included EDA and TEMP sampled at 4Hz. Only valid stress-related labels were retained: Baseline (label 1), Stress (label 2), and Amusement (label 3).
+
+Based on our literature review, we selected ECG, EDA, TEMP and RESP as our primary physiological signals for stress detection. ECG captures heart rate and heart rate variability which consistently change during stress, as supported by Ziyadidegan et al. (2025) and Oyeleye et al. (2022). EDA directly reflects sympathetic nervous system activity, the system activated during stress, while skin temperature complements it by capturing additional autonomic responses, both supported by Sosa et al. (2024). Respiration was included based on Sosa et al. (2024) recommendation that combining EDA, RESP and TEMP provides a more complete picture of autonomic stress response than any single signal alone.
+
+### Modeling and Results
+
+We applied Random Forest classification in two stages to evaluate stress state detection performance across chest and wrist sensors.
+
+**Stage 1: Baseline Random Forest (Row-by-Row Classification)**
+
+As an initial baseline, we applied Random Forest directly to individual data points without any temporal feature engineering. This represents the simplest possible classification approach and serves as a reference point for evaluating the benefit of windowed features.
+
+| Class | Precision | Recall | F1-Score | Support |
+|-------|-----------|--------|----------|---------|
+| Neutral | 1.00 | 0.67 | 0.80 | 2,743 |
+| Stress | 0.62 | 1.00 | 0.77 | 1,512 |
+| Amusement | 1.00 | 1.00 | 1.00 | 888 |
+| Overall Accuracy | | | 0.82 | 5,143 |
+| Macro Average | 0.87 | 0.89 | 0.86 | 5,143 |
+
+The baseline model achieved an overall accuracy of 82% and a macro F1-score of 0.86. While the model performed well on Neutral and Amusement classes, Stress recall was perfect at 1.00 but precision was lower at 0.62, indicating some false positive stress detections.
+
+**Stage 2: Rolling Window Random Forest (1-min and 3-min Windows)**
+
+To better capture temporal physiological patterns associated with stress, we applied lag features and rolling window statistics at 1-minute and 3-minute intervals. This approach is more realistic for real-world stress detection since physiological responses to stress develop over time rather than instantaneously.
+
+*Chest Sensor Results (ECG, EDA, TEMP, RESP at 700Hz):*
+
+| Subject | Precision | Recall | F1-Score |
+|---------|-----------|--------|----------|
+| S2 | 0.7639 | 0.8446 | 0.7471 |
+| S3 | 0.9516 | 0.8991 | 0.9145 |
+| S4 | 0.7479 | 0.6678 | 0.4663 |
+
+*Wrist Sensor Results (EDA, TEMP at 4Hz):*
+
+| Subject | Precision | Recall | F1-Score |
+|---------|-----------|--------|----------|
+| S2 | 1.0000 | 1.0000 | 1.0000 |
+| S3 | 0.4535 | 0.6667 | 0.5100 |
+| S4 | 1.0000 | 1.0000 | 1.0000 |
+
+### Conclusion for Random Forest
+
+The baseline Random Forest model achieved reasonable performance at 82% accuracy, demonstrating that physiological signals from the WESAD dataset contain sufficient information for stress state detection. The rolling window approach showed varied performance across subjects, with S3 showing lower F1-scores in both chest and wrist models, suggesting higher physiological variability in that participant. Chest sensor signals generally provided more consistent results across subjects compared to wrist signals, which is consistent with findings in the literature that chest-worn sensors capture higher quality physiological data. These Random Forest results serve as the baseline for comparison against the ARIMA model results.
+
 ## Methods
 
 ### Participant Selection
