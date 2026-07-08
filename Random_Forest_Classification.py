@@ -21,7 +21,8 @@ print("========================================")
 # Load Test Dataset
 # ---------------------------------------
 test_df = pd.read_csv("wesad_wrist_test.csv")
-
+label_mapping = {1: 0, 2: 1, 3: 0}
+test_df['label'] = test_df['label'].map(label_mapping)
 
 # ---------------------------------------
 # Create Lag Features
@@ -89,21 +90,21 @@ for subject in subjects:
     precision = precision_score(
         y_test,
         y_pred,
-        average='weighted',
+        average='binary',
         zero_division=0
     )
 
     recall = recall_score(
         y_test,
         y_pred,
-        average='weighted',
+        average='binary',
         zero_division=0
     )
 
     f1 = f1_score(
         y_test,
         y_pred,
-        average='weighted',
+        average='binary',
         zero_division=0
     )
 
@@ -118,11 +119,10 @@ for subject in subjects:
         classification_report(
             y_test,
             y_pred,
-            labels=[1, 2, 3],
+            labels=[0, 1],
             target_names=[
-                "Neutral",
-                "Stress",
-                "Amusement"
+                "Non-Stress",
+                "Stress"
             ],
             zero_division=0
         )
@@ -135,15 +135,14 @@ for subject in subjects:
     cm = confusion_matrix(
         y_test,
         y_pred,
-        labels=[1, 2, 3]
+        labels=[0, 1]
     )
 
     disp = ConfusionMatrixDisplay(
         confusion_matrix=cm,
         display_labels=[
-            "Neutral",
-            "Stress",
-            "Amusement"
+            "Non-Stress",
+            "Stress"
         ]
     )
 

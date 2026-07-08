@@ -2,11 +2,14 @@ import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
 
-label_map = {1: 'Baseline', 2: 'Stress', 3: 'Amusement'}
-palette   = {'Baseline': '#378ADD', 'Stress': '#D85A30', 'Amusement': '#1D9E75'}
+
+
 
 # Load raw wrist for left plot
 wrist = pd.read_csv("wesad_wrist_clean.csv")
+
+label_map = {0: 'Non-Stress', 1: 'Stress'}
+palette   = {'Non-Stress': '#378ADD', 'Stress': '#D85A30'}
 
 # -------------------------------------------------------
 # POST-NORMALIZATION SCATTER — Wrist (after StandardScaler)

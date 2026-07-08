@@ -6,6 +6,9 @@ print("=== Loading Test Dataset ===")
 
 test_df = pd.read_csv("wesad_wrist_test.csv")
 
+label_mapping = {1: 0, 2: 1, 3: 0}
+test_df['label'] = test_df['label'].map(label_mapping)
+
 # =========================================================
 # LAG FEATURE FUNCTION
 # =========================================================
@@ -72,10 +75,11 @@ for subject in unique_subjects:
         print(classification_report(
             y_true,
             y_pred,
-            labels=[1, 2, 3],
-            target_names=['Neutral', 'Stress', 'Amusement'],
+            labels=[0, 1],
+            target_names=['Non-Stress', 'Stress'],
             zero_division=0
         ))
+
 
         # Save per-subject predictions (optional but good)
         pd.DataFrame({

@@ -26,12 +26,13 @@ for s in subjects:
         y_true = pred["y_true"]
         y_pred = pred["y_pred"]
 
-        cm = confusion_matrix(y_true, y_pred, labels=[1,2,3])
+        cm = confusion_matrix(y_true, y_pred, labels=[0, 1])
 
         disp = ConfusionMatrixDisplay(
             confusion_matrix=cm,
-            display_labels=["Neutral", "Stress", "Amusement"]
+            display_labels=["Non-Stress", "Stress"]
         )
+
 
         plt.figure(figsize=(6,5))
         disp.plot(cmap="Blues", values_format="d")
@@ -55,9 +56,8 @@ chest_exploration = {
     'Statistic': [
         'Total observations (S2, S3, S4)',
         'Number of subjects',
-        'Baseline observations (label 1)',
-        'Stress observations (label 2)',
-        'Amusement observations (label 3)',
+        'Non-Stress observations (label 0)',
+        'Stress observations (label 1)',
         'Missing values (any signal)',
         'Sampling rate',
         'Signals used',
@@ -65,9 +65,8 @@ chest_exploration = {
     'Value': [
         f"{len(chest_df):,}",
         chest_df['subject'].nunique(),
+        f"{(chest_df['label']==0).sum():,}",
         f"{(chest_df['label']==1).sum():,}",
-        f"{(chest_df['label']==2).sum():,}",
-        f"{(chest_df['label']==3).sum():,}",
         chest_df[['ECG','EDA','TEMP','RESP']].isnull().sum().sum(),
         '700 Hz',
         'ECG, EDA, TEMP, RESP',
@@ -89,9 +88,8 @@ wrist_exploration = {
     'Statistic': [
         'Total observations (S2, S3, S4)',
         'Number of subjects',
-        'Baseline observations (label 1)',
-        'Stress observations (label 2)',
-        'Amusement observations (label 3)',
+        'Non-Stress observations (label 0)',
+        'Stress observations (label 1)',
         'Missing values (any signal)',
         'Sampling rate',
         'Signals used',
@@ -99,9 +97,8 @@ wrist_exploration = {
     'Value': [
         f"{len(wrist_df):,}",
         wrist_df['subject'].nunique(),
+        f"{(wrist_df['label']==0).sum():,}",
         f"{(wrist_df['label']==1).sum():,}",
-        f"{(wrist_df['label']==2).sum():,}",
-        f"{(wrist_df['label']==3).sum():,}",
         wrist_df[['EDA','TEMP']].isnull().sum().sum(),
         '4 Hz',
         'EDA, TEMP',
@@ -114,13 +111,14 @@ wrist_exploration_df.to_csv('/home/iu6/IDC6940_RandomForest/Wrist_Data_Explorati
 print("\nSaved: Wrist_Data_Exploration.csv")
 
 # ==================================================
-# 4. CHEST DESCRIPTIVE STATISTICS TABLE
+# 4. CHEST DESCRIPTIVE STATISTICS TABLE (BY CONDITION)
 # ==================================================
 
-print("\n=== Generating Chest Descriptive Statistics Table ===\n")
+print("\n=== Generating Chest Descriptive Statistics Table by Condition ===\n")
 
-chest_desc = chest_df[['ECG','EDA','TEMP','RESP']].describe().T
-chest_desc = chest_desc.rename(columns={
+# Group by label to isolate Non-Stress (0) and Stress (1) performance
+chest_desc = chest_df.groupby('label')[['ECG','EDA','TEMP','RESP']].describe().T
+chest_desc = chest_desc.rename(index={
     'count': 'N',
     'mean': 'Mean',
     'std': 'SD',
@@ -131,20 +129,23 @@ chest_desc = chest_desc.rename(columns={
     'max': 'Max'
 })
 chest_desc = chest_desc.round(4)
-chest_desc.index.name = 'Variable'
+chest_desc.index.names = ['Variable', 'Statistic']
 chest_desc = chest_desc.reset_index()
-print(chest_desc.to_string(index=False))
-chest_desc.to_csv('/home/iu6/IDC6940_RandomForest/Chest_Descriptive_Stats.csv', index=False)
-print("\nSaved: Chest_Descriptive_Stats.csv")
+
+# Filter out and format specifically for your Mean and SD table
+chest_summary = chest_desc[chest_desc['Statistic'].isin(['Mean', 'SD'])].copy()
+print(chest_summary.to_string(index=False))
+chest_summary.to_csv('/home/iu6/IDC6940_RandomForest/Chest_Descriptive_Stats_Per_Condition.csv', index=False)
+print("\nSaved: Chest_Descriptive_Stats_Per_Condition.csv")
 
 # ==================================================
-# 5. WRIST DESCRIPTIVE STATISTICS TABLE
+# 5. WRIST DESCRIPTIVE STATISTICS TABLE (BY CONDITION)
 # ==================================================
 
-print("\n=== Generating Wrist Descriptive Statistics Table ===\n")
+print("\n=== Generating Wrist Descriptive Statistics Table by Condition ===\n")
 
-wrist_desc = wrist_df[['EDA','TEMP']].describe().T
-wrist_desc = wrist_desc.rename(columns={
+wrist_desc = wrist_df.groupby('label')[['EDA','TEMP']].describe().T
+wrist_desc = wrist_desc.rename(index={
     'count': 'N',
     'mean': 'Mean',
     'std': 'SD',
@@ -155,11 +156,13 @@ wrist_desc = wrist_desc.rename(columns={
     'max': 'Max'
 })
 wrist_desc = wrist_desc.round(4)
-wrist_desc.index.name = 'Variable'
+wrist_desc.index.names = ['Variable', 'Statistic']
 wrist_desc = wrist_desc.reset_index()
-print(wrist_desc.to_string(index=False))
-wrist_desc.to_csv('/home/iu6/IDC6940_RandomForest/Wrist_Descriptive_Stats.csv', index=False)
-print("\nSaved: Wrist_Descriptive_Stats.csv")
+
+wrist_summary = wrist_desc[wrist_desc['Statistic'].isin(['Mean', 'SD'])].copy()
+print(wrist_summary.to_string(index=False))
+wrist_summary.to_csv('/home/iu6/IDC6940_RandomForest/Wrist_Descriptive_Stats_Per_Condition.csv', index=False)
+print("\nSaved: Wrist_Descriptive_Stats_Per_Condition.csv")
 
 # ==================================================
 # 6. CHEST PARTICIPANT FEATURE TABLE

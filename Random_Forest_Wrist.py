@@ -10,6 +10,10 @@ print("Loading data splits...")
 train_df = pd.read_csv("wesad_wrist_train.csv")
 test_df = pd.read_csv("wesad_wrist_test.csv")
 
+label_mapping = {1: 0, 2: 1, 3: 0}
+train_df['label'] = train_df['label'].map(label_mapping)
+test_df['label'] = test_df['label'].map(label_mapping)
+
 # 2. FEATURE ENGINEERING: COMPUTE TEMPORAL LAG ARRAYS WITH ECG INCLUDED
 # Updated default list to scan for ECG, EDA, and TEMP features dynamically
 def apply_time_lags(df, features=['ECG', 'EDA', 'TEMP']):
@@ -56,16 +60,17 @@ for subject, group in train_lagged.groupby('subject'):
     # Evaluate performance
     y_pred = rf_model.predict(X_test)
     
-    macro_f1 = f1_score(y_test, y_pred, average='macro')
-    macro_prec = precision_score(y_test, y_pred, average='macro', zero_division=0)
-    macro_rec = recall_score(y_test, y_pred, average='macro', zero_division=0)
+    macro_f1 = f1_score(y_test, y_pred, average='binary', zero_division=0)
+    macro_prec = precision_score(y_test, y_pred, average='binary', zero_division=0)
+    macro_rec = recall_score(y_test, y_pred, average='binary', zero_division=0)
+
     
-    print(f"[{subject} Metrics Summary]")
-    print(f" -> Macro Precision : {macro_prec:.4f}")
-    print(f" -> Macro Recall    : {macro_rec:.4f}")
-    print(f" -> Macro F1-Score  : {macro_f1:.4f}")
+    print(f" -> Binary Precision : {macro_prec:.4f}")
+    print(f" -> Binary Recall    : {macro_rec:.4f}")
+    print(f" -> Binary F1-Score  : {macro_f1:.4f}")
     print("\nDetailed Per-Class Performance:")
-    print(classification_report(y_test, y_pred, labels=[1, 2, 3], target_names=['Neutral', 'Stress', 'Amusement'], zero_division=0))
+    print(classification_report(y_test, y_pred, labels=[0, 1], target_names=['Non-Stress', 'Stress'], zero_division=0))
+
 
     model_filename = f"rf_model_{subject}.pkl"
     joblib.dump(rf_model, model_filename)

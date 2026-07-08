@@ -3,8 +3,9 @@ import numpy as np
 import seaborn as sns
 import matplotlib.pyplot as plt
 
-label_map = {1: 'Baseline', 2: 'Stress', 3: 'Amusement'}
-palette   = {'Baseline': '#378ADD', 'Stress': '#D85A30', 'Amusement': '#1D9E75'}
+label_map = {0: 'Non-Stress', 1: 'Stress'}
+palette   = {'Non-Stress': '#378ADD', 'Stress': '#D85A30'}
+
 FS = 4
 
 # -------------------------------------------------------
@@ -30,7 +31,11 @@ def engineer_features(df, fs=4):
 # -------------------------------------------------------
 # 1. CHEST PAIRPLOT — raw signals, pre-normalization
 # -------------------------------------------------------
+# 1. CHEST PAIRPLOT — raw signals, pre-normalization
 chest = pd.read_csv("wesad_chest_clean.csv")
+label_mapping = {1: 0, 2: 1, 3: 0}
+chest['label'] = chest['label'].map(label_mapping)
+
 
 sample_c = pd.concat([
     grp.sample(min(3000, len(grp)), random_state=42)
@@ -54,7 +59,11 @@ print("Saved: wesad_chest_pairplot.png")
 # -------------------------------------------------------
 # 2. WRIST — raw EDA vs TEMP (from train split)
 # -------------------------------------------------------
+# 2. WRIST — raw EDA vs TEMP (from train split)
 train_df = pd.read_csv("wesad_wrist_train.csv")
+label_mapping = {1: 0, 2: 1, 3: 0}
+train_df['label'] = train_df['label'].map(label_mapping)
+
 
 sample_w = pd.concat([
     grp.sample(min(3000, len(grp)), random_state=42)

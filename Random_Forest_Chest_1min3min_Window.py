@@ -13,6 +13,8 @@ print("Loading chest data splits...")
 train_df = pd.read_csv("wesad_chest_train.csv")
 test_df  = pd.read_csv("wesad_chest_test.csv")
 
+
+
 FS = 700  # chest sensor Hz
 
 # -------------------------------------------------------
@@ -126,8 +128,8 @@ for subject, group in train_engineered.groupby('subject'):
     print(f"[{subject}] F1-Score  : {macro_f1:.4f}")
     print(classification_report(
         y_test, y_pred,
-        labels=[1, 2, 3],
-        target_names=['Baseline', 'Stress', 'Amusement'],
+        labels=[0, 1],
+        target_names=['Non-Stress', 'Stress'],
         zero_division=0
     ))
 

@@ -131,7 +131,7 @@ The data set WESAD contains the physiological signal variables that are used in 
 
 **Derived Variables**
 
-*Label (target variable)* : Label (target variable): The categorical outcome variable coded 1 = Neutral (Baseline), 2 = Stress, 3 = Amusement, as defined by the WESAD protocol (Schmidt and Reiss 2018). This is the variable both models ultimately predict — directly for Random Forest, and after converting a continuous forecast into a category for ARIMA.
+*Label (target variable)* : Label (target variable): The categorical outcome variable Stess=1, Non-stress =0, as defined by the WESAD protocol (Schmidt and Reiss 2018). This is the variable both models ultimately predict — directly for Random Forest, and after converting a continuous forecast into a category for ARIMA.
 
 *Subject* : A category identifier (S2, S3, S4, etc.) used to group observations by participant. It is not used as a predictor itself, but it is essential for preventing cross-subject data leakage: normalization, lag creation, and train/test splitting are all done independently within each subject's timeline so that no subject's history contaminates another's.
 
@@ -545,11 +545,31 @@ all three conditions to identify class separation patterns.
 
 Based on our literature review, we selected ECG, EDA, TEMP and RESP as our primary physiological signals for stress detection. ECG captures heart rate and heart rate variability which consistently change during stress, as supported by ([@ziyadidegan2025],[@oyeleye2022]). EDA directly reflects sympathetic nervous system activity, the system activated during stress, while skin temperature complements it by capturing additional autonomic responses, both supported by [@sosa2026]. Respiration was included based on [@sosa2026] recommendation that combining EDA, RESP and TEMP provides a more complete picture of autonomic stress response than any single signal alone.
 
-| Condition | ECG Mean | ECG Std | EDA Mean | EDA Std | TEMP Mean | TEMP Std | RESP Mean | RESP Std |
-|-----------|----------|---------|----------|---------|-----------|----------|-----------|----------|
-| Neutral   | 0.001    | 0.227   | 3.426    | 2.622   | 31.039    | 1.787    | 0.051     | 2.078    |
-| Stress    | 0.001    | 0.252   | 4.790    | 2.834   | 32.476    | 1.083    | 0.049     | 3.574    |
-| Amusement | 0.001    | 0.215   | 3.400    | 3.288   | 32.764    | 0.460    | 0.054     | 2.164    |
+
+### Chest Data Exploration
+
+| Statistic | Value |
+| :--- | :--- |
+| Total observations (S2, S3, S4) | 4,508,701 |
+| Number of subjects | 3 |
+| Non-Stress observations (label 0) | 3,185,701 |
+| Stress observations (label 1) | 1,323,000 |
+| Missing values (any signal) | 0 |
+| Sampling rate | 700 Hz |
+| Signals used | ECG, EDA, TEMP, RESP |
+
+
+### Wrist Data Exploration
+
+| Statistic | Value |
+| :--- | :--- |
+| Total observations (S2, S3, S4) | 25,764 |
+| Number of subjects | 3 |
+| Non-Stress observations (label 0) | 18,204 |
+| Stress observations (label 1) | 7,560 |
+| Missing values (any signal) | 0 |
+| Sampling rate | 4 Hz |
+| Signals used | EDA, TEMP |
 
 *Table 1: Descriptive statistics (mean and standard deviation) for ECG, 
 EDA, TEMP, and RESP signals across Neutral, Stress, and Amusement 

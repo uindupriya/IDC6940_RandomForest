@@ -7,6 +7,9 @@ print("=== Starting Block-Stratified Time Splitting & Normalization ===")
 print("Loading clean datasets...")
 chest_data = pd.read_csv("wesad_chest_clean.csv")
 wrist_data = pd.read_csv("wesad_wrist_clean.csv")
+label_mapping = {1: 0, 2: 1, 3: 0}
+chest_data['label'] = chest_data['label'].map(label_mapping)
+wrist_data['label'] = wrist_data['label'].map(label_mapping)
 
 chest_features = ['ECG', 'EDA', 'TEMP', 'RESP']
 wrist_features = ['EDA', 'TEMP']

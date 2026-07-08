@@ -41,11 +41,11 @@ for s in subjects:
     y_true = sub_df["y_true"]
     y_pred = sub_df["y_pred"]
 
-    cm = confusion_matrix(y_true, y_pred, labels=[1,2,3])
+    cm = confusion_matrix(y_true, y_pred, labels=[0,1])
 
     disp = ConfusionMatrixDisplay(
         confusion_matrix=cm,
-        display_labels=["Neutral", "Stress", "Amusement"]
+        display_labels=["Non-Stress", "Stress"]
     )
 
     plt.figure(figsize=(6,5))
@@ -69,11 +69,11 @@ for s in subjects:
 
 print("\nGenerating Global Confusion Matrix...\n")
 
-cm_global = confusion_matrix(pred["y_true"], pred["y_pred"], labels=[1,2,3])
+cm_global = confusion_matrix(pred["y_true"], pred["y_pred"], labels=[0,1])
 
 disp = ConfusionMatrixDisplay(
     confusion_matrix=cm_global,
-    display_labels=["Neutral", "Stress", "Amusement"]
+    display_labels=["Non-Stress", "Stress"]
 )
 
 plt.figure(figsize=(6,5))
@@ -100,7 +100,7 @@ print("==============================\n")
 print(classification_report(
     pred["y_true"],
     pred["y_pred"],
-    target_names=["Neutral","Stress","Amusement"]
+    target_names=["Non-Stress", "Stress"]
 ))
 
 # ==================================================
@@ -110,6 +110,9 @@ print(classification_report(
 print("\nGenerating Subject Feature Table...\n")
 
 df = pd.read_csv("wesad_chest_clean.csv")
+
+label_mapping = {1: 0, 2: 1, 3: 0}
+df['label'] = df['label'].map(label_mapping)
 
 feature_table = (
     df.groupby("subject")[["ECG","EDA","TEMP","RESP"]]
