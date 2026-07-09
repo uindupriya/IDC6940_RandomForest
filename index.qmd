@@ -518,14 +518,14 @@ The WESAD dataset was preprocessed using chest and wrist sensor signals from thr
 Before normalization, raw signal distributions were examined across 
 all three conditions to identify class separation patterns.
 
-![WESAD Chest Signals — Pre-normalization](wesad_chest_pairplot.png){width=100%}
+
 
 ![Wrist: EDA vs TEMP — Raw](wesad_wrist_raw_scatter.png){width=70%}
 
 ![Wrist: Rolling Window Features by Condition](wesad_wrist_rolling_scatter.png){width=90%}
 
+![Confusion Matrix for Stress states](RF_global_confusion_matrix.png){width=90%}
 
-![WESAD Chest Signals — Post-normalization](wesad_wrist_normalization_comparison.png){width=100%}
 
 ### Statistics table 
 
