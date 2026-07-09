@@ -3,6 +3,8 @@ import pandas as pd
 from statsmodels.tsa.arima.model import ARIMA
 from sklearn.metrics import mean_absolute_error, mean_squared_error
 
+from model_pipeline.ARIMA_classification import get_classification_rules
+
 try:
     from pmdarima import auto_arima
 except ImportError:
@@ -63,9 +65,12 @@ def run_arima(train_df, test_df, target_col: str, p=None, d=None, q=None):
     )
 
     results_df = pd.DataFrame({
+        "subject": test_df.loc[y_test.index, "subject"].values,
+        "label": test_df.loc[y_test.index, "label"].values,
         "actual": y_test.values,
         "predicted": predictions.values
     })
+
 
     return {
         "model": fitted_model,

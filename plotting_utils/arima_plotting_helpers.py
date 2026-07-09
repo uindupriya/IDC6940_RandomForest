@@ -54,5 +54,5 @@ def plot_arima_prediction(test_df, arima_results, target_col="ECG", title="ARIMA
     plt.ylabel(target_col)
     plt.legend()
     plt.tight_layout()
-    plt.show()
+    # plt.show()
     plt.savefig(f"{title}.png")
