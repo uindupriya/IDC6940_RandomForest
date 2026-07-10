@@ -570,13 +570,6 @@ We applied Random Forest classification in two stages to evaluate stress state d
 
 As an initial baseline, we applied Random Forest directly to individual data points without any temporal feature engineering. This represents the simplest possible classification approach and serves as a reference point for evaluating the benefit of windowed features.
 
-| Class | Precision | Recall | F1-Score | Support |
-|-------|-----------|--------|----------|---------|
-| Neutral | 1.00 | 0.67 | 0.80 | 2,743 |
-| Stress | 0.62 | 1.00 | 0.77 | 1,512 |
-| Amusement | 1.00 | 1.00 | 1.00 | 888 |
-| Overall Accuracy | | | 0.82 | 5,143 |
-| Macro Average | 0.87 | 0.89 | 0.86 | 5,143 |
 
 The baseline model achieved an overall accuracy of 82% and a macro F1-score of 0.86. While the model performed well on Neutral and Amusement classes, Stress recall was perfect at 1.00 but precision was lower at 0.62, indicating some false positive stress detections.
 
@@ -586,19 +579,33 @@ To better capture temporal physiological patterns associated with stress, we app
 
 *Chest Sensor Results (ECG, EDA, TEMP, RESP at 700Hz):*
 
-| Subject | Precision | Recall | F1-Score |
-|---------|-----------|--------|----------|
-| S2 | 0.7639 | 0.8446 | 0.7471 |
-| S3 | 0.9516 | 0.8991 | 0.9145 |
-| S4 | 0.7479 | 0.6678 | 0.4663 |
+| Subject | Precision | Recall | F1-Score | Accuracy |
+|---------|-----------|--------|----------|----------|
+| S2      | 1.00      | 1.00   | 1.00     | 1.00     |
+| S3      | 0.95      | 0.92   | 0.94     | 0.95     |
+| S4      | 1.00      | 1.00   | 1.00     | 1.00     |
+
+
 
 *Wrist Sensor Results (EDA, TEMP at 4Hz):*
 
-| Subject | Precision | Recall | F1-Score |
-|---------|-----------|--------|----------|
-| S2 | 1.0000 | 1.0000 | 1.0000 |
-| S3 | 0.4535 | 0.6667 | 0.5100 |
-| S4 | 1.0000 | 1.0000 | 1.0000 |
+| Subject | Top Feature | Importance | 2nd Feature | Importance |
+|---------|-------------|------------|-------------|------------|
+| S2      | TEMP_roll3min_mean | 0.218 | RESP_roll3min_std | 0.146 |
+| S3      | ECG_roll1min_std | 0.269 | RESP_roll1min_std | 0.103 |
+| S4      | EDA | 0.217 | EDA_roll1min_mean | 0.140 |
+
+*Aggregate feature importance:*
+
+| Feature | Importance |
+|---------|------------|
+| ECG_roll1min_std | 0.0997 |
+| EDA | 0.0930 |
+| TEMP_roll3min_mean | 0.0852 |
+| RESP_roll3min_std | 0.0663 |
+| TEMP_lag_1 | 0.0536 |
+
+
 
 ### Conclusion for Random Forest
 

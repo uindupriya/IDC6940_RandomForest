@@ -6,30 +6,53 @@ print("=== Loading Test Dataset ===")
 
 test_df = pd.read_csv("wesad_wrist_test.csv")
 
-label_mapping = {1: 0, 2: 1, 3: 0}
-test_df['label'] = test_df['label'].map(label_mapping)
+#label_mapping = {1: 0, 2: 1, 3: 0}
+#test_df['label'] = test_df['label'].map(label_mapping)
 
 # =========================================================
 # LAG FEATURE FUNCTION
 # =========================================================
 
-def apply_time_lags(df, features=['ECG', 'EDA', 'TEMP']):
-    valid_features = [f for f in features if f in df.columns]
-    lagged_groups = []
+def engineer_features(df, fs=4):
+
+    valid_features = [f for f in ['EDA', 'TEMP'] if f in df.columns]
+
+    win_1min = fs * 60
+    win_3min = fs * 60 * 3
+
+    groups = []
 
     for subject, group in df.groupby('subject'):
-        group = group.sort_index().copy()
+
+        g = group.sort_index().copy()
 
         for col in valid_features:
-            for lag in range(1, 5):
-                group[f'{col}_lag_{lag}'] = group[col].shift(lag)
 
-        lagged_groups.append(group.dropna())
+            for lag in range(1,5):
+                g[f'{col}_lag_{lag}'] = g[col].shift(lag)
 
-    return pd.concat(lagged_groups, ignore_index=True)
+            g[f'{col}_roll1min_mean'] = (
+                g[col].rolling(window=win_1min, min_periods=1).mean()
+            )
+
+            g[f'{col}_roll1min_std'] = (
+                g[col].rolling(window=win_1min, min_periods=2).std()
+            )
+
+            g[f'{col}_roll3min_mean'] = (
+                g[col].rolling(window=win_3min, min_periods=1).mean()
+            )
+
+            g[f'{col}_roll3min_std'] = (
+                g[col].rolling(window=win_3min, min_periods=2).std()
+            )
+
+        groups.append(g.dropna())
+
+    return pd.concat(groups, ignore_index=True)
 
 # Apply lag features
-test_lagged = apply_time_lags(test_df)
+test_lagged = engineer_features(test_df)
 
 feature_columns = [
     c for c in test_lagged.columns
@@ -53,7 +76,7 @@ all_y_pred = []
 
 for subject in unique_subjects:
 
-    model_filename = f"rf_model_{subject}.pkl"
+    model_filename = f"rf_model_{subject}_rolling.pkl"
 
     print("\n----------------------------------------")
     print(f"Evaluating Subject: {subject}")
@@ -67,6 +90,16 @@ for subject in unique_subjects:
         y_true = subject_data['label']
 
         y_pred = model.predict(X_test)
+        print("\nPrediction distribution:")
+        print(pd.Series(y_pred).value_counts().sort_index())
+
+        print("\nTrue distribution:")
+        print(y_true.value_counts().sort_index())
+
+        from sklearn.metrics import confusion_matrix
+
+        print("\nConfusion Matrix:")
+        print(confusion_matrix(y_true, y_pred, labels=[0,1]))
 
         # Store for global confusion matrix
         all_y_true.extend(y_true)

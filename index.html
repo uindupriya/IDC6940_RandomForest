@@ -2943,54 +2943,6 @@ window.Quarto = {
 <p>We applied Random Forest classification in two stages to evaluate stress state detection performance across chest and wrist sensors.</p>
 <p><strong>Stage 1: Baseline Random Forest (Row-by-Row Classification)</strong></p>
 <p>As an initial baseline, we applied Random Forest directly to individual data points without any temporal feature engineering. This represents the simplest possible classification approach and serves as a reference point for evaluating the benefit of windowed features.</p>
-<table class="caption-top table">
-<thead>
-<tr class="header">
-<th>Class</th>
-<th>Precision</th>
-<th>Recall</th>
-<th>F1-Score</th>
-<th>Support</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td>Neutral</td>
-<td>1.00</td>
-<td>0.67</td>
-<td>0.80</td>
-<td>2,743</td>
-</tr>
-<tr class="even">
-<td>Stress</td>
-<td>0.62</td>
-<td>1.00</td>
-<td>0.77</td>
-<td>1,512</td>
-</tr>
-<tr class="odd">
-<td>Amusement</td>
-<td>1.00</td>
-<td>1.00</td>
-<td>1.00</td>
-<td>888</td>
-</tr>
-<tr class="even">
-<td>Overall Accuracy</td>
-<td></td>
-<td></td>
-<td>0.82</td>
-<td>5,143</td>
-</tr>
-<tr class="odd">
-<td>Macro Average</td>
-<td>0.87</td>
-<td>0.89</td>
-<td>0.86</td>
-<td>5,143</td>
-</tr>
-</tbody>
-</table>
 <p>The baseline model achieved an overall accuracy of 82% and a macro F1-score of 0.86. While the model performed well on Neutral and Amusement classes, Stress recall was perfect at 1.00 but precision was lower at 0.62, indicating some false positive stress detections.</p>
 <p><strong>Stage 2: Rolling Window Random Forest (1-min and 3-min Windows)</strong></p>
 <p>To better capture temporal physiological patterns associated with stress, we applied lag features and rolling window statistics at 1-minute and 3-minute intervals. This approach is more realistic for real-world stress detection since physiological responses to stress develop over time rather than instantaneously.</p>
@@ -3002,26 +2954,30 @@ window.Quarto = {
 <th>Precision</th>
 <th>Recall</th>
 <th>F1-Score</th>
+<th>Accuracy</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
 <td>S2</td>
-<td>0.7639</td>
-<td>0.8446</td>
-<td>0.7471</td>
+<td>1.00</td>
+<td>1.00</td>
+<td>1.00</td>
+<td>1.00</td>
 </tr>
 <tr class="even">
 <td>S3</td>
-<td>0.9516</td>
-<td>0.8991</td>
-<td>0.9145</td>
+<td>0.95</td>
+<td>0.92</td>
+<td>0.94</td>
+<td>0.95</td>
 </tr>
 <tr class="odd">
 <td>S4</td>
-<td>0.7479</td>
-<td>0.6678</td>
-<td>0.4663</td>
+<td>1.00</td>
+<td>1.00</td>
+<td>1.00</td>
+<td>1.00</td>
 </tr>
 </tbody>
 </table>
@@ -3030,29 +2986,64 @@ window.Quarto = {
 <thead>
 <tr class="header">
 <th>Subject</th>
-<th>Precision</th>
-<th>Recall</th>
-<th>F1-Score</th>
+<th>Top Feature</th>
+<th>Importance</th>
+<th>2nd Feature</th>
+<th>Importance</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
 <td>S2</td>
-<td>1.0000</td>
-<td>1.0000</td>
-<td>1.0000</td>
+<td>TEMP_roll3min_mean</td>
+<td>0.218</td>
+<td>RESP_roll3min_std</td>
+<td>0.146</td>
 </tr>
 <tr class="even">
 <td>S3</td>
-<td>0.4535</td>
-<td>0.6667</td>
-<td>0.5100</td>
+<td>ECG_roll1min_std</td>
+<td>0.269</td>
+<td>RESP_roll1min_std</td>
+<td>0.103</td>
 </tr>
 <tr class="odd">
 <td>S4</td>
-<td>1.0000</td>
-<td>1.0000</td>
-<td>1.0000</td>
+<td>EDA</td>
+<td>0.217</td>
+<td>EDA_roll1min_mean</td>
+<td>0.140</td>
+</tr>
+</tbody>
+</table>
+<p><em>Aggregate feature importance:</em></p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Feature</th>
+<th>Importance</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>ECG_roll1min_std</td>
+<td>0.0997</td>
+</tr>
+<tr class="even">
+<td>EDA</td>
+<td>0.0930</td>
+</tr>
+<tr class="odd">
+<td>TEMP_roll3min_mean</td>
+<td>0.0852</td>
+</tr>
+<tr class="even">
+<td>RESP_roll3min_std</td>
+<td>0.0663</td>
+</tr>
+<tr class="odd">
+<td>TEMP_lag_1</td>
+<td>0.0536</td>
 </tr>
 </tbody>
 </table>

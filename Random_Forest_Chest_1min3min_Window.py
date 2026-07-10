@@ -111,10 +111,9 @@ for subject, group in train_engineered.groupby('subject'):
     print(f" -> Test  labels: {y_test.value_counts().to_dict()}")
 
     rf_model = RandomForestClassifier(
-        n_estimators=100,
-        class_weight='balanced',
-        random_state=42,
-        n_jobs=-1
+    n_estimators=100,
+    random_state=42,
+    n_jobs=-1
     )
     rf_model.fit(X_train, y_train)
     y_pred = rf_model.predict(X_test)
