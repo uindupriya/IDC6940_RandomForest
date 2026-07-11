@@ -21,8 +21,23 @@ wesad_wrist_train.csv
 *.zip
 windowed_outputs/
 
-# Plots — generated output, not source
+# Ignore generated plots by default
 *.png
+
+# ---------- Website figures ----------
+!wesad_chest_pairplot.png
+!wesad_wrist_raw_scatter.png
+!wesad_wrist_rolling_scatter.png
+!wesad_wrist_normalization_comparison.png
+
+# Random Forest confusion matrices
+!S2_RF_confusion_matrix.png
+!S3_RF_confusion_matrix.png
+!S4_RF_confusion_matrix.png
+!RF_global_confusion_matrix.png
+
+# Optional figure
+!confusion_matrix.png
 
 # Feature importance CSVs — generated output
 feature_importance_*.csv

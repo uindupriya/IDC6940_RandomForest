@@ -7,7 +7,8 @@ subjects = [
     'S2','S3','S4','S5','S6','S7','S8','S9',
     'S10','S11','S13','S14','S15','S16','S17'
 ]
-VALID_LABELS = [1, 2, 3]
+VALID_LABELS = [0, 1]
+
 chest_dfs = []
 wrist_dfs = []
 
@@ -52,7 +53,11 @@ for subject in subjects:
     chest_df.loc[(chest_df['TEMP'] <= 20) | (chest_df['TEMP'] >= 45), 'TEMP'] = np.nan
     chest_df.loc[chest_df['EDA'] < 0, 'EDA'] = np.nan
     chest_df = chest_df.ffill().bfill()  # Cleans sensor errors seamlessly
+        # Map 2 (Stress) -> 1, and 1 & 3 (Non-Stress) -> 0
+    label_mapping = {1: 0, 2: 1, 3: 0}
+    chest_df['label'] = chest_df['label'].map(label_mapping)
     chest_df = chest_df[chest_df['label'].isin(VALID_LABELS)]
+
 
     
     chest_dfs.append(chest_df)
@@ -77,7 +82,11 @@ for subject in subjects:
     })
     
     # Wrist can be filtered row-by-row because her NeuroKit pipeline isn't analyzing the wrist
+        # Wrist can be filtered row-by-row because her NeuroKit pipeline isn't analyzing the wrist
+    label_mapping = {1: 0, 2: 1, 3: 0}
+    wrist_df['label'] = wrist_df['label'].map(label_mapping)
     wrist_df = wrist_df[wrist_df['label'].isin(VALID_LABELS)]
+
     wrist_df = wrist_df.dropna()
     wrist_dfs.append(wrist_df)
     print(f"[WRIST CLEAN] {subject}: {wrist_df.shape}")

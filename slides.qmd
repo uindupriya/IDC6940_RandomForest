@@ -1,117 +1,100 @@
 ---
-title: "Present a great story for data science projects"
-subtitle: "This is a Slide Template"
-author: "Students names (Advisor: Dr. Cohen)"
-date: '`r Sys.Date()`'
+title: "Stress State Prediction from Wearable Sensors"
+subtitle: "A Comparative Study of ARIMA and Random Forest"
+author: "Virginia Vaughan, Indupriya Uppaluri, Chawan Sreelekha (Advisor: Dr. Cohen)"
+date: today
 format:
-  revealjs
+  revealjs:
+    theme: moon
+    slide-number: true
+    transition: fade
+    fontsize: 1.5em
 course: Capstone Projects in Data Science
-bibliography: references.bib # file contains bibtex for references
-#always_allow_html: true # this allows to get PDF with HTML features
+bibliography: references.bib
 self-contained: true
 execute: 
   warning: false
   message: false
-editor: 
-  markdown: 
-    wrap: 72
 ---
 
-::: callout-important
-**Remember:** Your goal is to make your audience understand and care
-about your findings. By crafting a compelling story, you can effectively
-communicate the value of your data science project.
+## Overview
 
-Carefully read this template since it has instructions and tips to
-writing!
+- **Project:** Comparing ARIMA and Random Forest for stress state 
+detection using WESAD wearable sensor data
+- **Goal:** Determine if ARIMA can match Random Forest in classifying 
+stress states without complex training
+- **Approach:** Extract ECG and EDA signals, engineer rolling window 
+features, evaluate with F1-score and confusion matrix
 
-More information about `revealjs`:
-<https://quarto.org/docs/reference/formats/presentations/revealjs.html>
-:::
+## What is Random Forest {.smaller}
 
-## Introduction  {.smaller}
+- Random Forest is an ensemble machine learning method that builds multiple decision trees
+- Makes no assumptions about linearity or distribution of the underlying data
+- Classification is determined by majority vote across B trees:
 
--   Develop a storyline that captures attention and maintains interest.
+$$\hat{m}(x) = \text{mode}\{T_1(x), T_2(x), \ldots, T_B(x)\}$$
 
--   Your audience is your peers
-
--   Clearly state the problem or question you're addressing.
-
--   Introduce why it is relevant needs.
-
--   Provide an overview of your approach.
-
-In kernel estimator, weight function is known as kernel function
-[@efr2008]. Cite this paper [@bro2014principal]. The GEE [@wang2014].
-The PCA [@daffertshofer2004pca]\*
-
-## Methods
-
--   Detail the models or algorithms used.
-
--   Justify your choices based on the problem and data.
-
-
-
-## Data Exploration and Visualization
-
--   Describe your data sources and collection process.
-
--   Present initial findings and insights through visualizations.
-
--   Highlight unexpected patterns or anomalies.
-
-## Data Exploration and Visualization {.smaller}
-
-A study was conducted to determine how...
-
-```{r, warning=FALSE, echo=F, message=FALSE}
-# loading packages 
-library(tidyverse)
-library(knitr)
-library(ggthemes)
-library(ggrepel)
-library(dslabs)
+```{=html}
+<svg width="100%" viewBox="0 0 680 380" role="img">
+<title>Random Forest stress detection diagram</title>
+<defs>
+<marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+<path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+</marker>
+</defs>
+<g><rect x="40" y="40" width="100" height="40" rx="8" fill="#5DCAA5" stroke="#0F6E56" stroke-width="0.5"/>
+<text x="90" y="60" text-anchor="middle" dominant-baseline="central" font-size="13" fill="#085041" font-weight="500">ECG signal</text></g>
+<g><rect x="40" y="100" width="100" height="40" rx="8" fill="#5DCAA5" stroke="#0F6E56" stroke-width="0.5"/>
+<text x="90" y="120" text-anchor="middle" dominant-baseline="central" font-size="13" fill="#085041" font-weight="500">EDA signal</text></g>
+<g><rect x="40" y="180" width="100" height="52" rx="8" fill="#AFA9EC" stroke="#534AB7" stroke-width="0.5"/>
+<text x="90" y="198" text-anchor="middle" dominant-baseline="central" font-size="13" fill="#26215C" font-weight="500">Rolling</text>
+<text x="90" y="214" text-anchor="middle" dominant-baseline="central" font-size="13" fill="#26215C" font-weight="500">window</text>
+<text x="90" y="228" text-anchor="middle" dominant-baseline="central" font-size="11" fill="#3C3489">1-min, 3-min</text></g>
+<line x1="140" y1="60" x2="210" y2="100" stroke="#1D9E75" stroke-width="1.5" marker-end="url(#arrow)"/>
+<line x1="140" y1="120" x2="210" y2="130" stroke="#1D9E75" stroke-width="1.5" marker-end="url(#arrow)"/>
+<line x1="140" y1="200" x2="210" y2="160" stroke="#534AB7" stroke-width="1.5" marker-end="url(#arrow)"/>
+<g><rect x="210" y="50" width="100" height="52" rx="8" fill="#D3D1C7" stroke="#5F5E5A" stroke-width="0.5"/>
+<text x="260" y="68" text-anchor="middle" dominant-baseline="central" font-size="13" fill="#2C2C2A" font-weight="500">Tree 1</text>
+<text x="260" y="86" text-anchor="middle" dominant-baseline="central" font-size="11" fill="#444441">→ Stress</text></g>
+<g><rect x="210" y="120" width="100" height="52" rx="8" fill="#D3D1C7" stroke="#5F5E5A" stroke-width="0.5"/>
+<text x="260" y="138" text-anchor="middle" dominant-baseline="central" font-size="13" fill="#2C2C2A" font-weight="500">Tree 2</text>
+<text x="260" y="156" text-anchor="middle" dominant-baseline="central" font-size="11" fill="#444441">→ Stress</text></g>
+<g><rect x="210" y="190" width="100" height="52" rx="8" fill="#D3D1C7" stroke="#5F5E5A" stroke-width="0.5"/>
+<text x="260" y="208" text-anchor="middle" dominant-baseline="central" font-size="13" fill="#2C2C2A" font-weight="500">Tree 3</text>
+<text x="260" y="226" text-anchor="middle" dominant-baseline="central" font-size="11" fill="#444441">→ Neutral</text></g>
+<circle cx="260" cy="272" r="4" fill="#888780"/>
+<circle cx="260" cy="288" r="4" fill="#888780"/>
+<text x="260" y="315" text-anchor="middle" font-size="11" fill="#888780">B = 100 trees</text>
+<line x1="310" y1="76" x2="400" y2="160" stroke="#888780" stroke-width="1.2" marker-end="url(#arrow)"/>
+<line x1="310" y1="146" x2="400" y2="170" stroke="#888780" stroke-width="1.2" marker-end="url(#arrow)"/>
+<line x1="310" y1="216" x2="400" y2="180" stroke="#888780" stroke-width="1.2" marker-end="url(#arrow)"/>
+<g><rect x="400" y="140" width="100" height="52" rx="8" fill="#EF9F27" stroke="#854F0B" stroke-width="0.5"/>
+<text x="450" y="158" text-anchor="middle" dominant-baseline="central" font-size="13" fill="#412402" font-weight="500">Majority</text>
+<text x="450" y="174" text-anchor="middle" dominant-baseline="central" font-size="13" fill="#412402" font-weight="500">vote</text></g>
+<line x1="500" y1="166" x2="560" y2="166" stroke="#888780" stroke-width="1.2" marker-end="url(#arrow)"/>
+<g><rect x="560" y="80" width="100" height="36" rx="8" fill="#F0997B" stroke="#993C1D" stroke-width="0.5"/>
+<text x="610" y="98" text-anchor="middle" dominant-baseline="central" font-size="13" fill="#4A1B0C" font-weight="500">Stress</text></g>
+<g><rect x="560" y="148" width="100" height="36" rx="8" fill="#85B7EB" stroke="#185FA5" stroke-width="0.5"/>
+<text x="610" y="166" text-anchor="middle" dominant-baseline="central" font-size="13" fill="#042C53" font-weight="500">Neutral</text></g>
+<g><rect x="560" y="216" width="100" height="36" rx="8" fill="#97C459" stroke="#3B6D11" stroke-width="0.5"/>
+<text x="610" y="234" text-anchor="middle" dominant-baseline="central" font-size="13" fill="#173404" font-weight="500">Amusement</text></g>
+<line x1="558" y1="158" x2="558" y2="116" stroke="#993C1D" stroke-width="1.2" marker-end="url(#arrow)"/>
+<line x1="560" y1="170" x2="560" y2="170" stroke="#185FA5" stroke-width="1.2" marker-end="url(#arrow)"/>
+<line x1="558" y1="178" x2="558" y2="218" stroke="#3B6D11" stroke-width="1.2" marker-end="url(#arrow)"/>
+<text x="90" y="20" text-anchor="middle" font-size="11" fill="#888780">Input signals</text>
+<text x="260" y="20" text-anchor="middle" font-size="11" fill="#888780">Decision trees</text>
+<text x="450" y="120" text-anchor="middle" font-size="11" fill="#888780">Aggregation</text>
+<text x="610" y="55" text-anchor="middle" font-size="11" fill="#888780">Output</text>
+</svg>
 ```
 
-```{r, warning=FALSE, echo=F}
-# Load Data
-#kable(head(murders))
+## Why Random Forest for Stress Detection on WESAD {.smaller}
 
-ggplot1 = murders %>% ggplot(mapping = aes(x=population/10^6, y=total)) 
+- **Proven on WESAD** — Garg et al. (2021) found RF achieved strong performance across binary and three-class stress tasks; Schmidt et al. (2018) achieved 88.33% baseline accuracy
+- **Handles non-linear patterns** — stress responses in ECG and EDA are non-linear; RF captures complex patterns without linearity assumptions [@ziyadidegan2025]
+- **Robust to sensor noise** — RF node-splitting prevents outliers from corrupting classification boundaries [@garg2021]
 
-  ggplot1 + geom_point(aes(col=region), size = 4) +
-  geom_text_repel(aes(label=abb)) +
-  scale_x_log10() +
-  scale_y_log10() +
-  geom_smooth(formula = "y~x", method=lm,se = F)+
-  xlab("Populations in millions (log10 scale)") + 
-  ylab("Total number of murders (log10 scale)") +
-  ggtitle("US Gun Murders in 2010") +
-  scale_color_discrete(name = "Region")+
-      theme_bw()
-  
-
-```
-
-## Modeling and Results
-
--   Explain your data preprocessing and cleaning steps.
-
--   Present your key findings in a clear and concise manner.
-
--   Use visuals to support your claims.
-
--   **Tell a story about what the data reveals.**
-
-```{r}
-
-```
-
-## Conclusion
-
--   Summarize your key findings.
-
--   Discuss the implications of your results.
-
-## References
+## What is ARIMA
+-arima content goes here
+-arima content goes here
+-arima content goes here
