@@ -2,7 +2,7 @@
 title: "Stress State Prediction from Wearable Sensors: A Comparative Study of ARIMA and Random Forest on the WESAD Dataset"
 
 author: "Indupriya Uppaluri, Virginia Vaughan, Chawan Sreelekha (Advisor: Dr. Cohen)"
-date: '`r Sys.Date()`'
+date: today
 format:
   html:
     code-fold: true
@@ -235,17 +235,6 @@ conditions, while ECG and RESP show considerable overlap in raw form,
 suggesting that temporal feature engineering is necessary to extract 
 meaningful stress patterns from these signals.
 
-[INSERT CHEST PAIRPLOT HERE]
-
-**Descriptive statistics**
-
-[insert descriptive stats table]
-
-[insert - Chest pairplot PRE-normalization + commentary  ← raw signals only
-- Wrist pairplot PRE-normalization + commentary  ← raw signals only]
-
-
-
 
 ### Modeling and Results
 
@@ -260,7 +249,104 @@ normalization, signals are centered around a mean of 0 with a standard
 deviation of 1 per subject, making Stress and Non-Stress patterns more 
 comparable and preventing data leakage across training partitions.
 
-[insert POST-normalization comparison plot]
+
+```{python}
+
+#| code-fold: true
+#| code-summary: "Code"
+#| eval: false
+# Load Data
+import pandas as pd
+from sklearn.preprocessing import StandardScaler
+
+print("=== Starting Block-Stratified Time Splitting & Normalization ===")
+
+# 1. LOAD THE CLEAN DATASETS
+print("Loading clean datasets...")
+chest_data = pd.read_csv("wesad_chest_clean.csv")
+wrist_data = pd.read_csv("wesad_wrist_clean.csv")
+label_mapping = {1: 0, 2: 1, 3: 0}
+chest_data['label'] = chest_data['label'].map(label_mapping)
+wrist_data['label'] = wrist_data['label'].map(label_mapping)
+
+chest_features = ['ECG', 'EDA', 'TEMP', 'RESP']
+wrist_features = ['EDA', 'TEMP']
+
+chest_train_list, chest_test_list = [], []
+wrist_train_list, wrist_test_list = [], []
+
+# ====================================================
+# 2. CHEST PIPELINE: SPLIT 80/20 WITHIN EACH CONDITION BLOCK
+# ====================================================
+print("\nProcessing Chest Streams...")
+for subject, subject_group in chest_data.groupby('subject'):
+    subject_group = subject_group.sort_index()
+    
+    # Store train/test parts for this specific subject across all labels
+    sub_train_parts = []
+    sub_test_parts = []
+    
+    # Split chronologically within each condition block to preserve label variety
+    for label, label_group in subject_group.groupby('label'):
+        split_idx = int(len(label_group) * 0.8)
+        sub_train_parts.append(label_group.iloc[:split_idx])
+        sub_test_parts.append(label_group.iloc[split_idx:])
+        
+    # Combine back into a unified train/test split for this subject
+    train_split = pd.concat(sub_train_parts).sort_index().copy()
+    test_split = pd.concat(sub_test_parts).sort_index().copy()
+    
+    # Local scaling: fit ONLY on training metrics to avoid leakage
+    scaler = StandardScaler()
+    train_split[chest_features] = scaler.fit_transform(train_split[chest_features])
+    test_split[chest_features] = scaler.transform(test_split[chest_features])
+    
+    chest_train_list.append(train_split)
+    chest_test_list.append(test_split)
+    print(f" -> {subject} Chest arrays split stratified & standardized.")
+
+# ====================================================
+# 3. WRIST PIPELINE: SPLIT 80/20 WITHIN EACH CONDITION BLOCK
+# ====================================================
+print("\nProcessing Wrist Streams...")
+for subject, subject_group in wrist_data.groupby('subject'):
+    subject_group = subject_group.sort_index()
+    
+    sub_train_parts = []
+    sub_test_parts = []
+    
+    # Split chronologically within each condition block to preserve label variety
+    for label, label_group in subject_group.groupby('label'):
+        split_idx = int(len(label_group) * 0.8)
+        sub_train_parts.append(label_group.iloc[:split_idx])
+        sub_test_parts.append(label_group.iloc[split_idx:])
+        
+    train_split = pd.concat(sub_train_parts).sort_index().copy()
+    test_split = pd.concat(sub_test_parts).sort_index().copy()
+    
+    scaler = StandardScaler()
+    train_split[wrist_features] = scaler.fit_transform(train_split[wrist_features])
+    test_split[wrist_features] = scaler.transform(test_split[wrist_features])
+    
+    wrist_train_list.append(train_split)
+    wrist_test_list.append(test_split)
+    print(f" -> {subject} Wrist arrays split stratified & standardized.")
+
+# ====================================================
+# 4. EXPORT HANDOFF FILES
+# ====================================================
+print("\nRecombining and saving stratified data splits...")
+pd.concat(chest_train_list, ignore_index=True).to_csv("wesad_chest_train.csv", index=False)
+pd.concat(chest_test_list, ignore_index=True).to_csv("wesad_chest_test.csv", index=False)
+pd.concat(wrist_train_list, ignore_index=True).to_csv("wesad_wrist_train.csv", index=False)
+pd.concat(wrist_test_list, ignore_index=True).to_csv("wesad_wrist_test.csv", index=False)
+
+print("\nSuccess! Block-stratified handoff files saved with zero leakage.")
+
+ 
+```
+
+RESULT: ![Normalization comparison](wesad_wrist_normalization_comparison.png)
 
 To capture temporal stress dynamics, 1-minute and 3-minute rolling 
 window mean and standard deviation features were engineered from the 
@@ -271,16 +357,429 @@ rolling window space compared to Non-Stress, confirming that temporal
 context windows improve class separability beyond what raw signal 
 values alone provide.
 
+**Rolling windows for Random Forest**
+```{python}
 
-[insert  rolling window scatter plots]
+#| code-fold: true
+#| code-summary: "Code"
+#| eval: false
+# Load Data
 
+import joblib
+import pandas as pd
+
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import classification_report, f1_score, precision_score, recall_score
+
+print("=== Starting Random Forest Model Loop (Lags + 1-min + 3-min Rolling Windows) ===")
+
+# -------------------------------------------------------
+# 1. LOAD PRE-SPLIT, PRE-NORMALIZED WRIST FILES
+# -------------------------------------------------------
+print("Loading data splits...")
+train_df = pd.read_csv("wesad_wrist_train.csv")
+test_df  = pd.read_csv("wesad_wrist_test.csv")
+
+
+
+FS = 4  # wrist sensor Hz
+
+# -------------------------------------------------------
+# 2. FEATURE ENGINEERING
+# -------------------------------------------------------
+def engineer_features(df, fs=4):
+    """
+    Per-subject feature engineering (no cross-subject leakage):
+      - Lag features       : t-1 to t-4       (1 second context @ 4Hz)
+      - 1-min rolling      : mean + std        (240 samples @ 4Hz)
+      - 3-min rolling      : mean + std        (720 samples @ 4Hz)
+
+    ECG excluded — wrist sensor does not record ECG.
+    Only EDA and TEMP are valid wrist channels in WESAD.
+    """
+    valid_features = [f for f in ['EDA', 'TEMP'] if f in df.columns]
+    print(f" -> Wrist channels found: {valid_features}")
+
+    win_1min = fs * 60        # 240 samples
+    win_3min = fs * 60 * 3   # 720 samples
+
+    groups = []
+    for subject, group in df.groupby('subject'):
+        g = group.sort_index().copy()
+
+        for col in valid_features:
+            # Lag features (1 second of raw history)
+            for lag in range(1, 5):
+                g[f'{col}_lag_{lag}'] = g[col].shift(lag)
+
+            # 1-min rolling features (acute stress onset)
+            g[f'{col}_roll1min_mean'] = (
+                g[col].rolling(window=win_1min, min_periods=1).mean()
+            )
+            g[f'{col}_roll1min_std'] = (
+                g[col].rolling(window=win_1min, min_periods=2).std()
+            )
+
+            # 3-min rolling features (sustained physiological arousal)
+            g[f'{col}_roll3min_mean'] = (
+                g[col].rolling(window=win_3min, min_periods=1).mean()
+            )
+            g[f'{col}_roll3min_std'] = (
+                g[col].rolling(window=win_3min, min_periods=2).std()
+            )
+
+        groups.append(g.dropna())
+
+    return pd.concat(groups, ignore_index=True)
+
+
+print("Engineering features...")
+train_engineered = engineer_features(train_df)
+test_engineered  = engineer_features(test_df)
+
+feature_columns = [
+    c for c in train_engineered.columns
+    if c not in ['subject', 'label']
+]
+print(f" -> Total feature columns: {len(feature_columns)}")
+print(f"    {feature_columns}")
+
+# -------------------------------------------------------
+# 3. PER-SUBJECT TRAINING LOOP
+# -------------------------------------------------------
+results_summary = []
+all_importances = []
+
+label_names = {0: 'Non-Stress', 1: 'Stress'}
+
+for subject, group in train_engineered.groupby('subject'):
+    print(f"\n{'='*50}")
+    print(f"Training RF for {subject}...")
+
+    X_train = group[feature_columns]
+    y_train = group['label']
+
+    test_group = test_engineered[test_engineered['subject'] == subject]
+
+    if test_group.empty:
+        print(f" [SKIP] No test data found for {subject}")
+        continue
+
+    X_test = test_group[feature_columns]
+    y_test = test_group['label']
+
+    print(f" -> Train size: {X_train.shape} | Test size: {X_test.shape}")
+    print(f" -> Train label dist: {y_train.value_counts().to_dict()}")
+    print(f" -> Test  label dist: {y_test.value_counts().to_dict()}")
+
+    rf_model = RandomForestClassifier(
+    n_estimators=100,
+    random_state=42,
+    n_jobs=-1
+    )
+    rf_model.fit(X_train, y_train)
+
+    y_pred = rf_model.predict(X_test)
+
+    macro_f1   = f1_score(y_test, y_pred, average='binary', zero_division=0)
+    macro_prec = precision_score(y_test, y_pred, average='binary', zero_division=0)
+    macro_rec  = recall_score(y_test, y_pred, average='binary', zero_division=0)
+
+
+    print(f"\n[{subject}] Binary Precision : {macro_prec:.4f}")
+    print(f"[{subject}] Binary Recall    : {macro_rec:.4f}")
+    print(f"[{subject}] Binary F1-Score  : {macro_f1:.4f}")
+    print("\nDetailed Per-Class Performance:")
+    print(classification_report(
+        y_test, y_pred,
+        labels=[0, 1],
+        target_names=['Non-Stress', 'Stress'],
+        zero_division=0
+    ))
+
+
+    # --- Feature Importance ---
+    importances = pd.DataFrame({
+        'subject':    subject,
+        'feature':    feature_columns,
+        'importance': rf_model.feature_importances_
+    }).sort_values('importance', ascending=False)
+
+    print(f"Top 10 features for {subject}:")
+    print(importances.head(10).to_string(index=False))
+    importances.to_csv(f"feature_importance_{subject}.csv", index=False)
+    all_importances.append(importances)
+
+    # --- Save Model ---
+    model_filename = f"rf_model_{subject}_rolling.pkl"
+    joblib.dump(rf_model, model_filename)
+    print(f" Saved: {model_filename}")
+
+    results_summary.append({
+        'subject':   subject,
+        'precision': round(macro_prec, 4),
+        'recall':    round(macro_rec, 4),
+        'f1_binary': round(macro_f1, 4)
+    })
+
+
+# -------------------------------------------------------
+# 4. SUMMARY TABLE
+# -------------------------------------------------------
+print(f"\n{'='*50}")
+print("=== Per-Subject Results Summary ===")
+summary_df = pd.DataFrame(results_summary)
+print(summary_df.to_string(index=False))
+summary_df.to_csv("rf_rolling_results.csv", index=False)
+print("Saved: rf_rolling_results.csv")
+
+# -------------------------------------------------------
+# 5. AGGREGATE FEATURE IMPORTANCE ACROSS ALL SUBJECTS
+# -------------------------------------------------------
+print("\n=== Aggregate Feature Importance (All Subjects) ===")
+all_imp_df = pd.concat(all_importances, ignore_index=True)
+agg_imp = (
+    all_imp_df.groupby('feature')['importance']
+    .mean()
+    .reset_index()
+    .sort_values('importance', ascending=False)
+)
+print(agg_imp.to_string(index=False))
+agg_imp.to_csv("feature_importance_aggregate.csv", index=False)
+print("Saved: feature_importance_aggregate.csv")
+
+print("\n=== Complete ===")
+
+
+
+```
+
+
+RESULT: ![Wrist window rolling](wesad_wrist_rolling_scatter.png)
+
+
+
+```{python}
+
+#| code-fold: true
+#| code-summary: "Code"
+#| eval: false
+# Load Data
+
+
+import joblib
+import pandas as pd
+import numpy as np
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import classification_report, f1_score, precision_score, recall_score
+
+print("=== Chest RF Pipeline (Lags + 1-min + 3-min Rolling Windows) ===")
+
+# -------------------------------------------------------
+# 1. LOAD PRE-SPLIT, PRE-NORMALIZED CHEST FILES
+# -------------------------------------------------------
+print("Loading chest data splits...")
+train_df = pd.read_csv("wesad_chest_train.csv")
+test_df  = pd.read_csv("wesad_chest_test.csv")
+
+
+
+FS = 700  # chest sensor Hz
+
+# -------------------------------------------------------
+# 2. FEATURE ENGINEERING
+# -------------------------------------------------------
+def engineer_chest_features(df, fs=700):
+    """
+    Per-subject feature engineering for chest signals (no leakage):
+      - Lag features  : t-1 to t-4        (raw signal history)
+      - 1-min rolling : mean + std         (42,000 samples @ 700Hz)
+      - 3-min rolling : mean + std         (126,000 samples @ 700Hz)
+
+    Same 1-min and 3-min window durations as wrist RF for consistent
+    cross-sensor comparison. Sample counts differ due to sampling rate:
+      Wrist 1-min = 240 samples   | Chest 1-min = 42,000 samples
+      Wrist 3-min = 720 samples   | Chest 3-min = 126,000 samples
+    """
+    valid_features = [f for f in ['ECG', 'EDA', 'TEMP', 'RESP'] if f in df.columns]
+    print(f" -> Chest channels found: {valid_features}")
+
+    win_1min = fs * 60           # 42,000 samples
+    win_3min = fs * 60 * 3      # 126,000 samples
+
+    print(f" -> 1-min window: {win_1min:,} samples")
+    print(f" -> 3-min window: {win_3min:,} samples")
+    print(f" -> Note: Large windows at 700Hz — may take 15-30 mins...")
+
+    groups = []
+    for subject, group in df.groupby('subject'):
+        print(f"    Engineering features for {subject}...")
+        g = group.sort_index().copy()
+
+        for col in valid_features:
+            # Lag features
+            for lag in range(1, 5):
+                g[f'{col}_lag_{lag}'] = g[col].shift(lag)
+
+            # 1-min rolling (acute stress onset)
+            g[f'{col}_roll1min_mean'] = (
+                g[col].rolling(window=win_1min, min_periods=1).mean()
+            )
+            g[f'{col}_roll1min_std'] = (
+                g[col].rolling(window=win_1min, min_periods=2).std()
+            )
+
+            # 3-min rolling (sustained physiological arousal)
+            g[f'{col}_roll3min_mean'] = (
+                g[col].rolling(window=win_3min, min_periods=1).mean()
+            )
+            g[f'{col}_roll3min_std'] = (
+                g[col].rolling(window=win_3min, min_periods=2).std()
+            )
+
+        groups.append(g.dropna())
+        print(f"    {subject} done.")
+
+    return pd.concat(groups, ignore_index=True)
+
+
+print("\nEngineering chest features (this will take a while)...")
+train_engineered = engineer_chest_features(train_df)
+test_engineered  = engineer_chest_features(test_df)
+
+feature_columns = [
+    c for c in train_engineered.columns
+    if c not in ['subject', 'label']
+]
+print(f"\n -> Total feature columns: {len(feature_columns)}")
+print(f"    {feature_columns}")
+
+# -------------------------------------------------------
+# 3. PER-SUBJECT TRAINING LOOP
+# -------------------------------------------------------
+results_summary = []
+all_importances = []
+
+for subject, group in train_engineered.groupby('subject'):
+    print(f"\n{'='*50}")
+    print(f"Training Chest RF for {subject}...")
+
+    X_train = group[feature_columns]
+    y_train = group['label']
+
+    test_group = test_engineered[test_engineered['subject'] == subject]
+    if test_group.empty:
+        print(f" [SKIP] No test data found for {subject}")
+        continue
+
+    X_test = test_group[feature_columns]
+    y_test = test_group['label']
+
+    print(f" -> Train: {X_train.shape} | Test: {X_test.shape}")
+    print(f" -> Train labels: {y_train.value_counts().to_dict()}")
+    print(f" -> Test  labels: {y_test.value_counts().to_dict()}")
+
+    rf_model = RandomForestClassifier(
+    n_estimators=100,
+    random_state=42,
+    n_jobs=-1
+    )
+    rf_model.fit(X_train, y_train)
+    y_pred = rf_model.predict(X_test)
+
+    macro_f1   = f1_score(y_test, y_pred, average='macro')
+    macro_prec = precision_score(y_test, y_pred, average='macro', zero_division=0)
+    macro_rec  = recall_score(y_test, y_pred, average='macro', zero_division=0)
+
+    print(f"\n[{subject}] Precision : {macro_prec:.4f}")
+    print(f"[{subject}] Recall    : {macro_rec:.4f}")
+    print(f"[{subject}] F1-Score  : {macro_f1:.4f}")
+    print(classification_report(
+        y_test, y_pred,
+        labels=[0, 1],
+        target_names=['Non-Stress', 'Stress'],
+        zero_division=0
+    ))
+
+    # Feature importance
+    importances = pd.DataFrame({
+        'subject':    subject,
+        'feature':    feature_columns,
+        'importance': rf_model.feature_importances_
+    }).sort_values('importance', ascending=False)
+
+    print(f"Top 10 features for {subject}:")
+    print(importances.head(10).to_string(index=False))
+    importances.to_csv(f"chest_feature_importance_{subject}.csv", index=False)
+    all_importances.append(importances)
+
+    model_filename = f"rf_chest_{subject}_rolling.pkl"
+    joblib.dump(rf_model, model_filename)
+    print(f" Saved: {model_filename}")
+
+    results_summary.append({
+        'subject':   subject,
+        'sensor':    'chest',
+        'precision': round(macro_prec, 4),
+        'recall':    round(macro_rec, 4),
+        'f1_macro':  round(macro_f1, 4)
+    })
+
+# -------------------------------------------------------
+# 4. SUMMARY TABLE
+# -------------------------------------------------------
+print(f"\n{'='*50}")
+print("=== Chest RF Results Summary ===")
+summary_df = pd.DataFrame(results_summary)
+print(summary_df.to_string(index=False))
+summary_df.to_csv("rf_chest_rolling_results.csv", index=False)
+print("Saved: rf_chest_rolling_results.csv")
+
+# -------------------------------------------------------
+# 5. AGGREGATE FEATURE IMPORTANCE
+# -------------------------------------------------------
+print("\n=== Chest Aggregate Feature Importance ===")
+all_imp_df = pd.concat(all_importances, ignore_index=True)
+agg_imp = (
+    all_imp_df.groupby('feature')['importance']
+    .mean()
+    .reset_index()
+    .sort_values('importance', ascending=False)
+)
+print(agg_imp.to_string(index=False))
+agg_imp.to_csv("chest_feature_importance_aggregate.csv", index=False)
+print("Saved: chest_feature_importance_aggregate.csv")
+
+print("\n=== Chest RF Complete ===")
+
+```
+
+
+
+**Chest Sensor Results**
+
+| Subject | Precision | Recall | F1 Score |
+|---------|-----------|--------|----------|
+| S2      | 1.0000    | 1.0000 | 1.0000   |
+| S3      | 0.9513    | 0.9237 | 0.9361   |
+| S4      | 1.0000    | 1.0000 | 1.0000   |
+
+*Table 2: Random Forest chest sensor classification results using 
+rolling window features (ECG, EDA, TEMP, RESP at 700Hz).*
+
+| Subject | Precision | Recall | F1 Score |
+|---------|-----------|--------|----------|
+| S2      | 0.3559    | 1.0000 | 0.5250   |
+| S3      | 0.0000    | 0.0000 | 0.0000   |
+| S4      | 1.0000    | 1.0000 | 1.0000   |
+
+*Table 3: Random Forest wrist sensor classification results using 
+rolling window features (EDA, TEMP at 4Hz).*
 
 #### RF Results
-- Chest results table + commentary
-- Wrist results table + commentary
-- ROC curves + commentary
 
-
+RESULT: ![ROC Curves on RF](rf_roc_curves_combined.png)
+RESULT: ![RF Confusion matrix](RF_global_confusion_matrix.png)
 
 ## Conclusion
 
