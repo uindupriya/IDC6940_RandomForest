@@ -97,6 +97,48 @@ $$\hat{m}(x) = \text{mode} \left\{ T_1(x), T_2(x), \dots, T_B(x) \right\}$$
 
 In other words, this means that we are discovering the emotional state boundaries across the physiological multi-sensor space with the help of bootstrap aggregation (bagging) and randomized feature sub-selection across $B$ independent trees ($B = 100$). This collective voting structure decreases the overall structural variance of individual decision trees without increasing the model's bias.
 
+
+### Classification metrics:
+
+The following metrics are standard for evaluating the performance of classification models. 
+
+$$
+\begin{array}{c|cc}
+ & \textbf{Predicted Positive} & \textbf{Predicted Negative} \\
+\hline
+\textbf{Actual Positive} & TP & FN \\
+\textbf{Actual Negative} & FP & TN \\
+\end{array}
+$$
+
+ - Accuracy: the proportion of correctly classified observations
+$$
+\text{Accuracy} = \frac{TP + TN}{TP + TN + FP + FN}
+$$
+
+ - Precision: measures the proportion of predicted positive observations that are actually positive
+$$
+\text{Precision} = \frac{TP}{TP + FP}
+$$
+
+ - Recall (Sensitivity): the proportion of actual positive observations that are correctly identified
+$$
+\text{Recall} = \frac{TP}{TP + FN}
+$$
+
+- F1: the harmonic mean of precision and recall. 
+$$
+F1 = 2 \times
+\frac{\text{Precision} \times \text{Recall}}
+{\text{Precision} + \text{Recall}}
+$$
+or
+$$
+F1 = \frac{2TP}{2TP + FP + FN}
+$$
+
+
+
 ### Assumptions of Random Forest
 
 #### The Core Assumptions:
@@ -605,54 +647,33 @@ To better capture temporal physiological patterns associated with stress, we app
 | RESP_roll3min_std | 0.0663 |
 | TEMP_lag_1 | 0.0536 |
 
+## ROC-AUC Random Forest
 
+  ![Chest and Wrist ROC AUC curves](rf_roc_curves_combined.png){width=90%}
 
 ### Conclusion for Random Forest
 
-The baseline Random Forest model achieved reasonable performance at 82% accuracy, demonstrating that physiological signals from the WESAD dataset contain sufficient information for stress state detection. The rolling window approach showed varied performance across subjects, with S3 showing lower F1-scores in both chest and wrist models, suggesting higher physiological variability in that participant. Chest sensor signals generally provided more consistent results across subjects compared to wrist signals, which is consistent with findings in the literature that chest-worn sensors capture higher quality physiological data. These Random Forest results serve as the baseline for comparison against the ARIMA model results.
+Random Forest achieved strong stress state classification performance 
+on the WESAD dataset, with subjects S2 and S4 reaching perfect 
+classification (F1 = 1.00) using chest sensor signals, while subject 
+S3 achieved an F1 score of 0.94 reflecting physiological variability 
+in stress response patterns across individuals. Chest sensors 
+(ECG, EDA, TEMP, RESP at 700Hz) consistently outperformed wrist 
+sensors (EDA, TEMP at 4Hz), with subject S2 showing notably lower 
+wrist performance (F1 = 0.47) compared to perfect chest performance, 
+confirming that signal richness and sampling rate directly impact 
+classification accuracy. Feature importance analysis revealed that 
+the dominant predictive signal varied by subject where TEMP rolling 
+features drove S2 classification, ECG variability drove S3, and EDA 
+drove S4, suggesting that stress manifests differently across 
+individuals and that personalized per subject modeling is more 
+appropriate than a single generalized classifier. A direct comparison 
+between Random Forest and ARIMA performance will be discussed once 
+ARIMA results are available, with ARIMA achieving [Virginia to add 
+results here] on the same signals.
 
 
-### Classification metrics:
 
-The following metrics are standard for evaluating the performance of classification models. 
-
-$$
-\begin{array}{c|cc}
- & \textbf{Predicted Positive} & \textbf{Predicted Negative} \\
-\hline
-\textbf{Actual Positive} & TP & FN \\
-\textbf{Actual Negative} & FP & TN \\
-\end{array}
-$$
-
- - Accuracy: the proportion of correctly classified observations
-$$
-\text{Accuracy} = \frac{TP + TN}{TP + TN + FP + FN}
-$$
-
- - Precision: measures the proportion of predicted positive observations that are actually positive
-$$
-\text{Precision} = \frac{TP}{TP + FP}
-$$
-
- - Recall (Sensitivity): the proportion of actual positive observations that are correctly identified
-$$
-\text{Recall} = \frac{TP}{TP + FN}
-$$
-
-- F1: the harmonic mean of precision and recall. 
-$$
-F1 = 2 \times
-\frac{\text{Precision} \times \text{Recall}}
-{\text{Precision} + \text{Recall}}
-$$
-or
-$$
-F1 = \frac{2TP}{2TP + FP + FN}
-$$
-
-## Operational findings:
-  While Random Forest demonstrates near-perfect classification capabilities on baseline individuals (S2 and S4 achieving an F1-macro of 1.00), it remains highly susceptible to physiological transition overlap. For Subject S3, the model completely failed to distinguish between the late baseline neutral state and the early stress onset state, defaulting to global stress classification (Stress recall = 1.00, Neutral recall = 0.00[@schmidt2018]. This proves that tabular classifiers struggle when human physiological indicators shift gradually rather than abruptly.
 
 
 ```{r}
