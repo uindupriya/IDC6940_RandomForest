@@ -740,19 +740,64 @@ print("\n=== Chest RF Complete ===")
 
 ```
 
+#### Rolling windows for ARIMA Prediction
+| Signal | Subject |   MAE |   MSE |  RMSE |    MAPE |
+| ------ | ------- | ----: | ----: | ----: | ------: |
+| ECG    | S2      | 0.281 | 0.186 | 0.432 | 175.634 |
+| ECG    | S3      | 0.247 | 0.154 | 0.392 | 193.028 |
+| ECG    | S4      | 0.197 | 0.127 | 0.357 | 200.785 |
+| EDA    | S2      | 0.003 | 0.000 | 0.014 |   0.421 |
+| EDA    | S3      | 0.002 | 0.001 | 0.031 |   1.100 |
+| EDA    | S4      | 1.036 | 1.541 | 1.241 | 101.279 |
+| RESP   | S2      | 0.006 | 0.001 | 0.032 |   4.095 |
+| RESP   | S3      | 0.009 | 0.001 | 0.035 |  18.387 |
+| RESP   | S4      | 0.009 | 0.002 | 0.044 |   5.240 |
+| TEMP   | S2      | 0.003 | 0.002 | 0.044 |   0.493 |
+| TEMP   | S3      | 0.002 | 0.001 | 0.028 |   0.593 |
+| TEMP   | S4      | 0.707 | 1.011 | 1.005 | 101.087 |
 
-**Chest Sensor Results**
+*Table 1: ARIMA error metrics for 1 min rolling windows.*
 
-| Subject | Precision | Recall | F1 Score |
-|---------|-----------|--------|----------|
-| S2      | 1.0000    | 1.0000 | 1.0000   |
-| S3      | 0.9513    | 0.9237 | 0.9361   |
-| S4      | 1.0000    | 1.0000 | 1.0000   |
+| Signal | Subject |        MAE |              MSE |       RMSE |          MAPE |
+| ------ | ------- | ---------: | ---------------: | ---------: | ------------: |
+| ECG    | S2      |      0.118 |            0.029 |      0.171 |        81.483 |
+| ECG    | S3      |      0.096 |            0.022 |      0.148 |       147.274 |
+| ECG    | S4      |      0.079 |            0.019 |      0.139 |       127.707 |
+| EDA    | S2      |      0.001 |            0.000 |      0.009 |         0.191 |
+| EDA    | S3      |      0.001 |            0.001 |      0.022 |         0.445 |
+| EDA    | S4      |      0.001 |            0.001 |      0.033 |         0.212 |
+| RESP   | S2      |      0.003 |            0.001 |      0.026 |         3.039 |
+| RESP   | S3      |      0.004 |            0.001 |      0.028 |         2.430 |
+| RESP   | S4      |      0.004 |            0.002 |      0.045 |         2.162 |
+| TEMP   | S2      |      0.001 |            0.002 |      0.040 |         0.230 |
+| TEMP   | S3      |      0.001 |            0.001 |      0.025 |         0.286 |
+| TEMP   | S4      | 641412.983 | 411410614800.562 | 641412.983 | 214480410.853 |
 
-*Table 1: Random Forest chest sensor classification results using 
+*Table 2: ARIMA error metrics for 3 min rolling windows.*
+
+
+### ARIMA vs RF Classification Results
+
+
+| **Signal** | **Subject** | **RF Precision** | **ARIMA Precision** | **RF Recall** | **ARIMA Recall** | **RF F1** | **ARIMA F1** |
+| ------ | ------- | ---------------: | ------------------: | ------------: | ---------------: | --------: | -----------: |
+| ECG    | S2      |           0.4295 |              0.3820 |        0.4292 |           0.4220 |    0.3545 |       0.4010 |
+| ECG    | S3      |           0.5828 |              0.4291 |        0.5989 |           0.5750 |    0.5692 |       0.4915 |
+| ECG    | S4      |           0.5613 |              0.3351 |        0.5645 |           0.5858 |    0.5623 |       0.4263 |
+| EDA    | S2      |           0.8273 |              0.0002 |        0.5123 |           0.0003 |    0.4414 |       0.0002 |
+| EDA    | S3      |           0.1976 |              0.9977 |        0.2823 |           0.2870 |    0.1796 |       0.4458 |
+| EDA    | S4      |           1.0000 |              0.9997 |        1.0000 |           1.0000 |    1.0000 |       0.9998 |
+| TEMP   | S2      |           1.0000 |              0.5197 |        1.0000 |           1.0000 |    1.0000 |       0.6840 |
+| TEMP   | S3      |           0.7754 |              0.6667 |        0.8278 |           0.0007 |    0.7514 |       0.0013 |
+| TEMP   | S4      |           0.9993 |              0.3540 |        0.9997 |           1.0000 |    0.9995 |       0.5229 |
+| RESP   | S2      |           0.5281 |              0.3341 |        0.5324 |           0.4467 |    0.5247 |       0.3823 |
+| RESP   | S3      |           0.6411 |              0.3728 |        0.6400 |           0.5941 |    0.6406 |       0.4582 |
+| RESP   | S4      |           0.6220 |              0.3585 |        0.6395 |           0.5270 |    0.6242 |       0.4267 |
+
+*Table 3: Random Forest and ARIMA chest sensor classification results using 
 rolling window features (ECG, EDA, TEMP, RESP at 700Hz).*
 
-**Wrist Sensor Results**
+<!-- **Wrist Sensor Results**
 
 | Subject | Precision | Recall | F1 Score |
 |---------|-----------|--------|----------|
@@ -761,7 +806,7 @@ rolling window features (ECG, EDA, TEMP, RESP at 700Hz).*
 | S4      | 1.0000    | 1.0000 | 1.0000   |
 
 *Table 2: Random Forest wrist sensor classification results using 
-rolling window features (EDA, TEMP at 4Hz).*
+rolling window features (EDA, TEMP at 4Hz).* -->
 
 #### RF Results
 

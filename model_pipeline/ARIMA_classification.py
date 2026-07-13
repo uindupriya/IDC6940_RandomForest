@@ -47,7 +47,7 @@ def classify_arima_results(arima_results, stress, baseline):
         d_baseline = abs(value - baseline_mean)
         d_stress = abs(value - stress_mean)
 
-        return 2 if d_stress < d_baseline else 1
+        return 2 if d_stress <= d_baseline else 1
 
 
     results["predicted_label"] = results["predicted"].apply(classify)
