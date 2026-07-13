@@ -55,38 +55,15 @@ into binary stress versus non-stress classifications for direct
 comparison against Random Forest performance on the same held-out 
 test data.
 
-### ARIMA Classification Framework
- - Transformation A Continuous Forecast Generation: 
-  The Action: When later categorizing a continuous variable, it is necessary for the continuous variable to remain continuous for as long as possible.  ARIMA produced continuous forecasts for each physiological signal. 
-  The Result: Taking the rolling windows, the model was able to make predictions in a way that helped preserve the physiological trend as outlined in [@oyeleye2022]
- - Transformation B Participant-Specific State Classification:
-  The Action: To then categorize the ARIMA prediction, the forecast was compared against participant-specific ranges derived from the training data (rolling windows) during the activities to assign Baseline, Stress, or Amusement labels. [@aigrain2015], [@beltran2024]
-  The Reason: With the ARIMA output categorized, it can then by evaluated using the same classification metrics as Random Forest in order to answer our hypothesis.
+### ARIMA Modeling Framework
+The ${ARIMA}(p,d,q)$ model - Autoregressive Integrated Moving Average, predicts a future observation using a combination of past observations and forecasting errors.
+The model is governed by three parameters: $p$ = number of autoregressive (AR) terms, which use previous observations to predict the current value $d$ = number of differencing operations applied to make the time series stationary. $q$ = number of moving average (MA) terms, which use previous forecast errors to improve future predictions.
 
-### Assumptions of ARIMA
-
-ARIMA, or Autoregressive Integrated Moving Average, predicts a future observation using a combination of past observations and forecasting errors.
-
-$$
-\text{ARIMA}(p,d,q)
-$$
-
-where:
-
-- $p$ = number of autoregressive (AR) terms, which use previous observations to predict the current value.
-- $d$ = number of differencing operations applied to make the time series stationary.
-- $q$ = number of moving average (MA) terms, which use previous forecast errors to improve future predictions.
-
-### The Core Assumptions:
- - Assumption of Stationarity: ARIMA assumes that the series is stationary, meaning that the statistical properties of the time series are relatively constant over time. In physiological data, trends/shift may occur during changes in activity. 
- - Assumptions of Linear Temporal Dependence: ARIMA assumes the future predicted values can be explained by a linear combination of previous observations (autoregression) and previous forecasting errors (moving average). It cannot model complex nonlinear relationships between physio signals directly, because of this the autoregressive parameter 'p' is usually much higher when predicting physio data, weighing heavily previous observations.
- 
- An ARIMA$(p,d,q)$ model is defined as
+An ARIMA$(p,d,q)$ model is defined as
 
 $$
 \phi(B)(1-B)^d y_t = c + \theta(B)\varepsilon_t
 $$
-
  where:
 
 - $y_t$ is the observed physiological signal at time $t$,
@@ -97,20 +74,28 @@ $$
 - $c$ is a constant term,
 - $\varepsilon_t$ represents random white-noise errors.
 
-**Random Forest Classification Framework**
+This model is based on two assumptions, both of which are worth discussing with respect to the physiological data. First, it is assumed that the ARIMA is **stationary**, or that the statistical characteristics of the series remain nearly constant for time. This is a key assumption which is violated to some extent when a subject moves from one activity to another, as this movement may involve rapid trends or shifts in the signal. Second, ARIMA assumes **linear temporal dependence**; it models future observations as a linear function of the past observations and past forecast errors, and does not directly model nonlinear relationships between the physiological signals. The two drawbacks mentioned above are somewhat offset by increasing the autoregressive order p in practice. 
+p, providing the model with more data from the past to look at when it tries to predict complex physiological data.
+
+#### From Forecast to Classification
+Since ARIMA is not a classification model, the generated results needed to be changed to stress/non-stress label, which means that two processes had to be carried out.
+
+ - The first was to come up with a steady forecast. Unlike the discrete categorization done immediately, the signal was forecasted continuously using ARIMA for each physiological signal, as long as it was possible to do so without the introduction of any classification. This was done by applying it to rolling windows of the signal, which enabled the model to capture the physiological trend over time, as outlined by [@oyeleye2022] for windowed forecasting.
+
+ - Participant-specific classification was the second step. After generating the continuous forecast, it was checked against the ranges computed from each participant's individual training data: the statistics computed on a rolling window over their own Baseline and Stress activities respectively. The assigned value to the forecasted value was the label of the corresponding participant if that value fell within the range that the participant assigned. The participant-specific approach is based on the idea of mapping continuous physiological measurements to meaningful categorical states, as proposed by [@aigrain2015], [@beltran2024]
+
+Since ARIMA's output is now discrete labels, then the same classification metrics could also be used to evaluate its performance - precision, recall and F1 - which is also the case with Random Forest, and thus a direct apples-to-apples comparison would be possible between the two models.
+ 
+### Random Forest Classification Framework
 
 The predictive model used for multi-class affective state classification is the non-parametric Random Forest algorithm. Formally, a Random Forest is an ensemble classifier consisting of a collection of structured decision trees $\{h(x, \theta_k), k = 1, \dots\}$ where the parameters $\{\theta_k\}$ are independent, identically distributed random vectors, and each individual tree casts a single unit vote for the most popular class at input feature vector $x$.
 
 The foundational non-parametric regression and classification framework can be defined by the following sequence:
-
 $$Y_i = m(X_i) + \varepsilon_i$$
-
 where $Y_i$ represents the target affective stress label ($Y_i \in \{1, 2, 3\}$: Neutral, Stress, Amusement), which is defined as the sum of the true underlying physiological mapping function value $m(x)$ for the feature tensor $X_i$, and $\varepsilon_i$ represents the random observation errors.
 
-In this implementation, the target function $m(x)$ is mathematically unknown. With the help of this definition, we create a robust local averaging estimation by aggregating a multitude of decorrelated randomized decision trees ($T$). The ultimate classification function estimation formula is printed below:
-
+In practice, the target function $m(x)$ is mathematically unknown. So Random Forest approximates it through local averaging: a large number of decorrelated, randomized decision trees ($T$) are arranged to produce a single robust estimate, given by
 $$\hat{m}(x) = \text{mode} \left\{ T_1(x), T_2(x), \dots, T_B(x) \right\}$$
-
 In other words, this means that we are discovering the emotional state boundaries across the physiological multi-sensor space with the help of bootstrap aggregation (bagging) and randomized feature sub-selection across $B$ independent trees ($B = 100$). This collective voting structure decreases the overall structural variance of individual decision trees without increasing the model's bias.
 
 
@@ -154,10 +139,11 @@ F1 = \frac{2TP}{2TP + FP + FN}
 $$
 
 
-
 ### Assumptions of Random Forest
+While Random Forest is flexible, it does have its own set of assumptions, some of which are particularly challenged by the data's physiological time-series structure in this study.
 
-#### The Core Assumptions:
+**The Core Assumptions:**
+
   - Assumption of Sample Independence (The Time-Series Violation): Random Forest assumes 
     that each row of data is an independent observation. In time-series physiological data, 
     this assumption is completely violated due to temporal autocorrelation (your heart rate 
@@ -172,8 +158,7 @@ $$
 
 ## Analysis and Results
 
-## Data Exploration and Visualizations
-
+### Data Exploration and Visualizations
 
 **Loading Dataset**
 
@@ -346,7 +331,7 @@ print("\nSuccess! Block-stratified handoff files saved with zero leakage.")
  
 ```
 
-RESULT: ![Normalization comparison](wesad_wrist_normalization_comparison.png)
+**Normalization on Wrist EDA and TEMP Signals Before vs. After Result** ![Normalization comparison](wesad_wrist_normalization_comparison.png)
 
 To capture temporal stress dynamics, 1-minute and 3-minute rolling 
 window mean and standard deviation features were engineered from the 
@@ -357,7 +342,7 @@ rolling window space compared to Non-Stress, confirming that temporal
 context windows improve class separability beyond what raw signal 
 values alone provide.
 
-**Rolling windows for Random Forest**
+#### Rolling windows for Random Forest
 ```{python}
 
 #| code-fold: true
@@ -555,7 +540,8 @@ print("\n=== Complete ===")
 ```
 
 
-RESULT: ![Wrist window rolling](wesad_wrist_rolling_scatter.png)
+**Stress vs. Non-Stress Separability Across 1-Minute and 3-Minute Windows Result**
+![Wrist window rolling](wesad_wrist_rolling_scatter.png)
 
 
 
@@ -755,7 +741,6 @@ print("\n=== Chest RF Complete ===")
 ```
 
 
-
 **Chest Sensor Results**
 
 | Subject | Precision | Recall | F1 Score |
@@ -764,8 +749,10 @@ print("\n=== Chest RF Complete ===")
 | S3      | 0.9513    | 0.9237 | 0.9361   |
 | S4      | 1.0000    | 1.0000 | 1.0000   |
 
-*Table 2: Random Forest chest sensor classification results using 
+*Table 1: Random Forest chest sensor classification results using 
 rolling window features (ECG, EDA, TEMP, RESP at 700Hz).*
+
+**Wrist Sensor Results**
 
 | Subject | Precision | Recall | F1 Score |
 |---------|-----------|--------|----------|
@@ -773,13 +760,16 @@ rolling window features (ECG, EDA, TEMP, RESP at 700Hz).*
 | S3      | 0.0000    | 0.0000 | 0.0000   |
 | S4      | 1.0000    | 1.0000 | 1.0000   |
 
-*Table 3: Random Forest wrist sensor classification results using 
+*Table 2: Random Forest wrist sensor classification results using 
 rolling window features (EDA, TEMP at 4Hz).*
 
 #### RF Results
 
-RESULT: ![ROC Curves on RF](rf_roc_curves_combined.png)
-RESULT: ![RF Confusion matrix](RF_global_confusion_matrix.png)
+**Random Forest ROC Curves Result**
+![ROC Curves on RF](rf_roc_curves_combined.png)
+
+**Aggregated Confusion Matrix for Random Forest**
+![RF Confusion matrix](RF_global_confusion_matrix.png)
 
 ## Conclusion
 
