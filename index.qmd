@@ -2,7 +2,7 @@
 title: "Stress State Prediction from Wearable Sensors: A Comparative Study of ARIMA and Random Forest on the WESAD Dataset"
 
 author: "Indupriya Uppaluri, Virginia Vaughan, Chawan Sreelekha (Advisor: Dr. Cohen)"
-date: '`r Sys.Date()`'
+date: today
 format:
   html:
     code-fold: true
@@ -39,38 +39,31 @@ Random Forest is an ensemble machine learning method that builds multiple decisi
 
 ## Methods
 
-### ARIMA Classification Framework
- - Transformation A Continuous Forecast Generation: 
-  The Action: When later categorizing a continuous variable, it is necessary for the continuous variable to remain continuous for as long as possible.  ARIMA produced continuous forecasts for each physiological signal. 
-  The Result: Taking the rolling windows, the model was able to make predictions in a way that helped preserve the physiological trend as outlined in [@oyeleye2022]
- - Transformation B Participant-Specific State Classification:
-  The Action: To then categorize the ARIMA prediction, the forecast was compared against participant-specific ranges derived from the training data (rolling windows) during the activities to assign Baseline, Stress, or Amusement labels. [@aigrain2015], [@beltran2024]
-  The Reason: With the ARIMA output categorized, it can then by evaluated using the same classification metrics as Random Forest in order to answer our hypothesis.
+In this study, we apply two modeling approaches to classify stress 
+states from physiological signals in the WESAD dataset, Random Forest 
+as the machine learning approach and ARIMA as the classical time series 
+approach. Both models were trained and evaluated on the same 
+subject-specific train and test splits to ensure a fair and direct 
+comparison of classification performance across subjects S2, S3, and S4. 
+Random Forest was trained using chest sensor signals (ECG, EDA, TEMP, 
+RESP at 700Hz) and wrist sensor signals (EDA, TEMP at 4Hz), with 
+temporal lag features and 1-minute and 3-minute rolling window features 
+engineered to capture the sequential nature of physiological stress 
+responses. ARIMA was applied to the same wrist sensor signals as a 
+time series forecasting model, converting continuous signal forecasts 
+into binary stress versus non-stress classifications for direct 
+comparison against Random Forest performance on the same held-out 
+test data.
 
-### Assumptions of ARIMA
+### ARIMA Modeling Framework
+The ${ARIMA}(p,d,q)$ model - Autoregressive Integrated Moving Average, predicts a future observation using a combination of past observations and forecasting errors.
+The model is governed by three parameters: $p$ = number of autoregressive (AR) terms, which use previous observations to predict the current value $d$ = number of differencing operations applied to make the time series stationary. $q$ = number of moving average (MA) terms, which use previous forecast errors to improve future predictions.
 
-ARIMA, or Autoregressive Integrated Moving Average, predicts a future observation using a combination of past observations and forecasting errors.
-
-$$
-\text{ARIMA}(p,d,q)
-$$
-
-where:
-
-- $p$ = number of autoregressive (AR) terms, which use previous observations to predict the current value.
-- $d$ = number of differencing operations applied to make the time series stationary.
-- $q$ = number of moving average (MA) terms, which use previous forecast errors to improve future predictions.
-
-### The Core Assumptions:
- - Assumption of Stationarity: ARIMA assumes that the series is stationary, meaning that the statistical properties of the time series are relatively constant over time. In physiological data, trends/shift may occur during changes in activity. 
- - Assumptions of Linear Temporal Dependence: ARIMA assumes the future predicted values can be explained by a linear combination of previous observations (autoregression) and previous forecasting errors (moving average). It cannot model complex nonlinear relationships between physio signals directly, because of this the autoregressive parameter 'p' is usually much higher when predicting physio data, weighing heavily previous observations.
- 
- An ARIMA$(p,d,q)$ model is defined as
+An ARIMA$(p,d,q)$ model is defined as
 
 $$
 \phi(B)(1-B)^d y_t = c + \theta(B)\varepsilon_t
 $$
-
  where:
 
 - $y_t$ is the observed physiological signal at time $t$,
@@ -81,538 +74,32 @@ $$
 - $c$ is a constant term,
 - $\varepsilon_t$ represents random white-noise errors.
 
+This model is based on two assumptions, both of which are worth discussing with respect to the physiological data. First, it is assumed that the ARIMA is **stationary**, or that the statistical characteristics of the series remain nearly constant for time. This is a key assumption which is violated to some extent when a subject moves from one activity to another, as this movement may involve rapid trends or shifts in the signal. Second, ARIMA assumes **linear temporal dependence**; it models future observations as a linear function of the past observations and past forecast errors, and does not directly model nonlinear relationships between the physiological signals. The two drawbacks mentioned above are somewhat offset by increasing the autoregressive order p in practice. 
+p, providing the model with more data from the past to look at when it tries to predict complex physiological data.
+
+#### From Forecast to Classification
+Since ARIMA is not a classification model, the generated results needed to be changed to stress/non-stress label, which means that two processes had to be carried out.
+
+ - The first was to come up with a steady forecast. Unlike the discrete categorization done immediately, the signal was forecasted continuously using ARIMA for each physiological signal, as long as it was possible to do so without the introduction of any classification. This was done by applying it to rolling windows of the signal, which enabled the model to capture the physiological trend over time, as outlined by [@oyeleye2022] for windowed forecasting.
+
+ - Participant-specific classification was the second step. After generating the continuous forecast, it was checked against the ranges computed from each participant's individual training data: the statistics computed on a rolling window over their own Baseline and Stress activities respectively. The assigned value to the forecasted value was the label of the corresponding participant if that value fell within the range that the participant assigned. The participant-specific approach is based on the idea of mapping continuous physiological measurements to meaningful categorical states, as proposed by [@aigrain2015], [@beltran2024]
+
+Since ARIMA's output is now discrete labels, then the same classification metrics could also be used to evaluate its performance - precision, recall and F1 - which is also the case with Random Forest, and thus a direct apples-to-apples comparison would be possible between the two models.
+ 
 ### Random Forest Classification Framework
 
 The predictive model used for multi-class affective state classification is the non-parametric Random Forest algorithm. Formally, a Random Forest is an ensemble classifier consisting of a collection of structured decision trees $\{h(x, \theta_k), k = 1, \dots\}$ where the parameters $\{\theta_k\}$ are independent, identically distributed random vectors, and each individual tree casts a single unit vote for the most popular class at input feature vector $x$.
 
 The foundational non-parametric regression and classification framework can be defined by the following sequence:
-
 $$Y_i = m(X_i) + \varepsilon_i$$
-
 where $Y_i$ represents the target affective stress label ($Y_i \in \{1, 2, 3\}$: Neutral, Stress, Amusement), which is defined as the sum of the true underlying physiological mapping function value $m(x)$ for the feature tensor $X_i$, and $\varepsilon_i$ represents the random observation errors.
 
-In this implementation, the target function $m(x)$ is mathematically unknown. With the help of this definition, we create a robust local averaging estimation by aggregating a multitude of decorrelated randomized decision trees ($T$). The ultimate classification function estimation formula is printed below:
-
+In practice, the target function $m(x)$ is mathematically unknown. So Random Forest approximates it through local averaging: a large number of decorrelated, randomized decision trees ($T$) are arranged to produce a single robust estimate, given by
 $$\hat{m}(x) = \text{mode} \left\{ T_1(x), T_2(x), \dots, T_B(x) \right\}$$
-
 In other words, this means that we are discovering the emotional state boundaries across the physiological multi-sensor space with the help of bootstrap aggregation (bagging) and randomized feature sub-selection across $B$ independent trees ($B = 100$). This collective voting structure decreases the overall structural variance of individual decision trees without increasing the model's bias.
 
-### Assumptions of Random Forest
 
-#### The Core Assumptions:
-  - Assumption of Sample Independence (The Time-Series Violation): Random Forest assumes 
-    that each row of data is an independent observation. In time-series physiological data, 
-    this assumption is completely violated due to temporal autocorrelation (your heart rate 
-    or skin conductance at second t is highly dependent on second t-1).
-  - Assumption of Non-Stationary Invariance: Random Forest cannot extrapolate trends outside 
-    the maximum and minimum values it saw during training. If a subject's raw skin conductance 
-    drifts over the course of an afternoon, the model's tree splits will completely lose 
-    accuracy on future data.
-  - Assumption of Identity Mapping: Standard Random Forest has no built-in mechanism to 
-    recognize sequential order or velocity. It treats a static signal value the same way 
-    whether that signal is spiking upward or crashing downward.
-
-## Modeling
-
-**Physiological Signal Selection**
-
-The data set WESAD contains the physiological signal variables that are used in this study in addition to a number of engineered features. The selection of each variable was based on the fact that it has been previously used in autonomic nervous system studies and that it was relevant to the separation of neutral, stress, and amusement states.
-
-*Electrocardiogram (ECG)* : ECG measures the electrical activity of the heart, from which heart rate (HR) and heart rate variability (HRV) are calculated. Because ECG is directly regulated by the sympathetic and parasympathetic nervous systems, it reliably reflects changes in cardiac rhythm during stress. We selected ECG as one of the two primary ARIMA targets because its beat-to-beat structure provides a naturally regular time series well suited to autoregressive modeling.
-
-*Electrodermal Activity (EDA)* : EDA records the electrical conductivity of the skin, which rises with sympathetic-nervous-system-driven sweat gland activity. In our data, mean EDA under the Stress condition was roughly 40% higher than under Neutral. EDA was used as the second core ARIMA target — both as a standalone predictor and alongside ECG.
-
-*Respiration (RESP)* : RESP captures the expansion and contraction of the chest during breathing. Faster, shallower, and more irregular breathing commonly accompanies stress, and in our data RESP variability was noticeably higher under Stress (std = 3.57) than at Neutral (std = 2.08). Because of this larger spread, RESP was treated as a secondary, corroborating signal rather than a primary ARIMA target.
-
-*Skin Temperature (TEMP)* : TEMP reflects peripheral (not core) skin temperature, which tends to decrease under stress due to vasoconstriction. Of the four signals, TEMP showed the smallest separation across conditions, so it was used to enrich the Random Forest feature set rather than as a primary predictive target.
-
-**Derived Variables**
-
-*Label (target variable)* : Label (target variable): The categorical outcome variable Stess=1, Non-stress =0, as defined by the WESAD protocol (Schmidt and Reiss 2018). This is the variable both models ultimately predict — directly for Random Forest, and after converting a continuous forecast into a category for ARIMA.
-
-*Subject* : A category identifier (S2, S3, S4, etc.) used to group observations by participant. It is not used as a predictor itself, but it is essential for preventing cross-subject data leakage: normalization, lag creation, and train/test splitting are all done independently within each subject's timeline so that no subject's history contaminates another's.
-
-*Z-score / Standardized signal values* : Each raw signal (ECG, EDA, TEMP, RESP) was converted to a z-score using a StandardScaler fit only on that subject's training data. This corrects for the fact that physiological baselines vary widely between individuals (e.g., resting EDA may naturally be higher for one person than another), placing all subjects on a common scale before modeling.
-
-*Lag features* : Four one-step-back values (e.g., EDA_lag_1 through EDA_lag_4) were added as new columns for each signal, giving the model roughly one second of history (at 4 Hz) at each row. These were included specifically to compensate for a structural weakness of Random Forest: unlike ARIMA, it has no built-in concept of time or sequence, so lag features manually inject short-term temporal context into an otherwise order-blind model.
-
-*Rolling window features* : 1-minute and 3-minute rolling mean/std were computed for ECG and EDA. The 1-minute window is meant to capture short-term stress onset, while the 3-minute window captures sustained stress responses ([@ziyadidegan2025],[@oyeleye2022]). These features also give Random Forest a smoothed, denoised version of each signal, helping offset its sensitivity to momentary sensor noise or motion artifacts.
-
-### Preprocessing and Normalization
-Raw physical signals for ECG, EDA, RESP, and TEMP were extracted for the participants. The signals were trimmed to the minimum common length across signals for proper alignment. Physiologically implausible values were treated as artifacts such as temperature ranging outside 25-45 degrees Celsius and negative EDA values. These artifacts were imputed using forward-and-backward filling to preserve temporal continuity. [paper] Only stress, baseline, and amusement states [labels 1-3] were retained for chest signals, and to synchronize with wrist signals, were down sampled from 700Hz to 4Hz using majority-vote labeling within each 175-sample interval.
-
-With our physio data pre-processed, it could then be normalized to meet the assumptions of our models. [@oyeleye2022], [@kontopoulou2023] The chest and wrist datasets were split into training (80%) and testing (20%) sets using a block-stratified chronological split. For each participant, the first 80% of each condition block was assigned for training, with the remaining 20% held out for testing. This method preserved temporal order and ensured all conditions (stress, baseline, and amusement) were represented in both sets.
-Feature normalization was performed for each subject separately using StandardScaler. Scaling parameters (mean and standard deviation) was estimated using only the training set and then applied to both the training and the test set. This transformed each physiological feature into a standardized z-score and prevented information leakage from the test set. 
-The z-score transformation can be represented as 
-$$ z = \frac{x - \mu}{\sigma} $$
-Where x is the original observation, $/mu$ is the mean of the training data, and $/sigma$ is the standard deviation. This centers each feature around zero and scales it to unit variance, allowing ECG, EDA, RESP, and TEMP features to be compared on a common scale. 
-
-**Data Preparation and Signal Alignment Pipeline**
-
-The initial phase of the predictive pipeline establishes a robust data ingestion layer designed to load partitioned datasets, dynamically detect available sensor modalities, and enforce structural timeline isolation.
-
-*Ingestion Protocols and Format Mapping* - The processing script programmatically interfaces with two pre-arranged disk files: wesad_wrist_train.csv (the training matrix) and wesad_wrist_test.csv (the holdout evaluation matrix). The ingestion sequence is mapped via the pandas framework using explicit memory allocation constraints:
-    - Tabular Parsing: The continuous comma-separated streams are read into isolated memory frames (train_df and test_df) as multi-column tabular arrays.
-    - DataFrame Casting: Arrays are strictly enforced as traditional mutable matrices (as.data frame structural equivalents) to allow downstream indexing and chronological row transformations.
-    - Random State Initialization: To stabilize any internal stochastic data handling or 
-    bootstrapping mechanisms during the initial load phase, a global seed is instantiated using random_state=42.
-*Dynamic Channel Scanning and Feature Verification* - Because wearable sensor platforms can experience hardware dropouts, or variations between chest-worn and wrist-worn sensor matrices, the ingestion layer implements a dynamic channel scanner.
- 
-The system verifies a default physiological target array consisting of Electrodermal Activity (EDA), Body Temperature (TEMP), and Electrocardiogram (ECG) metrics. Rather than assuming strict structural permanence, the ingestion function runs an inline list comprehension.
- 
-The ingestion layer dynamically scans for available sensor channels rather than assuming fixed column structure. Only signals present in the loaded CSV are passed downstream — if a sensor modality is missing, the pipeline skips it gracefully without crashing. This makes the pipeline robust to differences between chest and wrist sensor files.
- 
-*Chronological Grouping and Boundary Defense* - To maintain strict data integrity during ingestion and prevent cross-subject timeline pollution, the loading sequence prevents global, un-grouped data operations.Data matrices are partitioned into isolated historical blocks using a split-apply-combine approach on the categorical subject identifier. This ensures that the chronological continuity of each participant's biometric timeline is preserved:
-
-By isolating the timelines within individual subject blocks and explicitly invoking a index-sorting mechanism (.sort_index()), the ingestion layer provides a clear guarantee: no row from Subject A can accidentally inherit historical lag metrics from Subject B.Any boundary artifacts created by tracking changes at the very beginning of a subject's timeline are handled by a .dropna() filter, leaving a clean, continuous, and fully isolated data structure for model training.
-
-### Rolling Window Features
-
-To capture the temporal dynamics of physiological stress responses, rolling window features were engineered from the normalized ECG and EDA signals. For each signal at time $t$, a window of size $w$ was applied to compute the rolling mean:
-
-$$\mu_{t,w} = \frac{1}{w}\sum_{i=t-w+1}^{t} x_i$$
-
-and rolling standard deviation:
-
-$$\sigma_{t,w} = \sqrt{\frac{1}{w}\sum_{i=t-w+1}^{t}(x_i - \mu_{t,w})^2}$$
-
-Two window sizes were applied which are 1-minute and 3-minute windows in order to capture both short-term stress onset patterns and longer-term sustained stress responses [@ziyadidegan2025]. These rolling features give the Random Forest model an explicit temporal context window, partially 
-compensating for its lack of built-in sequential awareness [@kontopoulou2023].
-
-### Physiological Signal Transformation (Our Solution):
-To satisfy these assumptions and make the WESAD variables ready for prediction, we implemented three mandatory engineering transformations [@garg2021]:
-
-- *Transformation A:* Subject-Specific Standardization (Locally Scaled)
-The Action: We transformed the raw variables (ECG, EDA, TEMP) using StandardScaler 
-fitted strictly per subject within their independent training partitions.
-The Reason: This removes individual baseline human biological variances (e.g., one person 
-naturally sweating more than another) and centers all features around a mean of 0 and a
-standard deviation of 1. This scales the data safely into a uniform range across all     subjects without causing data leakage.
- 
-- *Transformation B:* Temporal Lag Feature Engineering (Creating Memory)
-The Action: We engineered four steps of historic back-shifting for each sensor variable 
-(creating new columns: EDA_lag_1, EDA_lag_2, etc.).
-The Reason: This converts the sequential time dependency into static, structural columns 
-within a single row. It gives the Random Forest an explicit "context window" of the past 
-1 second of history (at 4Hz), allowing the decision trees to calculate the speed and 
-direction of the physiological shift.
- 
-- *Transformation C:* Chronological Condition-Block Stratification
-The Action: We transformed how the training and testing matrices were sliced by performing 
-an 80/20 sequential split inside each isolated experimental condition block (Neutral, Stress,Amusement) [@schmidt2018].
-The Reason: This preserves the real-world sequence of the timeline while forcing both the 
-training and testing datasets to hold a representative distribution of all three target 
-states, solving the classification target-mismatch issue [@kontopoulou2023].
-
-### Justification of Model Selection for Physiological Stress Prediction
-This non-parametric local averaging framework (Equation 1) is explicitly chosen for our WESAD wearable sensor prediction task instead of standard parametric regression algorithms, which typically assume a strict linear profile [@schmidt2018]:
-
-A parametric linear model (Equation 2) assumes a constant, straight-line relationship that completely fails when applied to the complex, non-linear biological response profiles found within multi-modal wearable sensor streams [@ziyadidegan2025]. We chose the Random Forest framework based on three specific data properties that align with this non-parametric local estimation approach:
-
-- **Handling of Non-Linear Physiological Interaction:** Autonomic nervous system responses do not follow strict linear bounds; a spike in skin conductance (EDA) combined with a drop in skin temperature (TEMP) creates highly complex, non-linear patterns during stress episodes [@ziyadidegan2025]. Random Forest handles these multi-modal, non-linear relationships out of the box through step-wise feature space partitioning without requiring restrictive linear coefficients like those in Equation 2.
-- **Robustness to Sensor Artifacts and Noise:** Wearable sensor data collected in the field is prone to sudden movement artifacts and temporary data dropouts [@garg2021]. Because Random Forest splits nodes by evaluating localized subsets of data and features via the Gini impurity index, it acts as a robust local estimator, preventing individual extreme outliers or sensor errors from corrupting the global classification boundaries.
-- **Resistance to Temporal Overfitting:** High-frequency biological streams exhibit intense temporal autocorrelation, which can cause standard models to overfit on specific timeline segments. By utilizing independent bootstrap samples for each tree and forcing a structural 80/20 chronological split inside isolated condition blocks, the Random Forest maintains strict out-of-sample operational testing validity [@kontopoulou2023].
-
-### Feature Importance
-
-Random Forest provides a built-in feature importance measure based on the mean decrease in impurity across all trees for each feature. This was used to identify which physiological signals and rolling window features most strongly predicted stress state classification across subjects S2, S3, and S4 from the WESAD dataset [@garg2021].
-
-## Implementation - Code
-
-### Pre processing {.smaller}
-
-```{python}
-#| eval: false
-import pickle
-import numpy as np
-import pandas as pd
-import os
-subjects = [
-    'S2','S3','S4','S5','S6','S7','S8','S9',
-    'S10','S11','S13','S14','S15','S16','S17'
-]
-VALID_LABELS = [1, 2, 3]
-chest_dfs = []
-wrist_dfs = []
-
-# ----------------------------------------------------
-# MAIN LOOP
-# ----------------------------------------------------
-for subject in subjects:
-    path = f'/home/iu6/IDC6940_RandomForest/Dataset_WESAD/{subject}/{subject}.pkl'
-    if not os.path.exists(path):
-        print(f"[SKIP] {subject} not found")
-        continue
-        
-    print(f"\nProcessing {subject}...")
-    with open(path, 'rb') as f:
-        data = pickle.load(f, encoding='latin1')
-        
-    # Get the raw, unbroken 700Hz timeline bounds
-    raw_labels = np.array(data['label']).flatten()
-    raw_ecg = np.array(data['signal']['chest']['ECG']).flatten()
-    raw_eda = np.array(data['signal']['chest']['EDA']).flatten()
-    raw_temp = np.array(data['signal']['chest']['Temp']).flatten()
-    raw_resp = np.array(data['signal']['chest']['Resp']).flatten()
-    
-    # Track minimum length to trim trailing-end sensor shutoff mismatches safely
-    min_len = min(len(raw_labels), len(raw_ecg), len(raw_eda), len(raw_temp), len(raw_resp))
-    # -------------------------
-    # CHEST SIGNALS (100% continuous for NeuroKit2 windowing)
-    # -------------------------
-    chest_df = pd.DataFrame({
-        'subject': subject,
-        'ECG': raw_ecg[:min_len],
-        'EDA': raw_eda[:min_len],
-        'TEMP': raw_temp[:min_len],
-        'RESP': raw_resp[:min_len],
-        'label': raw_labels[:min_len]  # Keeps ALL labels (0,1,2,3,4...) so data stays unbroken
-    })
-    
-    # Handle artifacts without changing the shape or deleting rows
-    chest_df.loc[(chest_df['TEMP'] <= 20) | (chest_df['TEMP'] >= 45), 'TEMP'] = np.nan
-    chest_df.loc[chest_df['EDA'] < 0, 'EDA'] = np.nan
-    chest_df = chest_df.ffill().bfill()  # Cleans sensor errors seamlessly
-    chest_df = chest_df[chest_df['label'].isin(VALID_LABELS)]
-    
-    chest_dfs.append(chest_df)
-    print(f"[CHEST CONTINUOUS] {subject}: {chest_df.shape}")
-    # -------------------------
-    # WRIST SIGNALS (Downsampled labels to match native 4Hz sensors)
-    # -------------------------
-    wrist_eda = np.array(data['signal']['wrist']['EDA']).flatten()
-    wrist_temp = np.array(data['signal']['wrist']['TEMP']).flatten()
-    
-    
-    wrist_len = min(len(wrist_eda), len(wrist_temp))
-    # Pick every 175th label to match the slow 4Hz wrist sensors perfectly by time
-    wrist_labels = np.array([np.bincount(raw_labels[i:i+175]).argmax() for i in range(0, len(raw_labels), 175)])[:wrist_len]
-    
-    wrist_df = pd.DataFrame({
-        'subject': subject,
-        'EDA': wrist_eda[:wrist_len],
-        'TEMP': wrist_temp[:wrist_len],
-        'label': wrist_labels
-    })
-    
-    # Wrist can be filtered row-by-row because her NeuroKit pipeline isn't analyzing the wrist
-    wrist_df = wrist_df[wrist_df['label'].isin(VALID_LABELS)]
-    wrist_df = wrist_df.dropna()
-    wrist_dfs.append(wrist_df)
-    print(f"[WRIST CLEAN] {subject}: {wrist_df.shape}")
-# ----------------------------------------------------
-# FINAL DATASET EXPORT
-# ----------------------------------------------------
-print("\nCombining datasets...")
-chest_final = pd.concat(chest_dfs, ignore_index=True)
-wrist_final = pd.concat(wrist_dfs, ignore_index=True)
-print("\nFinal Chest shape (Continuous):", chest_final.shape)
-print("Final Wrist shape (Clean Tabular):", wrist_final.shape)
-chest_final.to_csv("wesad_chest_clean.csv", index=False)
-wrist_final.to_csv("wesad_wrist_clean.csv", index=False)
-print("\nSaved cleaned datasets successfully. Ready for handoff!")
-
-```
-
-### Imports
-```{python}
-import pandas as pd
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.metrics import classification_report, f1_score, precision_score, recall_score
-
-```
-
-### Random Forest Traning Loop
-```{python}
-#| code-fold: true
-#| code-summary: "Code"
-#| eval: false
-# Load Data
-print("=== Starting Random Forest Model Loop ===")
-# 1. READ PRE-SPLIT, PRE-NORMALIZED FILES
-print("Loading data splits...")
-train_df = pd.read_csv("wesad_wrist_train.csv")
-test_df = pd.read_csv("wesad_wrist_test.csv")
-# 2. FEATURE ENGINEERING: COMPUTE TEMPORAL LAG ARRAYS WITH ECG INCLUDED
-# Updated default list to scan for ECG, EDA, and TEMP features dynamically
-def apply_time_lags(df, features=['ECG', 'EDA', 'TEMP']):
-    # Filter features list to match only columns that exist inside the CSV file
-    valid_features = [f for f in features if f in df.columns]
-    print(f" -> Engineering lag features for existing channels: {valid_features}")
-    
-    lagged_groups = []
-    # Loop ensures lags are calculated within each subject timeline independently
-    for subject, group in df.groupby('subject'):
-        group_copy = group.sort_index().copy()
-        for col in valid_features:
-            for lag in range(1, 5): # 4 lags = 1 second of context at 4Hz
-                group_copy[f'{col}_lag_{lag}'] = group_copy[col].shift(lag)
-        lagged_groups.append(group_copy.dropna())
-    return pd.concat(lagged_groups, ignore_index=True)
-print("Engineering lag context windows...")
-train_lagged = apply_time_lags(train_df)
-test_lagged = apply_time_lags(test_df)
-# Filter feature columns out from metadata columns
-feature_columns = [c for c in train_lagged.columns if c not in ['subject', 'label']]
-# ====================================================
-# 3. INDEPENDENT SUBJECT TRAINING LOOP
-# ====================================================
-for subject, group in train_lagged.groupby('subject'):
-    print(f"\nTraining Random Forest Classifier for {subject}...")
-    
-    # Isolate training inputs for this subject
-    X_train = group[feature_columns]
-    y_train = group['label']
-    
-    # Isolate testing inputs from the matching hidden test split file
-    test_group = test_lagged[test_lagged['subject'] == subject]
-    X_test = test_group[feature_columns]
-    y_test = test_group['label']
-    
-    # Initialize Random Forest with balanced class weights to address label skew
-    rf_model = RandomForestClassifier(n_estimators=100, class_weight='balanced', random_state=42)
-    rf_model.fit(X_train, y_train)
-    
-    # Evaluate performance
-    y_pred = rf_model.predict(X_test)
-    
-    macro_f1 = f1_score(y_test, y_pred, average='macro')
-    macro_prec = precision_score(y_test, y_pred, average='macro', zero_division=0)
-    macro_rec = recall_score(y_test, y_pred, average='macro', zero_division=0)
-    
-    print(f"[{subject} Metrics Summary]")
-    print(f" -> Macro Precision : {macro_prec:.4f}")
-    print(f" -> Macro Recall    : {macro_rec:.4f}")
-    print(f" -> Macro F1-Score  : {macro_f1:.4f}")
-    print("\nDetailed Per-Class Performance:")
-    print(classification_report(y_test, y_pred, labels=[1, 2, 3], target_names=['Neutral', 'Stress', 'Amusement'], zero_division=0))
-print("\n=== Random Forest Execution Loop Complete ===")
- 
-```
-
-### Data and Visualization
-```{python}
-#| code-fold: true
-#| eval: false
-#| label: scatter-visualization
-import pandas as pd
-import numpy as np
-import seaborn as sns
-import matplotlib.pyplot as plt
-
-label_map = {1: 'Baseline', 2: 'Stress', 3: 'Amusement'}
-palette   = {'Baseline': '#378ADD', 'Stress': '#D85A30', 'Amusement': '#1D9E75'}
-FS = 4
-
-# -------------------------------------------------------
-# HELPER: same engineer_features as RF pipeline
-# -------------------------------------------------------
-def engineer_features(df, fs=4):
-    valid_features = [f for f in ['EDA', 'TEMP'] if f in df.columns]
-    win_1min = fs * 60
-    win_3min = fs * 60 * 3
-    groups = []
-    for subject, group in df.groupby('subject'):
-        g = group.sort_index().copy()
-        for col in valid_features:
-            for lag in range(1, 5):
-                g[f'{col}_lag_{lag}'] = g[col].shift(lag)
-            g[f'{col}_roll1min_mean'] = g[col].rolling(window=win_1min, min_periods=1).mean()
-            g[f'{col}_roll1min_std']  = g[col].rolling(window=win_1min, min_periods=2).std()
-            g[f'{col}_roll3min_mean'] = g[col].rolling(window=win_3min, min_periods=1).mean()
-            g[f'{col}_roll3min_std']  = g[col].rolling(window=win_3min, min_periods=2).std()
-        groups.append(g.dropna())
-    return pd.concat(groups, ignore_index=True)
-
-# -------------------------------------------------------
-# 1. CHEST PAIRPLOT — raw signals, pre-normalization
-# -------------------------------------------------------
-chest = pd.read_csv("wesad_chest_clean.csv")
-
-sample_c = pd.concat([
-    grp.sample(min(3000, len(grp)), random_state=42)
-    for _, grp in chest.groupby('label')
-]).reset_index(drop=True)
-sample_c['Condition'] = sample_c['label'].map(label_map)
-
-g = sns.pairplot(
-    sample_c[['ECG', 'EDA', 'TEMP', 'RESP', 'Condition']],
-    hue='Condition',
-    palette=palette,
-    plot_kws={'alpha': 0.3, 's': 8},
-    diag_kind='kde',
-    corner=True
-)
-g.figure.suptitle('WESAD Chest Signals — Pre-normalization', y=1.01, fontsize=13)
-plt.savefig("wesad_chest_pairplot.png", dpi=150, bbox_inches='tight')
-plt.show()
-print("Saved: wesad_chest_pairplot.png")
-
-# -------------------------------------------------------
-# 2. WRIST — raw EDA vs TEMP (from train split)
-# -------------------------------------------------------
-train_df = pd.read_csv("wesad_wrist_train.csv")
-
-sample_w = pd.concat([
-    grp.sample(min(3000, len(grp)), random_state=42)
-    for _, grp in train_df.groupby('label')
-]).reset_index(drop=True)
-sample_w['Condition'] = sample_w['label'].map(label_map)
-
-fig, ax = plt.subplots(figsize=(6, 5))
-sns.scatterplot(data=sample_w, x='TEMP', y='EDA',
-                hue='Condition', palette=palette,
-                alpha=0.4, s=12, ax=ax)
-ax.set_title('Wrist: EDA vs TEMP — Raw (Train Split)')
-plt.tight_layout()
-plt.savefig("wesad_wrist_raw_scatter.png", dpi=150)
-plt.show()
-print("Saved: wesad_wrist_raw_scatter.png")
-
-# -------------------------------------------------------
-# 3. WRIST — rolling window features (1-min and 3-min)
-# -------------------------------------------------------
-train_engineered = engineer_features(train_df)
-train_engineered['Condition'] = train_engineered['label'].map(label_map)
-
-sample_e = pd.concat([
-    grp.sample(min(3000, len(grp)), random_state=42)
-    for _, grp in train_engineered.groupby('label')
-]).reset_index(drop=True)
-
-fig, axes = plt.subplots(2, 2, figsize=(14, 10))
-fig.suptitle('Wrist: Rolling Window Features by Condition', fontsize=13)
-
-plot_pairs = [
-    ('EDA_roll1min_mean', 'EDA_roll1min_std',  'EDA — 1-min window'),
-    ('EDA_roll3min_mean', 'EDA_roll3min_std',  'EDA — 3-min window'),
-    ('TEMP_roll1min_mean','TEMP_roll1min_std', 'TEMP — 1-min window'),
-    ('TEMP_roll3min_mean','TEMP_roll3min_std', 'TEMP — 3-min window'),
-]
-
-for ax, (xcol, ycol, title) in zip(axes.flatten(), plot_pairs):
-    sns.scatterplot(
-        data=sample_e, x=xcol, y=ycol,
-        hue='Condition', palette=palette,
-        alpha=0.4, s=12, ax=ax, legend=(ax == axes[0][0])
-    )
-    ax.set_title(title, fontsize=10)
-    ax.set_xlabel('Rolling Mean', fontsize=9)
-    ax.set_ylabel('Rolling Std', fontsize=9)
-    ax.spines[['top', 'right']].set_visible(False)
-
-axes[0][0].legend(title='Condition', fontsize=8, title_fontsize=9)
-plt.tight_layout()
-plt.savefig("wesad_wrist_rolling_scatter.png", dpi=150, bbox_inches='tight')
-plt.show()
-print("Saved: wesad_wrist_rolling_scatter.png")
-
-```
-
-## Analysis and Results
-
-### Data Exploration and Visualization
-
-The WESAD dataset was preprocessed using chest and wrist sensor signals from three subjects (S2, S3, S4). Chest signals included ECG, EDA, TEMP, and RESP sampled at 700Hz, while wrist signals included EDA and TEMP sampled at 4Hz. Only valid stress-related labels were retained: Baseline (label 1), Stress (label 2), and Amusement (label 3).
-
-Before normalization, raw signal distributions were examined across 
-all three conditions to identify class separation patterns.
-
-
-
-![Wrist: EDA vs TEMP — Raw](wesad_wrist_raw_scatter.png){width=70%}
-
-![Wrist: Rolling Window Features by Condition](wesad_wrist_rolling_scatter.png){width=90%}
-
-![Confusion Matrix for Stress states](RF_global_confusion_matrix.png){width=90%}
-
-
-### Statistics table 
-
-Based on our literature review, we selected ECG, EDA, TEMP and RESP as our primary physiological signals for stress detection. ECG captures heart rate and heart rate variability which consistently change during stress, as supported by ([@ziyadidegan2025],[@oyeleye2022]). EDA directly reflects sympathetic nervous system activity, the system activated during stress, while skin temperature complements it by capturing additional autonomic responses, both supported by [@sosa2026]. Respiration was included based on [@sosa2026] recommendation that combining EDA, RESP and TEMP provides a more complete picture of autonomic stress response than any single signal alone.
-
-
-### Chest Data Exploration
-
-| Statistic | Value |
-| :--- | :--- |
-| Total observations (S2, S3, S4) | 4,508,701 |
-| Number of subjects | 3 |
-| Non-Stress observations (label 0) | 3,185,701 |
-| Stress observations (label 1) | 1,323,000 |
-| Missing values (any signal) | 0 |
-| Sampling rate | 700 Hz |
-| Signals used | ECG, EDA, TEMP, RESP |
-
-
-### Wrist Data Exploration
-
-| Statistic | Value |
-| :--- | :--- |
-| Total observations (S2, S3, S4) | 25,764 |
-| Number of subjects | 3 |
-| Non-Stress observations (label 0) | 18,204 |
-| Stress observations (label 1) | 7,560 |
-| Missing values (any signal) | 0 |
-| Sampling rate | 4 Hz |
-| Signals used | EDA, TEMP |
-
-*Table 1: Descriptive statistics (mean and standard deviation) for ECG, 
-EDA, TEMP, and RESP signals across Neutral, Stress, and Amusement 
-conditions from the WESAD chest sensor dataset (N = 15 subjects) 
-[@schmidt2018].*
-
-### Results
-
-We applied Random Forest classification in two stages to evaluate stress state detection performance across chest and wrist sensors.
-
-**Stage 1: Baseline Random Forest (Row-by-Row Classification)**
-
-As an initial baseline, we applied Random Forest directly to individual data points without any temporal feature engineering. This represents the simplest possible classification approach and serves as a reference point for evaluating the benefit of windowed features.
-
-
-The baseline model achieved an overall accuracy of 82% and a macro F1-score of 0.86. While the model performed well on Neutral and Amusement classes, Stress recall was perfect at 1.00 but precision was lower at 0.62, indicating some false positive stress detections.
-
-**Stage 2: Rolling Window Random Forest (1-min and 3-min Windows)**
-
-To better capture temporal physiological patterns associated with stress, we applied lag features and rolling window statistics at 1-minute and 3-minute intervals. This approach is more realistic for real-world stress detection since physiological responses to stress develop over time rather than instantaneously.
-
-*Chest Sensor Results (ECG, EDA, TEMP, RESP at 700Hz):*
-
-| Subject | Precision | Recall | F1-Score | Accuracy |
-|---------|-----------|--------|----------|----------|
-| S2      | 1.00      | 1.00   | 1.00     | 1.00     |
-| S3      | 0.95      | 0.92   | 0.94     | 0.95     |
-| S4      | 1.00      | 1.00   | 1.00     | 1.00     |
-
-
-
-*Wrist Sensor Results (EDA, TEMP at 4Hz):*
-
-| Subject | Top Feature | Importance | 2nd Feature | Importance |
-|---------|-------------|------------|-------------|------------|
-| S2      | TEMP_roll3min_mean | 0.218 | RESP_roll3min_std | 0.146 |
-| S3      | ECG_roll1min_std | 0.269 | RESP_roll1min_std | 0.103 |
-| S4      | EDA | 0.217 | EDA_roll1min_mean | 0.140 |
-
-*Aggregate feature importance:*
-
-| Feature | Importance |
-|---------|------------|
-| ECG_roll1min_std | 0.0997 |
-| EDA | 0.0930 |
-| TEMP_roll3min_mean | 0.0852 |
-| RESP_roll3min_std | 0.0663 |
-| TEMP_lag_1 | 0.0536 |
-
-
-
-### Conclusion for Random Forest
-
-The baseline Random Forest model achieved reasonable performance at 82% accuracy, demonstrating that physiological signals from the WESAD dataset contain sufficient information for stress state detection. The rolling window approach showed varied performance across subjects, with S3 showing lower F1-scores in both chest and wrist models, suggesting higher physiological variability in that participant. Chest sensor signals generally provided more consistent results across subjects compared to wrist signals, which is consistent with findings in the literature that chest-worn sensors capture higher quality physiological data. These Random Forest results serve as the baseline for comparison against the ARIMA model results.
-
-
-### Classification metrics:
+**Classification metrics**
 
 The following metrics are standard for evaluating the performance of classification models. 
 
@@ -651,13 +138,638 @@ $$
 F1 = \frac{2TP}{2TP + FP + FN}
 $$
 
-## Operational findings:
-  While Random Forest demonstrates near-perfect classification capabilities on baseline individuals (S2 and S4 achieving an F1-macro of 1.00), it remains highly susceptible to physiological transition overlap. For Subject S3, the model completely failed to distinguish between the late baseline neutral state and the early stress onset state, defaulting to global stress classification (Stress recall = 1.00, Neutral recall = 0.00[@schmidt2018]. This proves that tabular classifiers struggle when human physiological indicators shift gradually rather than abruptly.
+
+### Assumptions of Random Forest
+While Random Forest is flexible, it does have its own set of assumptions, some of which are particularly challenged by the data's physiological time-series structure in this study.
+
+**The Core Assumptions:**
+
+  - Assumption of Sample Independence (The Time-Series Violation): Random Forest assumes 
+    that each row of data is an independent observation. In time-series physiological data, 
+    this assumption is completely violated due to temporal autocorrelation (your heart rate 
+    or skin conductance at second t is highly dependent on second t-1).
+  - Assumption of Non-Stationary Invariance: Random Forest cannot extrapolate trends outside 
+    the maximum and minimum values it saw during training. If a subject's raw skin conductance 
+    drifts over the course of an afternoon, the model's tree splits will completely lose 
+    accuracy on future data.
+  - Assumption of Identity Mapping: Standard Random Forest has no built-in mechanism to 
+    recognize sequential order or velocity. It treats a static signal value the same way 
+    whether that signal is spiking upward or crashing downward.
+
+## Analysis and Results
+
+### Data Exploration and Visualizations
+
+**Loading Dataset**
+
+The WESAD dataset was obtained from the original study as subject-level 
+pickle files containing multimodal physiological recordings from 15 
+participants. Each pickle file was loaded using Python and parsed to 
+extract chest sensor signals including ECG, EDA, TEMP, and RESP sampled 
+at 700Hz, as well as wrist sensor signals including EDA and TEMP sampled 
+at 4Hz. Only valid condition labels were retained and mapped to a binary 
+classification , Label 0 (Non-Stress) and Label 1 (Stress). 
+Physiological sanity checks were applied to remove implausible readings 
+such as body temperature values outside the range of 20 to 45 degrees 
+Celsius and negative EDA values. The cleaned data was exported as two 
+separate CSV files, for repeated use without reloading the full dataset. 
+For initial model development and evaluation, three representative subjects 
+were selected as S2, S3, and S4 based on signal quality and condition coverage 
+across both stress states. This subset contains approximately 4.5 million chest 
+sensor observations and 25,764 wrist sensor observations across the 
+three subjects.
+
+**Variables**
+
+The physiological signals used in this study divide into two sensor 
+categories. Chest signals were recorded at 700Hz and include four 
+variables used for Random Forest classification. Wrist signals were 
+recorded at 4Hz and include two variables used for both Random Forest 
+and ARIMA modeling.
+
+**Chest Sensor Variables**
+
+| Variable | Type | Description |
+|----------|------|-------------|
+| ECG | Continuous (700Hz) | Electrical activity of the heart capturing cardiac stress response |
+| EDA | Continuous (700Hz) | Electrodermal activity reflecting sympathetic nervous system arousal |
+| TEMP | Continuous (700Hz) | Skin body temperature capturing autonomic stress response |
+| RESP | Continuous (700Hz) | Respiration signal capturing breathing rate changes during stress |
+
+**Wrist Sensor Variables**
+
+| Variable | Type | Description |
+|----------|------|-------------|
+| EDA | Continuous (4Hz) | Electrodermal activity from wrist worn device |
+| TEMP | Continuous (4Hz) | Skin temperature from wrist worn device |
+
+**Target Variable**
+
+| Variable | Type | Description |
+|----------|------|-------------|
+| label | Binary | 0 = Non-Stress (Baseline and Amusement), 1 = Stress |
+
+ **Signal Distributions**
+
+Prior to normalization, raw signal distributions were examined across 
+both Stress and Non-Stress conditions to identify class separation 
+patterns. The chest pairplot below shows the relationships between 
+ECG, EDA, TEMP, and RESP signals colored by stress condition. EDA 
+shows the clearest visual separation between Stress and Non-Stress 
+conditions, while ECG and RESP show considerable overlap in raw form, 
+suggesting that temporal feature engineering is necessary to extract 
+meaningful stress patterns from these signals.
 
 
-```{r}
+### Modeling and Results
+
+**Preparing data for RF**
+
+Subject-specific StandardScaler normalization was applied to remove 
+individual baseline biological variance before modeling. The comparison 
+below shows wrist EDA versus TEMP before and after normalization. 
+Before normalization, raw signal values vary considerably across 
+subjects due to individual physiological differences. After 
+normalization, signals are centered around a mean of 0 with a standard 
+deviation of 1 per subject, making Stress and Non-Stress patterns more 
+comparable and preventing data leakage across training partitions.
+
+
+```{python}
+
+#| code-fold: true
+#| code-summary: "Code"
+#| eval: false
+# Load Data
+import pandas as pd
+from sklearn.preprocessing import StandardScaler
+
+print("=== Starting Block-Stratified Time Splitting & Normalization ===")
+
+# 1. LOAD THE CLEAN DATASETS
+print("Loading clean datasets...")
+chest_data = pd.read_csv("wesad_chest_clean.csv")
+wrist_data = pd.read_csv("wesad_wrist_clean.csv")
+label_mapping = {1: 0, 2: 1, 3: 0}
+chest_data['label'] = chest_data['label'].map(label_mapping)
+wrist_data['label'] = wrist_data['label'].map(label_mapping)
+
+chest_features = ['ECG', 'EDA', 'TEMP', 'RESP']
+wrist_features = ['EDA', 'TEMP']
+
+chest_train_list, chest_test_list = [], []
+wrist_train_list, wrist_test_list = [], []
+
+# ====================================================
+# 2. CHEST PIPELINE: SPLIT 80/20 WITHIN EACH CONDITION BLOCK
+# ====================================================
+print("\nProcessing Chest Streams...")
+for subject, subject_group in chest_data.groupby('subject'):
+    subject_group = subject_group.sort_index()
+    
+    # Store train/test parts for this specific subject across all labels
+    sub_train_parts = []
+    sub_test_parts = []
+    
+    # Split chronologically within each condition block to preserve label variety
+    for label, label_group in subject_group.groupby('label'):
+        split_idx = int(len(label_group) * 0.8)
+        sub_train_parts.append(label_group.iloc[:split_idx])
+        sub_test_parts.append(label_group.iloc[split_idx:])
+        
+    # Combine back into a unified train/test split for this subject
+    train_split = pd.concat(sub_train_parts).sort_index().copy()
+    test_split = pd.concat(sub_test_parts).sort_index().copy()
+    
+    # Local scaling: fit ONLY on training metrics to avoid leakage
+    scaler = StandardScaler()
+    train_split[chest_features] = scaler.fit_transform(train_split[chest_features])
+    test_split[chest_features] = scaler.transform(test_split[chest_features])
+    
+    chest_train_list.append(train_split)
+    chest_test_list.append(test_split)
+    print(f" -> {subject} Chest arrays split stratified & standardized.")
+
+# ====================================================
+# 3. WRIST PIPELINE: SPLIT 80/20 WITHIN EACH CONDITION BLOCK
+# ====================================================
+print("\nProcessing Wrist Streams...")
+for subject, subject_group in wrist_data.groupby('subject'):
+    subject_group = subject_group.sort_index()
+    
+    sub_train_parts = []
+    sub_test_parts = []
+    
+    # Split chronologically within each condition block to preserve label variety
+    for label, label_group in subject_group.groupby('label'):
+        split_idx = int(len(label_group) * 0.8)
+        sub_train_parts.append(label_group.iloc[:split_idx])
+        sub_test_parts.append(label_group.iloc[split_idx:])
+        
+    train_split = pd.concat(sub_train_parts).sort_index().copy()
+    test_split = pd.concat(sub_test_parts).sort_index().copy()
+    
+    scaler = StandardScaler()
+    train_split[wrist_features] = scaler.fit_transform(train_split[wrist_features])
+    test_split[wrist_features] = scaler.transform(test_split[wrist_features])
+    
+    wrist_train_list.append(train_split)
+    wrist_test_list.append(test_split)
+    print(f" -> {subject} Wrist arrays split stratified & standardized.")
+
+# ====================================================
+# 4. EXPORT HANDOFF FILES
+# ====================================================
+print("\nRecombining and saving stratified data splits...")
+pd.concat(chest_train_list, ignore_index=True).to_csv("wesad_chest_train.csv", index=False)
+pd.concat(chest_test_list, ignore_index=True).to_csv("wesad_chest_test.csv", index=False)
+pd.concat(wrist_train_list, ignore_index=True).to_csv("wesad_wrist_train.csv", index=False)
+pd.concat(wrist_test_list, ignore_index=True).to_csv("wesad_wrist_test.csv", index=False)
+
+print("\nSuccess! Block-stratified handoff files saved with zero leakage.")
+
+ 
+```
+
+**Normalization on Wrist EDA and TEMP Signals Before vs. After Result** ![Normalization comparison](wesad_wrist_normalization_comparison.png)
+
+To capture temporal stress dynamics, 1-minute and 3-minute rolling 
+window mean and standard deviation features were engineered from the 
+normalized EDA and TEMP signals. The scatter plots below show rolling 
+mean versus rolling standard deviation colored by Stress and Non-Stress 
+conditions. The Stress condition shows distinct clustering patterns in 
+rolling window space compared to Non-Stress, confirming that temporal 
+context windows improve class separability beyond what raw signal 
+values alone provide.
+
+#### Rolling windows for Random Forest
+```{python}
+
+#| code-fold: true
+#| code-summary: "Code"
+#| eval: false
+# Load Data
+
+import joblib
+import pandas as pd
+
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import classification_report, f1_score, precision_score, recall_score
+
+print("=== Starting Random Forest Model Loop (Lags + 1-min + 3-min Rolling Windows) ===")
+
+# -------------------------------------------------------
+# 1. LOAD PRE-SPLIT, PRE-NORMALIZED WRIST FILES
+# -------------------------------------------------------
+print("Loading data splits...")
+train_df = pd.read_csv("wesad_wrist_train.csv")
+test_df  = pd.read_csv("wesad_wrist_test.csv")
+
+
+
+FS = 4  # wrist sensor Hz
+
+# -------------------------------------------------------
+# 2. FEATURE ENGINEERING
+# -------------------------------------------------------
+def engineer_features(df, fs=4):
+    """
+    Per-subject feature engineering (no cross-subject leakage):
+      - Lag features       : t-1 to t-4       (1 second context @ 4Hz)
+      - 1-min rolling      : mean + std        (240 samples @ 4Hz)
+      - 3-min rolling      : mean + std        (720 samples @ 4Hz)
+
+    ECG excluded — wrist sensor does not record ECG.
+    Only EDA and TEMP are valid wrist channels in WESAD.
+    """
+    valid_features = [f for f in ['EDA', 'TEMP'] if f in df.columns]
+    print(f" -> Wrist channels found: {valid_features}")
+
+    win_1min = fs * 60        # 240 samples
+    win_3min = fs * 60 * 3   # 720 samples
+
+    groups = []
+    for subject, group in df.groupby('subject'):
+        g = group.sort_index().copy()
+
+        for col in valid_features:
+            # Lag features (1 second of raw history)
+            for lag in range(1, 5):
+                g[f'{col}_lag_{lag}'] = g[col].shift(lag)
+
+            # 1-min rolling features (acute stress onset)
+            g[f'{col}_roll1min_mean'] = (
+                g[col].rolling(window=win_1min, min_periods=1).mean()
+            )
+            g[f'{col}_roll1min_std'] = (
+                g[col].rolling(window=win_1min, min_periods=2).std()
+            )
+
+            # 3-min rolling features (sustained physiological arousal)
+            g[f'{col}_roll3min_mean'] = (
+                g[col].rolling(window=win_3min, min_periods=1).mean()
+            )
+            g[f'{col}_roll3min_std'] = (
+                g[col].rolling(window=win_3min, min_periods=2).std()
+            )
+
+        groups.append(g.dropna())
+
+    return pd.concat(groups, ignore_index=True)
+
+
+print("Engineering features...")
+train_engineered = engineer_features(train_df)
+test_engineered  = engineer_features(test_df)
+
+feature_columns = [
+    c for c in train_engineered.columns
+    if c not in ['subject', 'label']
+]
+print(f" -> Total feature columns: {len(feature_columns)}")
+print(f"    {feature_columns}")
+
+# -------------------------------------------------------
+# 3. PER-SUBJECT TRAINING LOOP
+# -------------------------------------------------------
+results_summary = []
+all_importances = []
+
+label_names = {0: 'Non-Stress', 1: 'Stress'}
+
+for subject, group in train_engineered.groupby('subject'):
+    print(f"\n{'='*50}")
+    print(f"Training RF for {subject}...")
+
+    X_train = group[feature_columns]
+    y_train = group['label']
+
+    test_group = test_engineered[test_engineered['subject'] == subject]
+
+    if test_group.empty:
+        print(f" [SKIP] No test data found for {subject}")
+        continue
+
+    X_test = test_group[feature_columns]
+    y_test = test_group['label']
+
+    print(f" -> Train size: {X_train.shape} | Test size: {X_test.shape}")
+    print(f" -> Train label dist: {y_train.value_counts().to_dict()}")
+    print(f" -> Test  label dist: {y_test.value_counts().to_dict()}")
+
+    rf_model = RandomForestClassifier(
+    n_estimators=100,
+    random_state=42,
+    n_jobs=-1
+    )
+    rf_model.fit(X_train, y_train)
+
+    y_pred = rf_model.predict(X_test)
+
+    macro_f1   = f1_score(y_test, y_pred, average='binary', zero_division=0)
+    macro_prec = precision_score(y_test, y_pred, average='binary', zero_division=0)
+    macro_rec  = recall_score(y_test, y_pred, average='binary', zero_division=0)
+
+
+    print(f"\n[{subject}] Binary Precision : {macro_prec:.4f}")
+    print(f"[{subject}] Binary Recall    : {macro_rec:.4f}")
+    print(f"[{subject}] Binary F1-Score  : {macro_f1:.4f}")
+    print("\nDetailed Per-Class Performance:")
+    print(classification_report(
+        y_test, y_pred,
+        labels=[0, 1],
+        target_names=['Non-Stress', 'Stress'],
+        zero_division=0
+    ))
+
+
+    # --- Feature Importance ---
+    importances = pd.DataFrame({
+        'subject':    subject,
+        'feature':    feature_columns,
+        'importance': rf_model.feature_importances_
+    }).sort_values('importance', ascending=False)
+
+    print(f"Top 10 features for {subject}:")
+    print(importances.head(10).to_string(index=False))
+    importances.to_csv(f"feature_importance_{subject}.csv", index=False)
+    all_importances.append(importances)
+
+    # --- Save Model ---
+    model_filename = f"rf_model_{subject}_rolling.pkl"
+    joblib.dump(rf_model, model_filename)
+    print(f" Saved: {model_filename}")
+
+    results_summary.append({
+        'subject':   subject,
+        'precision': round(macro_prec, 4),
+        'recall':    round(macro_rec, 4),
+        'f1_binary': round(macro_f1, 4)
+    })
+
+
+# -------------------------------------------------------
+# 4. SUMMARY TABLE
+# -------------------------------------------------------
+print(f"\n{'='*50}")
+print("=== Per-Subject Results Summary ===")
+summary_df = pd.DataFrame(results_summary)
+print(summary_df.to_string(index=False))
+summary_df.to_csv("rf_rolling_results.csv", index=False)
+print("Saved: rf_rolling_results.csv")
+
+# -------------------------------------------------------
+# 5. AGGREGATE FEATURE IMPORTANCE ACROSS ALL SUBJECTS
+# -------------------------------------------------------
+print("\n=== Aggregate Feature Importance (All Subjects) ===")
+all_imp_df = pd.concat(all_importances, ignore_index=True)
+agg_imp = (
+    all_imp_df.groupby('feature')['importance']
+    .mean()
+    .reset_index()
+    .sort_values('importance', ascending=False)
+)
+print(agg_imp.to_string(index=False))
+agg_imp.to_csv("feature_importance_aggregate.csv", index=False)
+print("Saved: feature_importance_aggregate.csv")
+
+print("\n=== Complete ===")
+
+
 
 ```
+
+
+**Stress vs. Non-Stress Separability Across 1-Minute and 3-Minute Windows Result**
+![Wrist window rolling](wesad_wrist_rolling_scatter.png)
+
+
+
+```{python}
+
+#| code-fold: true
+#| code-summary: "Code"
+#| eval: false
+# Load Data
+
+
+import joblib
+import pandas as pd
+import numpy as np
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import classification_report, f1_score, precision_score, recall_score
+
+print("=== Chest RF Pipeline (Lags + 1-min + 3-min Rolling Windows) ===")
+
+# -------------------------------------------------------
+# 1. LOAD PRE-SPLIT, PRE-NORMALIZED CHEST FILES
+# -------------------------------------------------------
+print("Loading chest data splits...")
+train_df = pd.read_csv("wesad_chest_train.csv")
+test_df  = pd.read_csv("wesad_chest_test.csv")
+
+
+
+FS = 700  # chest sensor Hz
+
+# -------------------------------------------------------
+# 2. FEATURE ENGINEERING
+# -------------------------------------------------------
+def engineer_chest_features(df, fs=700):
+    """
+    Per-subject feature engineering for chest signals (no leakage):
+      - Lag features  : t-1 to t-4        (raw signal history)
+      - 1-min rolling : mean + std         (42,000 samples @ 700Hz)
+      - 3-min rolling : mean + std         (126,000 samples @ 700Hz)
+
+    Same 1-min and 3-min window durations as wrist RF for consistent
+    cross-sensor comparison. Sample counts differ due to sampling rate:
+      Wrist 1-min = 240 samples   | Chest 1-min = 42,000 samples
+      Wrist 3-min = 720 samples   | Chest 3-min = 126,000 samples
+    """
+    valid_features = [f for f in ['ECG', 'EDA', 'TEMP', 'RESP'] if f in df.columns]
+    print(f" -> Chest channels found: {valid_features}")
+
+    win_1min = fs * 60           # 42,000 samples
+    win_3min = fs * 60 * 3      # 126,000 samples
+
+    print(f" -> 1-min window: {win_1min:,} samples")
+    print(f" -> 3-min window: {win_3min:,} samples")
+    print(f" -> Note: Large windows at 700Hz — may take 15-30 mins...")
+
+    groups = []
+    for subject, group in df.groupby('subject'):
+        print(f"    Engineering features for {subject}...")
+        g = group.sort_index().copy()
+
+        for col in valid_features:
+            # Lag features
+            for lag in range(1, 5):
+                g[f'{col}_lag_{lag}'] = g[col].shift(lag)
+
+            # 1-min rolling (acute stress onset)
+            g[f'{col}_roll1min_mean'] = (
+                g[col].rolling(window=win_1min, min_periods=1).mean()
+            )
+            g[f'{col}_roll1min_std'] = (
+                g[col].rolling(window=win_1min, min_periods=2).std()
+            )
+
+            # 3-min rolling (sustained physiological arousal)
+            g[f'{col}_roll3min_mean'] = (
+                g[col].rolling(window=win_3min, min_periods=1).mean()
+            )
+            g[f'{col}_roll3min_std'] = (
+                g[col].rolling(window=win_3min, min_periods=2).std()
+            )
+
+        groups.append(g.dropna())
+        print(f"    {subject} done.")
+
+    return pd.concat(groups, ignore_index=True)
+
+
+print("\nEngineering chest features (this will take a while)...")
+train_engineered = engineer_chest_features(train_df)
+test_engineered  = engineer_chest_features(test_df)
+
+feature_columns = [
+    c for c in train_engineered.columns
+    if c not in ['subject', 'label']
+]
+print(f"\n -> Total feature columns: {len(feature_columns)}")
+print(f"    {feature_columns}")
+
+# -------------------------------------------------------
+# 3. PER-SUBJECT TRAINING LOOP
+# -------------------------------------------------------
+results_summary = []
+all_importances = []
+
+for subject, group in train_engineered.groupby('subject'):
+    print(f"\n{'='*50}")
+    print(f"Training Chest RF for {subject}...")
+
+    X_train = group[feature_columns]
+    y_train = group['label']
+
+    test_group = test_engineered[test_engineered['subject'] == subject]
+    if test_group.empty:
+        print(f" [SKIP] No test data found for {subject}")
+        continue
+
+    X_test = test_group[feature_columns]
+    y_test = test_group['label']
+
+    print(f" -> Train: {X_train.shape} | Test: {X_test.shape}")
+    print(f" -> Train labels: {y_train.value_counts().to_dict()}")
+    print(f" -> Test  labels: {y_test.value_counts().to_dict()}")
+
+    rf_model = RandomForestClassifier(
+    n_estimators=100,
+    random_state=42,
+    n_jobs=-1
+    )
+    rf_model.fit(X_train, y_train)
+    y_pred = rf_model.predict(X_test)
+
+    macro_f1   = f1_score(y_test, y_pred, average='macro')
+    macro_prec = precision_score(y_test, y_pred, average='macro', zero_division=0)
+    macro_rec  = recall_score(y_test, y_pred, average='macro', zero_division=0)
+
+    print(f"\n[{subject}] Precision : {macro_prec:.4f}")
+    print(f"[{subject}] Recall    : {macro_rec:.4f}")
+    print(f"[{subject}] F1-Score  : {macro_f1:.4f}")
+    print(classification_report(
+        y_test, y_pred,
+        labels=[0, 1],
+        target_names=['Non-Stress', 'Stress'],
+        zero_division=0
+    ))
+
+    # Feature importance
+    importances = pd.DataFrame({
+        'subject':    subject,
+        'feature':    feature_columns,
+        'importance': rf_model.feature_importances_
+    }).sort_values('importance', ascending=False)
+
+    print(f"Top 10 features for {subject}:")
+    print(importances.head(10).to_string(index=False))
+    importances.to_csv(f"chest_feature_importance_{subject}.csv", index=False)
+    all_importances.append(importances)
+
+    model_filename = f"rf_chest_{subject}_rolling.pkl"
+    joblib.dump(rf_model, model_filename)
+    print(f" Saved: {model_filename}")
+
+    results_summary.append({
+        'subject':   subject,
+        'sensor':    'chest',
+        'precision': round(macro_prec, 4),
+        'recall':    round(macro_rec, 4),
+        'f1_macro':  round(macro_f1, 4)
+    })
+
+# -------------------------------------------------------
+# 4. SUMMARY TABLE
+# -------------------------------------------------------
+print(f"\n{'='*50}")
+print("=== Chest RF Results Summary ===")
+summary_df = pd.DataFrame(results_summary)
+print(summary_df.to_string(index=False))
+summary_df.to_csv("rf_chest_rolling_results.csv", index=False)
+print("Saved: rf_chest_rolling_results.csv")
+
+# -------------------------------------------------------
+# 5. AGGREGATE FEATURE IMPORTANCE
+# -------------------------------------------------------
+print("\n=== Chest Aggregate Feature Importance ===")
+all_imp_df = pd.concat(all_importances, ignore_index=True)
+agg_imp = (
+    all_imp_df.groupby('feature')['importance']
+    .mean()
+    .reset_index()
+    .sort_values('importance', ascending=False)
+)
+print(agg_imp.to_string(index=False))
+agg_imp.to_csv("chest_feature_importance_aggregate.csv", index=False)
+print("Saved: chest_feature_importance_aggregate.csv")
+
+print("\n=== Chest RF Complete ===")
+
+```
+
+
+**Chest Sensor Results**
+
+| Subject | Precision | Recall | F1 Score |
+|---------|-----------|--------|----------|
+| S2      | 1.0000    | 1.0000 | 1.0000   |
+| S3      | 0.9513    | 0.9237 | 0.9361   |
+| S4      | 1.0000    | 1.0000 | 1.0000   |
+
+*Table 1: Random Forest chest sensor classification results using 
+rolling window features (ECG, EDA, TEMP, RESP at 700Hz).*
+
+**Wrist Sensor Results**
+
+| Subject | Precision | Recall | F1 Score |
+|---------|-----------|--------|----------|
+| S2      | 0.3559    | 1.0000 | 0.5250   |
+| S3      | 0.0000    | 0.0000 | 0.0000   |
+| S4      | 1.0000    | 1.0000 | 1.0000   |
+
+*Table 2: Random Forest wrist sensor classification results using 
+rolling window features (EDA, TEMP at 4Hz).*
+
+#### RF Results
+
+**Random Forest ROC Curves Result**
+![ROC Curves on RF](rf_roc_curves_combined.png)
+
+**Aggregated Confusion Matrix for Random Forest**
+![RF Confusion matrix](RF_global_confusion_matrix.png)
 
 ## Conclusion
 
