@@ -1,58 +1,176 @@
+import pandas as pd
+import joblib
+from pathlib import Path
 import matplotlib.pyplot as plt
-from matplotlib.lines import Line2D
 
-LABEL_COLORS = {
-    1: "blue",      # Neutral
-    2: "red",       # Stress
-    3: "green"      # Amusement
-}
 
 LABEL_NAMES = {
-    1: "Neutral",
-    2: "Stress",
-    3: "Amusement"
+    1: "Non-Stress",
+    2: "Stress"
+}
+
+LABEL_COLORS = {
+    1: "#378ADD",
+    2: "#D85A30"
 }
 
 
-def plot_arima_prediction(test_df, arima_results, target_col="ECG", title="ARIMA Prediction"):
-    # Adjust this key if your run_arima output names predictions differently
-    plot_df = test_df.copy().reset_index(drop=True)
+# -------------------------------------------------------
+# Paths
+# -------------------------------------------------------
 
-    plot_df["prediction"] = arima_results["predictions"]["predicted"]
-    plot_df["actual"] = arima_results["predictions"]["actual"]
-    plot_df["label"] = test_df["label"]
+MODEL_DIR = Path("../model_pipeline")
+DATA_DIR = Path("../windowed_outputs")
+PLOT_DIR = Path("arima_prediction_plots")
 
-    plt.figure(figsize=(14, 6))
+PLOT_DIR.mkdir(exist_ok=True)
 
+
+# -------------------------------------------------------
+# Plot Function
+# -------------------------------------------------------
+
+def plot_arima_prediction(
+        arima_results,
+        target_col="ECG",
+        title="ARIMA Prediction"):
+
+
+    plot_df = arima_results["predictions"]
+
+
+    plt.figure(figsize=(20, 6))
+
+
+    # Actual signal
+    plt.plot(
+        plot_df.index,
+        plot_df["actual"],
+        color="black",
+        linestyle="-",
+        linewidth=1.2,
+        label="Actual"
+    )
+
+
+    # Predictions
+    plt.plot(
+        plot_df.index,
+        plot_df["predicted"],
+        color="#D85A30",
+        linestyle="--",
+        linewidth=1.2,
+        label="ARIMA Prediction"
+    )
+
+
+    # Add stress regions
     for label, group in plot_df.groupby("label"):
-        label = int(label)
-        color = LABEL_COLORS.get(label, "gray")
-        label_name = LABEL_NAMES.get(label, f"Label {label}")
 
-        # Actual line = solid
-        plt.plot(
-            plot_df.index,
-            plot_df["actual"],
-            color="black",
-            linestyle="-",
-            linewidth=1,
-            label=f"Actual - {label_name}"
-        )
+        if int(label) == 2:
 
-        # Predicted line = dashed
-        plt.plot(
-            plot_df.index,
-            plot_df["prediction"],
-            color=color,
-            linestyle="--",
-            linewidth=1,
-            label=f"Predicted - {label_name}"
-        )
+            plt.fill_between(
+                group.index,
+                plot_df["actual"].min(),
+                plot_df["actual"].max(),
+                alpha=0.15,
+                color="#D85A30",
+                label="Stress"
+            )
+
 
     plt.title(title)
     plt.xlabel("Time Index")
     plt.ylabel(target_col)
+
     plt.legend()
+
     plt.tight_layout()
-    # plt.show()
-    plt.savefig(f"{title}.png")
+
+
+    filename = (
+        PLOT_DIR /
+        f"{title}.png"
+    )
+
+    plt.savefig(
+        filename,
+        dpi=150,
+        bbox_inches="tight"
+    )
+
+    plt.close()
+
+    print(f"Saved: {filename}")
+
+
+
+# -------------------------------------------------------
+# MAIN
+# -------------------------------------------------------
+
+if __name__ == "__main__":
+
+
+    model_files = sorted(
+        MODEL_DIR.glob("*.pkl")
+    )
+
+
+    print(
+        f"Found {len(model_files)} ARIMA models"
+    )
+
+
+    for model_file in model_files:
+
+
+        print("\nProcessing:", model_file.name)
+
+
+        # ---------------------------------------
+        # Parse filename
+        # Expected:
+        # arima_ECG_S2_1min.pkl
+        # ---------------------------------------
+
+        parts = model_file.stem.split("_")
+
+        signal = parts[3]
+        subject = parts[2]
+        window = parts[5]
+
+
+        # ---------------------------------------
+        # Load model results
+        # ---------------------------------------
+
+        arima_results = joblib.load(
+            model_file
+        )
+
+
+        # ---------------------------------------
+        # Select correct signal
+        # ---------------------------------------
+
+        target_col = signal
+
+
+        # ---------------------------------------
+        # Plot
+        # ---------------------------------------
+
+        title = (
+            f"ARIMA_{signal}_{subject}_{window}"
+        )
+
+
+        plot_arima_prediction(
+            arima_results,
+            target_col=target_col,
+            title=title
+        )
+
+
+    print("\nFinished all ARIMA prediction plots.")

@@ -3,7 +3,33 @@ import pandas as pd
 from statsmodels.tsa.arima.model import ARIMA
 from sklearn.metrics import mean_absolute_error, mean_squared_error
 
-from model_pipeline.ARIMA_classification import get_classification_rules
+def get_classification_rules(df, subject, activity_label, variables):
+    # Compute participant-specific classification rules for selected variables.
+
+    subset = df[
+        (df["subject"] == subject) &
+        (df["label"] == activity_label)
+    ]
+
+    rules = []
+
+    for var in variables:
+        mean = subset[var].mean()
+        std = subset[var].std()
+
+        rules.append({
+            "subject": subject,
+            "activity_label": activity_label,
+            "variable": var,
+            "mean": mean,
+            "std": std,
+            "min": subset[var].min(),
+            "max": subset[var].max(),
+            "lower_1sd": mean - std,
+            "upper_1sd": mean + std
+        })
+
+    return pd.DataFrame(rules)
 
 try:
     from pmdarima import auto_arima

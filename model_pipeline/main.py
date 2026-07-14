@@ -1,59 +1,11 @@
-import datetime
-
-import numpy as np
-import yaml
-import pandas as pd
-import pickle
-from sklearn.metrics import mean_squared_error, mean_absolute_error
-from sklearn.model_selection import train_test_split
 import pickle
 from pathlib import Path
-import os
 
-from ARIMA_model import run_arima
-from health_feature_helpers import FEATURE_MAP, FEATURE_HELPERS
-from model_pipeline.ARIMA_classification import get_classification_rules
+import pandas as pd
+import yaml
+
+from ARIMA_model import run_arima, get_classification_rules
 from plotting_utils.arima_plotting_helpers import plot_arima_prediction
-
-
-# def build_dataset(config: dict) -> pd.DataFrame:
-#     dataset_path = Path(config["dataset_path"])
-#     participants = config["participants"]
-#     variables = config["variables"]
-#
-#     all_data = []
-#
-#     for participant in participants:
-#         data = pd.read_csv(dataset_path / f"test_1min_{participant}.csv")
-#
-#         # for variable in variables:
-#         #     signal = data[variable]
-#         #
-#         #     # get feature variables
-#         #     if variable not in FEATURE_MAP:
-#         #         print("Variable not found in FEATURE_MAP: ", variable)
-#         #         continue
-#         #     derived_features = FEATURE_MAP[variable]
-#         #     for feature in derived_features:
-#         #         if feature not in FEATURE_HELPERS:
-#         #             print("Feature not found in FEATURE_HELPERS: ", feature)
-#         #             continue
-#         #         helper = FEATURE_HELPERS[feature]
-#         #         result = helper(signal)
-#         #
-#         #         # Series output (HR)
-#         #         if hasattr(result, "__len__") and not isinstance(result, str):
-#         #             data[feature] = result
-#         #
-#         #         # Scalar output (HRV summary stats)
-#         #         else:
-#         #             data[feature] = result
-#
-#
-#         all_data.append(data)
-#
-#     return pd.concat(all_data, ignore_index=True)
-
 
 
 def main(config_path):

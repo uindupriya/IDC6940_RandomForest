@@ -8,33 +8,7 @@ from sklearn.metrics import roc_auc_score, roc_curve, f1_score, confusion_matrix
     recall_score, ConfusionMatrixDisplay, classification_report
 
 
-def get_classification_rules(df, subject, activity_label, variables):
-    # Compute participant-specific classification rules for selected variables.
 
-    subset = df[
-        (df["subject"] == subject) &
-        (df["label"] == activity_label)
-    ]
-
-    rules = []
-
-    for var in variables:
-        mean = subset[var].mean()
-        std = subset[var].std()
-
-        rules.append({
-            "subject": subject,
-            "activity_label": activity_label,
-            "variable": var,
-            "mean": mean,
-            "std": std,
-            "min": subset[var].min(),
-            "max": subset[var].max(),
-            "lower_1sd": mean - std,
-            "upper_1sd": mean + std
-        })
-
-    return pd.DataFrame(rules)
 
 def classify_arima_results(arima_results, stress, baseline):
     results = arima_results["predictions"].copy()
@@ -83,6 +57,9 @@ def compute_metrics(y_true, y_pred):
     }
 
 
+# ---------------------------------------------------------
+# ARIMA Confusion Matrix
+# ---------------------------------------------------------
 def save_confusion_matrix(y_true, y_pred, output_path):
     cm = confusion_matrix(
         y_true,
@@ -90,44 +67,59 @@ def save_confusion_matrix(y_true, y_pred, output_path):
         labels=[1, 2]
     )
 
-    display = ConfusionMatrixDisplay(
+    fig, ax = plt.subplots(figsize=(5, 5))
+
+    ConfusionMatrixDisplay(
         confusion_matrix=cm,
         display_labels=["Not stressed", "Stress"]
-    )
+    ).plot(ax=ax, colorbar=False)
 
-    display.plot()
-    plt.title("ARIMA Stress Classification")
+    ax.set_title("ARIMA Stress Classification")
+
     plt.tight_layout()
     plt.savefig(output_path, dpi=300)
-    plt.close()
+    plt.close(fig)
 
 
+# ---------------------------------------------------------
+# ARIMA ROC Curve
+# ---------------------------------------------------------
 def save_roc_curve(y_true, stress_scores, output_path):
-    # Convert WESAD labels to binary for ROC:
-    # baseline/not stressed = 0, stress = 1
+
     y_true_binary = (pd.Series(y_true) == 2).astype(int)
 
-    # ROC cannot be calculated when only one class is present
     if y_true_binary.nunique() < 2:
-        print(
-            f"ROC curve not generated for {output_path}: "
-            "test data contains only one class."
-        )
+        print(f"ROC curve not generated for {output_path}: only one class.")
         return None
 
     auc_score = roc_auc_score(y_true_binary, stress_scores)
     fpr, tpr, _ = roc_curve(y_true_binary, stress_scores)
 
-    plt.figure()
-    plt.plot(fpr, tpr, label=f"ARIMA heuristic, AUC = {auc_score:.3f}")
-    plt.plot([0, 1], [0, 1], linestyle="--")
-    plt.xlabel("False Positive Rate")
-    plt.ylabel("True Positive Rate")
-    plt.title("ROC Curve")
-    plt.legend()
+    fig, ax = plt.subplots(figsize=(5, 5))
+
+    ax.plot(
+        fpr,
+        tpr,
+        linewidth=2,
+        label=f"ARIMA heuristic (AUC = {auc_score:.3f})"
+    )
+
+    ax.plot(
+        [0, 1],
+        [0, 1],
+        linestyle="--",
+        linewidth=1,
+        color="gray"
+    )
+
+    ax.set_xlabel("False Positive Rate")
+    ax.set_ylabel("True Positive Rate")
+    ax.set_title("ROC Curve")
+    ax.legend(loc="lower right")
+
     plt.tight_layout()
     plt.savefig(output_path, dpi=300)
-    plt.close()
+    plt.close(fig)
 
     return auc_score
 

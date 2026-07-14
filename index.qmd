@@ -99,9 +99,28 @@ $$\hat{m}(x) = \text{mode} \left\{ T_1(x), T_2(x), \dots, T_B(x) \right\}$$
 In other words, this means that we are discovering the emotional state boundaries across the physiological multi-sensor space with the help of bootstrap aggregation (bagging) and randomized feature sub-selection across $B$ independent trees ($B = 100$). This collective voting structure decreases the overall structural variance of individual decision trees without increasing the model's bias.
 
 
+
+While Random Forest is flexible, it does have its own set of assumptions, some of which are particularly challenged by the data's physiological time-series structure in this study.
+
+**The Core Assumptions:**
+
+  - Assumption of Sample Independence (The Time-Series Violation): Random Forest assumes 
+    that each row of data is an independent observation. In time-series physiological data, 
+    this assumption is completely violated due to temporal autocorrelation (your heart rate 
+    or skin conductance at second t is highly dependent on second t-1).
+  - Assumption of Non-Stationary Invariance: Random Forest cannot extrapolate trends outside 
+    the maximum and minimum values it saw during training. If a subject's raw skin conductance 
+    drifts over the course of an afternoon, the model's tree splits will completely lose 
+    accuracy on future data.
+  - Assumption of Identity Mapping: Standard Random Forest has no built-in mechanism to 
+    recognize sequential order or velocity. It treats a static signal value the same way 
+    whether that signal is spiking upward or crashing downward.
+
+
+#### Model Comparison
 **Classification metrics**
 
-The following metrics are standard for evaluating the performance of classification models. 
+The following metrics are standard for evaluating the performance of classification models, and will be used to assess the ARIMA classified by physiological rules and Random Forest. 
 
 $$
 \begin{array}{c|cc}
@@ -138,23 +157,6 @@ $$
 F1 = \frac{2TP}{2TP + FP + FN}
 $$
 
-
-### Assumptions of Random Forest
-While Random Forest is flexible, it does have its own set of assumptions, some of which are particularly challenged by the data's physiological time-series structure in this study.
-
-**The Core Assumptions:**
-
-  - Assumption of Sample Independence (The Time-Series Violation): Random Forest assumes 
-    that each row of data is an independent observation. In time-series physiological data, 
-    this assumption is completely violated due to temporal autocorrelation (your heart rate 
-    or skin conductance at second t is highly dependent on second t-1).
-  - Assumption of Non-Stationary Invariance: Random Forest cannot extrapolate trends outside 
-    the maximum and minimum values it saw during training. If a subject's raw skin conductance 
-    drifts over the course of an afternoon, the model's tree splits will completely lose 
-    accuracy on future data.
-  - Assumption of Identity Mapping: Standard Random Forest has no built-in mechanism to 
-    recognize sequential order or velocity. It treats a static signal value the same way 
-    whether that signal is spiking upward or crashing downward.
 
 ## Analysis and Results
 
@@ -223,7 +225,7 @@ meaningful stress patterns from these signals.
 
 ### Modeling and Results
 
-**Preparing data for RF**
+**Preparing Data for Modeling**
 
 Subject-specific StandardScaler normalization was applied to remove 
 individual baseline biological variance before modeling. The comparison 
@@ -331,7 +333,8 @@ print("\nSuccess! Block-stratified handoff files saved with zero leakage.")
  
 ```
 
-**Normalization on Wrist EDA and TEMP Signals Before vs. After Result** ![Normalization comparison](wesad_wrist_normalization_comparison.png)
+**Normalization on Chest EDA and TEMP Signals Before vs. After Result** ![Normalization comparison chest](wesad_chest_normalization_comparison.png)
+**Normalization on Wrist EDA and TEMP Signals Before vs. After Result** ![Normalization comparison wrist](wesad_wrist_normalization_comparison.png)
 
 To capture temporal stress dynamics, 1-minute and 3-minute rolling 
 window mean and standard deviation features were engineered from the 
@@ -342,6 +345,842 @@ rolling window space compared to Non-Stress, confirming that temporal
 context windows improve class separability beyond what raw signal 
 values alone provide.
 
+#### Rolling Windows Creation
+```{python}
+#| code-fold: true
+#| code-summary: "Code"
+#| eval: false
+
+
+import pandas as pd
+import numpy as np
+from pathlib import Path
+from concurrent.futures import ThreadPoolExecutor, as_completed
+import os
+
+# --------------------------------
+# Config
+# --------------------------------
+ALL_PARTICIPANTS = False
+
+TRAIN_PATH = "wesad_chest_train.csv"
+TEST_PATH = "wesad_chest_test.csv"
+
+OUTPUT_DIR = Path("windowed_outputs")
+OUTPUT_DIR.mkdir(exist_ok=True)
+
+SIGNAL_COLS = ["ECG", "EDA", "TEMP", "RESP"]
+SUBJECT_COL = "subject"
+LABEL_COL = "label"
+
+SAMPLING_RATE = 1
+
+WINDOWS = {
+    "1min": 60,
+    "3min": 180
+}
+
+STRIDE = 30
+
+MAX_WORKERS = max(1, os.cpu_count() - 1)
+
+
+# --------------------------------
+# Helpers
+# --------------------------------
+def compute_zscores(train_df, test_df, signal_cols):
+    print("Calculating z-scores from train set...")
+
+    train_df = train_df.copy()
+    test_df = test_df.copy()
+
+    for col in signal_cols:
+        mean = train_df[col].mean()
+        std = train_df[col].std()
+
+        if std == 0 or pd.isna(std):
+            print(f"Warning: {col} has std=0 or NaN. Skipping z-score.")
+            train_df[f"{col}_z"] = train_df[col]
+            test_df[f"{col}_z"] = test_df[col]
+        else:
+            train_df[f"{col}_z"] = (train_df[col] - mean) / std
+            test_df[f"{col}_z"] = (test_df[col] - mean) / std
+
+    print("Finished z-scores.")
+    return train_df, test_df
+
+
+def create_subject_windows(subject, group, window_seconds, stride):
+    window_size = window_seconds * SAMPLING_RATE
+    rows = []
+
+    group = group.reset_index(drop=True)
+
+    if len(group) < window_size:
+        return pd.DataFrame()
+
+    for start in range(0, len(group) - window_size + 1, stride):
+        end = start + window_size
+        window = group.iloc[start:end]
+
+        row = {
+            SUBJECT_COL: subject,
+            "window_size_sec": window_seconds,
+            "start_idx": start,
+            "end_idx": end - 1
+        }
+
+        for col in SIGNAL_COLS:
+            use_col = f"{col}_z" if f"{col}_z" in window.columns else col
+
+            row[f"{col}_mean"] = window[use_col].mean()
+            row[f"{col}_std"] = window[use_col].std()
+            row[f"{col}_min"] = window[use_col].min()
+            row[f"{col}_max"] = window[use_col].max()
+
+        row[LABEL_COL] = window[LABEL_COL].mode().iloc[0]
+
+        rows.append(row)
+
+    return pd.DataFrame(rows)
+
+
+def create_windows_parallel(df, window_name, window_seconds, split_name):
+    print(f"\nStarting {split_name} {window_name} windowing...")
+
+    grouped = list(df.groupby(SUBJECT_COL))
+    results = []
+
+    with ThreadPoolExecutor(max_workers=MAX_WORKERS) as executor:
+        futures = {
+            executor.submit(
+                create_subject_windows,
+                subject,
+                group,
+                window_seconds,
+                STRIDE
+            ): subject
+            for subject, group in grouped
+        }
+
+        completed = 0
+        total = len(futures)
+
+        for future in as_completed(futures):
+            subject = futures[future]
+            completed += 1
+
+            try:
+                result = future.result()
+                results.append(result)
+
+                print(
+                    f"[{split_name} {window_name}] "
+                    f"Finished {subject} "
+                    f"({completed}/{total}) - {len(result)} windows"
+                )
+
+            except Exception as e:
+                print(f"Error processing {subject}: {e}")
+
+    if results:
+        output = pd.concat(results, ignore_index=True)
+    else:
+        output = pd.DataFrame()
+
+    print(
+        f"Finished {split_name} {window_name}: "
+        f"{len(output)} total windows"
+    )
+
+    return output
+
+
+def save_outputs(train_windows, test_windows, window_name):
+    if ALL_PARTICIPANTS:
+        train_path = OUTPUT_DIR / f"train_{window_name}_all.csv"
+        test_path = OUTPUT_DIR / f"test_{window_name}_all.csv"
+
+        train_windows.to_csv(train_path, index=False)
+        test_windows.to_csv(test_path, index=False)
+
+        print(f"Saved {train_path}")
+        print(f"Saved {test_path}")
+
+    else:
+        for subject in train_windows[SUBJECT_COL].unique():
+            train_subject = train_windows[
+                train_windows[SUBJECT_COL] == subject
+            ]
+
+            test_subject = test_windows[
+                test_windows[SUBJECT_COL] == subject
+            ]
+
+            train_path = OUTPUT_DIR / f"train_{window_name}_{subject}.csv"
+            test_path = OUTPUT_DIR / f"test_{window_name}_{subject}.csv"
+
+            train_subject.to_csv(train_path, index=False)
+            test_subject.to_csv(test_path, index=False)
+
+            print(f"Saved {train_path}")
+            print(f"Saved {test_path}")
+
+
+# --------------------------------
+# Main
+# --------------------------------
+print("Reading train/test CSVs...")
+train = pd.read_csv(TRAIN_PATH)
+test = pd.read_csv(TEST_PATH)
+
+print(f"Train shape: {train.shape}")
+print(f"Test shape: {test.shape}")
+print(f"Using {MAX_WORKERS} worker threads.")
+
+if ALL_PARTICIPANTS:
+    train, test = compute_zscores(train, test, SIGNAL_COLS)
+
+for window_name, window_seconds in WINDOWS.items():
+    train_windows = create_windows_parallel(
+        train,
+        window_name,
+        window_seconds,
+        split_name="train"
+    )
+
+    test_windows = create_windows_parallel(
+        test,
+        window_name,
+        window_seconds,
+        split_name="test"
+    )
+
+    save_outputs(train_windows, test_windows, window_name)
+
+print("\nFinished all windowing.")
+
+```
+
+
+**Stress vs. Non-Stress Separability Across 1-Minute and 3-Minute Windows Result**
+![Window Rolling Scatter](wesad_chest_window_features_1min.png)
+![Window Rolling Pairplot](wesad_chest_window_pairplot_1min.png)
+
+
+#### Example config.yaml
+
+```{yaml}
+#| code-fold: true
+#| code-summary: "Code"
+#| eval: false
+#| 
+# Configuration file
+
+# Absolute WESAD dataset path
+dataset_path: 'C:\Users\vgvau\PycharmProjects\IDC6940_RandomForest\windowed_outputs'
+
+# Processing
+multithread: false
+
+# Participants
+composite_participants: false # using all participants to train model (NOT default and has limitations)
+participants: ["S2","S3","S4"]#, "S3"] # array of participants to predict for
+
+# Variables
+variables: ["ECG_mean", "EDA_mean", "TEMP_mean", "RESP_mean"]
+
+# ARIMA parameters, if all are NONE, parameters will be selected using AutoARIMA()
+p: 5
+d: 0
+q: 0
+```
+
+#### Rolling windows for ARIMA 
+```{python}
+#| code-fold: true
+#| code-summary: "Code"
+#| eval: false
+
+import numpy as np
+import pandas as pd
+from statsmodels.tsa.arima.model import ARIMA
+from sklearn.metrics import mean_absolute_error, mean_squared_error
+
+def get_classification_rules(df, subject, activity_label, variables):
+    # Compute participant-specific classification rules for selected variables.
+
+    subset = df[
+        (df["subject"] == subject) &
+        (df["label"] == activity_label)
+    ]
+
+    rules = []
+
+    for var in variables:
+        mean = subset[var].mean()
+        std = subset[var].std()
+
+        rules.append({
+            "subject": subject,
+            "activity_label": activity_label,
+            "variable": var,
+            "mean": mean,
+            "std": std,
+            "min": subset[var].min(),
+            "max": subset[var].max(),
+            "lower_1sd": mean - std,
+            "upper_1sd": mean + std
+        })
+
+    return pd.DataFrame(rules)
+
+try:
+    from pmdarima import auto_arima
+except ImportError:
+    auto_arima = None
+
+
+def compute_continuous_scores(y_true, y_pred) -> dict:
+    y_true = np.array(y_true)
+    y_pred = np.array(y_pred)
+
+    mae = mean_absolute_error(y_true, y_pred)
+    mse = mean_squared_error(y_true, y_pred)
+    rmse = np.sqrt(mse)
+
+    # Avoid divide-by-zero issues
+    nonzero_mask = y_true != 0
+    if nonzero_mask.any():
+        mape = np.mean(
+            np.abs((y_true[nonzero_mask] - y_pred[nonzero_mask]) / y_true[nonzero_mask])
+        ) * 100
+    else:
+        mape = np.nan
+
+    return {
+        "MAE": mae,
+        "MSE": mse,
+        "RMSE": rmse,
+        "MAPE": mape
+    }
+
+def run_arima(train_df, test_df, target_col: str, p=None, d=None, q=None):
+    y_train = train_df[target_col].dropna()
+    y_test = test_df[target_col].dropna()
+
+    order = (p, d, q)
+
+    print(f"Using ARIMA order: {order}")
+
+    model = ARIMA(y_train, order=order)
+    fitted_model = model.fit()
+
+    predictions = []
+
+    for actual in y_test:
+        pred = fitted_model.forecast(steps=1).iloc[0]
+        predictions.append(pred)
+
+        fitted_model = fitted_model.append(
+            [actual],
+            refit=False
+        )
+
+    predictions = pd.Series(predictions, index=y_test.index)
+
+    scores = compute_continuous_scores(
+        y_true=y_test,
+        y_pred=predictions
+    )
+
+    results_df = pd.DataFrame({
+        "subject": test_df.loc[y_test.index, "subject"].values,
+        "label": test_df.loc[y_test.index, "label"].values,
+        "actual": y_test.values,
+        "predicted": predictions.values
+    })
+
+
+    return {
+        "model": fitted_model,
+        "order": order,
+        "predictions": results_df,
+        "scores": scores
+    }
+
+```
+
+```{python}
+#| code-fold: true
+#| code-summary: "Code"
+#| eval: false
+
+import pickle
+from pathlib import Path
+
+import pandas as pd
+import yaml
+
+from model_pipeline.ARIMA_model import run_arima, get_classification_rules
+from plotting_utils.arima_plotting_helpers import plot_arima_prediction
+
+
+def main(config_path):
+    # Read in config params
+
+    with open(config_path, "r") as file:
+        config = yaml.safe_load(file)
+
+    # df = build_dataset(config)
+
+    rolling_window_dir = Path(config["dataset_path"])
+
+    p = config.get("p")
+    d = config.get("d")
+    q = config.get("q")
+
+    # YAML "None" may load as string, so clean it
+    p = None if p in ["None", "none", None] else int(p)
+    d = None if d in ["None", "none", None] else int(d)
+    q = None if q in ["None", "none", None] else int(q)
+
+    # target_col = "ECG_mean"
+
+    rules_df = pd.DataFrame({})
+
+
+    if config["composite_participants"]:
+        for target_col in config["variables"]:
+
+            train_1min_df = pd.read_csv(rolling_window_dir / f"train_1min_all.csv")
+            train_3min_df = pd.read_csv(rolling_window_dir / f"train_3min_all.csv")
+
+            test_1min_df = pd.read_csv(rolling_window_dir / f"test_1min_all.csv")
+            test_3min_df = pd.read_csv(rolling_window_dir / f"test_3min_all.csv")
+
+            print(f"[--Plotting ARIMA Prediction at 1 Min Windows--]")
+            arima_results_1min = run_arima(
+                train_df=train_1min_df,
+                test_df=test_1min_df,
+                target_col=target_col, # TODO: change to use all feature vars
+                p=p,
+                d=d,
+                q=q
+            )
+            print(f"[--Plotting ARIMA Prediction at 1 Min Windows--]")
+            plot_arima_prediction(
+                test_df=test_1min_df,
+                arima_results=arima_results_1min,
+                target_col=target_col,
+                title="ARIMA ECG Prediction - 1 Minute Window"
+            )
+            print(f"[--Running ARIMA Prediction at 3 Min Windows--]")
+            arima_results_3min = run_arima(
+                train_df=train_3min_df,
+                test_df=test_3min_df,
+                target_col=target_col,  # TODO: change to use all feature vars
+                p=p,
+                d=d,
+                q=q
+            )
+            print(f"[--Plotting ARIMA Prediction at 3 Min Windows--]")
+            plot_arima_prediction(
+                test_df=test_3min_df,
+                arima_results=arima_results_3min,
+                target_col=target_col,
+                title="ARIMA ECG Prediction - 3 Minute Window"
+            )
+
+            print("Composite participant mode enabled")
+            print("[--1 MINUTE ROLLING WINDOW--]")
+            print(f"Train shape 1min: {train_1min_df.shape}")
+            print(f"Test shape 1min: {test_1min_df.shape}")
+            print(arima_results_1min["scores"])
+            print()
+            print("[--3 MINUTE ROLLING WINDOW--]")
+            print(f"Train shape 3min: {train_1min_df.shape}")
+            print(f"Test shape 3min: {test_1min_df.shape}")
+            print(arima_results_1min["scores"])
+
+
+            print(arima_results_1min["scores"])
+            output = {}
+            output[target_col]["1min"]= arima_results_1min
+            output[target_col]["3min"] = arima_results_3min
+
+
+
+            with open(f"arima_results_all_{target_col}_5_0_0_7-5_9-39.pkl", "wb") as f:
+                pickle.dump(output, f)
+            return output
+
+    else:
+        # Individual participant mode
+        # participant_splits = {}
+
+
+        for participant in config["participants"]:
+            for target_col in config["variables"]:
+                # participant_splits[participant] = {
+                #     target_col: {}
+                # }
+                participant_train_1min_df = pd.read_csv(rolling_window_dir / f"train_1min_{participant}.csv")
+                participant_test_1min_df = pd.read_csv(rolling_window_dir / f"test_1min_{participant}.csv")
+
+
+                print(f"[--Running {participant} ARIMA Prediction for {target_col} at 1 Min Windows--]")
+                arima_results_1min = run_arima(
+                    train_df=participant_train_1min_df,
+                    test_df=participant_test_1min_df,
+                    target_col=target_col,
+                    p=p,
+                    d=d,
+                    q=q
+                )
+
+                print(f"[--Plotting {participant} ARIMA Prediction for {target_col} at 1 Min Windows--]")
+                plot_arima_prediction(
+                    test_df=participant_test_1min_df,
+                    arima_results=arima_results_1min,
+                    target_col=target_col,
+                    title="ARIMA ECG Prediction - 1 Minute Window"
+                )
+
+                with open(f"arima_results_{participant}_{target_col}_1min.pkl", "wb") as f:
+                    pickle.dump(arima_results_1min, f)
+
+                participant_rules = pd.concat([
+                    get_classification_rules(
+                        participant_train_1min_df,
+                        participant,
+                        activity_label=1,
+                        variables=[target_col]
+                    ),
+                    get_classification_rules(
+                        participant_train_1min_df,
+                        participant,
+                        activity_label=2,
+                        variables=[target_col]
+                    )
+                ], ignore_index=True)
+
+                participant_rules["window"] = "1min"
+
+                rules_df = pd.concat(
+                    [rules_df, participant_rules],
+                    ignore_index=True
+                )
+
+
+                participant_train_3min_df = pd.read_csv(rolling_window_dir / f"train_3min_{participant}.csv")
+                participant_test_3min_df = pd.read_csv(rolling_window_dir / f"test_3min_{participant}.csv")
+
+                print(f"[--Running {participant} ARIMA Prediction for {target_col} at 3 Min Windows--]")
+                arima_results_3min = run_arima(
+                    train_df=participant_train_3min_df,
+                    test_df=participant_test_3min_df,
+                    target_col=target_col,
+                    p=p,
+                    d=d,
+                    q=q
+                )
+
+                print(f"[--Plotting {participant} ARIMA Prediction for {target_col} at 3 Min Windows--]")
+                plot_arima_prediction(
+                    test_df=participant_test_3min_df,
+                    arima_results=arima_results_3min,
+                    target_col=target_col,
+                    title="ARIMA ECG Prediction - 3 Minute Window"
+                )
+
+                with open(f"arima_results_{participant}_{target_col}_3min.pkl", "wb") as f:
+                    pickle.dump(arima_results_3min, f)
+
+                participant_rules = pd.concat([
+                    get_classification_rules(
+                        participant_train_3min_df,
+                        participant,
+                        activity_label=1,
+                        variables=[target_col]
+                    ),
+                    get_classification_rules(
+                        participant_train_3min_df,
+                        participant,
+                        activity_label=2,
+                        variables=[target_col]
+                    )
+                ], ignore_index=True)
+
+                participant_rules["window"] = "3min"
+
+                rules_df = pd.concat(
+                    [rules_df, participant_rules],
+                    ignore_index=True
+                )
+
+                print("[--1 MINUTE ROLLING WINDOW--]")
+                print(f"Train shape 1min: {participant_train_1min_df.shape}")
+                print(f"Test shape 1min: {participant_test_1min_df.shape}")
+                print(arima_results_1min["scores"])
+                print()
+                print("[--3 MINUTE ROLLING WINDOW--]")
+                print(f"Train shape 3min: {participant_train_3min_df.shape}")
+                print(f"Test shape 3min: {participant_train_3min_df.shape}")
+                print(arima_results_3min["scores"])
+
+    rules_df.to_csv("classification_rules.csv")
+
+
+
+
+
+if __name__ == '__main__':
+    main('config.yaml')
+
+
+```
+
+
+#### ARIMA Classification
+```{python}
+#| code-fold: true
+#| code-summary: "Code"
+#| eval: false
+#| 
+import os
+import pickle
+
+import pandas as pd
+import yaml
+from matplotlib import pyplot as plt
+from sklearn.metrics import roc_auc_score, roc_curve, f1_score, confusion_matrix, precision_score, accuracy_score, \
+    recall_score, ConfusionMatrixDisplay, classification_report
+
+
+
+
+def classify_arima_results(arima_results, stress, baseline):
+    results = arima_results["predictions"].copy()
+    results = results[results["label"].isin([1, 2])].copy()
+
+    baseline_mean = float(baseline["mean"])
+    stress_mean = float(stress["mean"])
+
+    def classify(value):
+        d_baseline = abs(value - baseline_mean)
+        d_stress = abs(value - stress_mean)
+
+        return 2 if d_stress <= d_baseline else 1
+
+
+    results["predicted_label"] = results["predicted"].apply(classify)
+
+    return results
+
+def compute_metrics(y_true, y_pred):
+    return {
+        "accuracy": accuracy_score(y_true, y_pred),
+        "precision": precision_score(
+            y_true,
+            y_pred,
+            pos_label=2,
+            zero_division=0
+        ),
+        "recall": recall_score(
+            y_true,
+            y_pred,
+            pos_label=2,
+            zero_division=0
+        ),
+        "f1": f1_score(
+            y_true,
+            y_pred,
+            pos_label=2,
+            zero_division=0
+        ),
+        "confusion_matrix": confusion_matrix(
+            y_true,
+            y_pred,
+            labels=[1, 2]
+        ).tolist()
+    }
+
+
+def save_confusion_matrix(y_true, y_pred, output_path):
+    cm = confusion_matrix(
+        y_true,
+        y_pred,
+        labels=[1, 2]
+    )
+
+    display = ConfusionMatrixDisplay(
+        confusion_matrix=cm,
+        display_labels=["Not stressed", "Stress"]
+    )
+
+    display.plot()
+    plt.title("ARIMA Stress Classification")
+    plt.tight_layout()
+    plt.savefig(output_path, dpi=300)
+    plt.close()
+
+
+def save_roc_curve(y_true, stress_scores, output_path):
+    # Convert WESAD labels to binary for ROC:
+    # baseline/not stressed = 0, stress = 1
+    y_true_binary = (pd.Series(y_true) == 2).astype(int)
+
+    # ROC cannot be calculated when only one class is present
+    if y_true_binary.nunique() < 2:
+        print(
+            f"ROC curve not generated for {output_path}: "
+            "test data contains only one class."
+        )
+        return None
+
+    auc_score = roc_auc_score(y_true_binary, stress_scores)
+    fpr, tpr, _ = roc_curve(y_true_binary, stress_scores)
+
+    plt.figure()
+    plt.plot(fpr, tpr, label=f"ARIMA heuristic, AUC = {auc_score:.3f}")
+    plt.plot([0, 1], [0, 1], linestyle="--")
+    plt.xlabel("False Positive Rate")
+    plt.ylabel("True Positive Rate")
+    plt.title("ROC Curve")
+    plt.legend()
+    plt.tight_layout()
+    plt.savefig(output_path, dpi=300)
+    plt.close()
+
+    return auc_score
+
+
+def load_arima_results(path):
+    with open(path, "rb") as f:
+        data = pickle.load(f)
+    return data
+
+def main(config_path):
+    # 1. Read in config
+    with open(config_path, "r") as file:
+        config = yaml.safe_load(file)
+
+    # Read in classification rules
+    rules_df = pd.read_csv("classification_rules.csv")
+
+    os.makedirs("plots", exist_ok=True)
+    output_dir="plots"
+
+    all_metrics = []
+
+
+    # 2. Read in participant .pkl
+
+    for participant in config["participants"]:
+
+        for variable in config["variables"]:
+
+            for window in ["1min", "3min"]:
+                print(f"\n--- {participant} | {variable} | {window} ---")
+
+                rules = rules_df[
+                    (rules_df["subject"] == participant) &
+                    (rules_df["variable"] == variable) &
+                    (rules_df["window"] == window)
+                    ]
+
+                baseline = rules[rules["activity_label"] == 1].iloc[0]
+                stress = rules[rules["activity_label"] == 2].iloc[0]
+
+                print(f"Stress Rules: 1 - {baseline} 2 - {stress}")
+
+                # Read ARIMA pickle
+                pkl_path = f"arima_results_{participant}_{variable}_{window}.pkl"
+
+                print("Classifying...")
+                data = load_arima_results(pkl_path)
+
+                # Classify predictions
+                classified = classify_arima_results(
+                    arima_results=data,
+                    stress = stress,
+                    baseline = baseline
+                )
+
+                print("Computing metrics...")
+                # Metrics
+                metric_results = compute_metrics(
+                    classified["label"],
+                    classified["predicted_label"]
+                )
+
+                auc_roc_path = f"{output_dir}/{participant}_{variable}_{window}_roc_auc.png"
+
+
+                classified_path = f"{output_dir}/{participant}_{variable}_{window}_classified.pkl"
+
+
+                confusion_matrix_path = f"{output_dir}/{participant}_{variable}_{window}_conf_matrix.png"
+
+
+                metrics_path = f"{output_dir}/{participant}_{variable}_{window}_metrics.pkl"
+
+                print("Computing AUC ROC...")
+                auc_score = save_roc_curve(
+                    y_true=classified["label"],
+                    stress_scores=classified["predicted"],
+                    output_path=auc_roc_path
+                )
+
+                metric_results["roc_auc"] = auc_score
+
+                print("Computing Confusion Matrix...")
+                save_confusion_matrix(
+                    y_true=classified["label"],
+                    y_pred=classified["predicted_label"],
+                    output_path=confusion_matrix_path
+                )
+
+                classified.to_pickle(classified_path)
+
+                with open(metrics_path, "wb") as file:
+                    pickle.dump(metric_results, file)
+
+                all_metrics.append({
+                    "participant": participant,
+                    "variable": variable,
+                    "window": window,
+                    "accuracy": metric_results["accuracy"],
+                    "precision": metric_results["precision"],
+                    "recall": metric_results["recall"],
+                    "f1": metric_results["f1"],
+                    "roc_auc": metric_results["roc_auc"]
+                })
+
+                print(metric_results)
+
+                print(
+                    classification_report(
+                        classified["label"],
+                        classified["predicted_label"],
+                        labels=[1, 2],
+                        target_names=["Not stressed", "Stress"],
+                        zero_division=0
+                    )
+                )
+
+            all_metrics_df = pd.DataFrame(all_metrics)
+
+            all_metrics_df.to_csv(
+                "all_classification_metrics.csv",
+                index=False
+            )
+
+if __name__ == '__main__':
+    output = main('config.yaml')
+```
+
 #### Rolling windows for Random Forest
 ```{python}
 
@@ -350,198 +1189,235 @@ values alone provide.
 #| eval: false
 # Load Data
 
-import joblib
 import pandas as pd
+import numpy as np
+from pathlib import Path
 
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.metrics import classification_report, f1_score, precision_score, recall_score
-
-print("=== Starting Random Forest Model Loop (Lags + 1-min + 3-min Rolling Windows) ===")
-
-# -------------------------------------------------------
-# 1. LOAD PRE-SPLIT, PRE-NORMALIZED WRIST FILES
-# -------------------------------------------------------
-print("Loading data splits...")
-train_df = pd.read_csv("wesad_wrist_train.csv")
-test_df  = pd.read_csv("wesad_wrist_test.csv")
-
-
-
-FS = 4  # wrist sensor Hz
-
-# -------------------------------------------------------
-# 2. FEATURE ENGINEERING
-# -------------------------------------------------------
-def engineer_features(df, fs=4):
-    """
-    Per-subject feature engineering (no cross-subject leakage):
-      - Lag features       : t-1 to t-4       (1 second context @ 4Hz)
-      - 1-min rolling      : mean + std        (240 samples @ 4Hz)
-      - 3-min rolling      : mean + std        (720 samples @ 4Hz)
-
-    ECG excluded — wrist sensor does not record ECG.
-    Only EDA and TEMP are valid wrist channels in WESAD.
-    """
-    valid_features = [f for f in ['EDA', 'TEMP'] if f in df.columns]
-    print(f" -> Wrist channels found: {valid_features}")
-
-    win_1min = fs * 60        # 240 samples
-    win_3min = fs * 60 * 3   # 720 samples
-
-    groups = []
-    for subject, group in df.groupby('subject'):
-        g = group.sort_index().copy()
-
-        for col in valid_features:
-            # Lag features (1 second of raw history)
-            for lag in range(1, 5):
-                g[f'{col}_lag_{lag}'] = g[col].shift(lag)
-
-            # 1-min rolling features (acute stress onset)
-            g[f'{col}_roll1min_mean'] = (
-                g[col].rolling(window=win_1min, min_periods=1).mean()
-            )
-            g[f'{col}_roll1min_std'] = (
-                g[col].rolling(window=win_1min, min_periods=2).std()
-            )
-
-            # 3-min rolling features (sustained physiological arousal)
-            g[f'{col}_roll3min_mean'] = (
-                g[col].rolling(window=win_3min, min_periods=1).mean()
-            )
-            g[f'{col}_roll3min_std'] = (
-                g[col].rolling(window=win_3min, min_periods=2).std()
-            )
-
-        groups.append(g.dropna())
-
-    return pd.concat(groups, ignore_index=True)
-
-
-print("Engineering features...")
-train_engineered = engineer_features(train_df)
-test_engineered  = engineer_features(test_df)
-
-feature_columns = [
-    c for c in train_engineered.columns
-    if c not in ['subject', 'label']
-]
-print(f" -> Total feature columns: {len(feature_columns)}")
-print(f"    {feature_columns}")
-
-# -------------------------------------------------------
-# 3. PER-SUBJECT TRAINING LOOP
-# -------------------------------------------------------
-results_summary = []
-all_importances = []
-
-label_names = {0: 'Non-Stress', 1: 'Stress'}
-
-for subject, group in train_engineered.groupby('subject'):
-    print(f"\n{'='*50}")
-    print(f"Training RF for {subject}...")
-
-    X_train = group[feature_columns]
-    y_train = group['label']
-
-    test_group = test_engineered[test_engineered['subject'] == subject]
-
-    if test_group.empty:
-        print(f" [SKIP] No test data found for {subject}")
-        continue
-
-    X_test = test_group[feature_columns]
-    y_test = test_group['label']
-
-    print(f" -> Train size: {X_train.shape} | Test size: {X_test.shape}")
-    print(f" -> Train label dist: {y_train.value_counts().to_dict()}")
-    print(f" -> Test  label dist: {y_test.value_counts().to_dict()}")
-
-    rf_model = RandomForestClassifier(
-    n_estimators=100,
-    random_state=42,
-    n_jobs=-1
-    )
-    rf_model.fit(X_train, y_train)
-
-    y_pred = rf_model.predict(X_test)
-
-    macro_f1   = f1_score(y_test, y_pred, average='binary', zero_division=0)
-    macro_prec = precision_score(y_test, y_pred, average='binary', zero_division=0)
-    macro_rec  = recall_score(y_test, y_pred, average='binary', zero_division=0)
-
-
-    print(f"\n[{subject}] Binary Precision : {macro_prec:.4f}")
-    print(f"[{subject}] Binary Recall    : {macro_rec:.4f}")
-    print(f"[{subject}] Binary F1-Score  : {macro_f1:.4f}")
-    print("\nDetailed Per-Class Performance:")
-    print(classification_report(
-        y_test, y_pred,
-        labels=[0, 1],
-        target_names=['Non-Stress', 'Stress'],
-        zero_division=0
-    ))
-
-
-    # --- Feature Importance ---
-    importances = pd.DataFrame({
-        'subject':    subject,
-        'feature':    feature_columns,
-        'importance': rf_model.feature_importances_
-    }).sort_values('importance', ascending=False)
-
-    print(f"Top 10 features for {subject}:")
-    print(importances.head(10).to_string(index=False))
-    importances.to_csv(f"feature_importance_{subject}.csv", index=False)
-    all_importances.append(importances)
-
-    # --- Save Model ---
-    model_filename = f"rf_model_{subject}_rolling.pkl"
-    joblib.dump(rf_model, model_filename)
-    print(f" Saved: {model_filename}")
-
-    results_summary.append({
-        'subject':   subject,
-        'precision': round(macro_prec, 4),
-        'recall':    round(macro_rec, 4),
-        'f1_binary': round(macro_f1, 4)
-    })
-
-
-# -------------------------------------------------------
-# 4. SUMMARY TABLE
-# -------------------------------------------------------
-print(f"\n{'='*50}")
-print("=== Per-Subject Results Summary ===")
-summary_df = pd.DataFrame(results_summary)
-print(summary_df.to_string(index=False))
-summary_df.to_csv("rf_rolling_results.csv", index=False)
-print("Saved: rf_rolling_results.csv")
-
-# -------------------------------------------------------
-# 5. AGGREGATE FEATURE IMPORTANCE ACROSS ALL SUBJECTS
-# -------------------------------------------------------
-print("\n=== Aggregate Feature Importance (All Subjects) ===")
-all_imp_df = pd.concat(all_importances, ignore_index=True)
-agg_imp = (
-    all_imp_df.groupby('feature')['importance']
-    .mean()
-    .reset_index()
-    .sort_values('importance', ascending=False)
+from sklearn.metrics import (
+    accuracy_score,
+    precision_score,
+    recall_score,
+    f1_score,
+    roc_auc_score,
+    roc_curve,
+    confusion_matrix
 )
-print(agg_imp.to_string(index=False))
-agg_imp.to_csv("feature_importance_aggregate.csv", index=False)
-print("Saved: feature_importance_aggregate.csv")
 
-print("\n=== Complete ===")
+# -------------------------------------------------------
+# Configuration
+# -------------------------------------------------------
+
+WINDOW_DIR = Path("windowed_outputs")
+
+OUTPUT_DIR = Path("rf_window_results")
+OUTPUT_DIR.mkdir(exist_ok=True)
+
+ROC_DIR = OUTPUT_DIR / "roc_curves"
+ROC_DIR.mkdir(exist_ok=True)
+
+CM_DIR = OUTPUT_DIR / "confusion_matrices"
+CM_DIR.mkdir(exist_ok=True)
+
+WINDOWS = ["1min", "3min"]
+
+SIGNALS = ["ECG", "EDA", "TEMP", "RESP"]
+
+# -------------------------------------------------------
+# Find Subjects
+# -------------------------------------------------------
+
+subjects = sorted({
+    f.stem.split("_")[-1]
+    for f in WINDOW_DIR.glob("train_*_S*.csv")
+})
+
+print("Subjects:", subjects)
+
+results = []
+
+# -------------------------------------------------------
+# Loop over windows
+# -------------------------------------------------------
+
+for window in WINDOWS:
+
+    print(f"\n{'='*60}")
+    print(f"Processing {window}")
+    print(f"{'='*60}")
+
+    for subject in subjects:
+
+        train_file = WINDOW_DIR / f"train_{window}_{subject}.csv"
+        test_file = WINDOW_DIR / f"test_{window}_{subject}.csv"
+
+        if not train_file.exists() or not test_file.exists():
+            print(f"Skipping {subject}")
+            continue
 
 
+
+        train = pd.read_csv(train_file)
+        test = pd.read_csv(test_file)
+
+        # Keep only Baseline (1) and Stress (2)
+        train = train[train["label"].isin([1, 2])].copy()
+        test = test[test["label"].isin([1, 2])].copy()
+
+        # Convert to binary classification
+        # Baseline = 0, Stress = 1
+        train["label"] = train["label"].map({1: 0, 2: 1})
+        test["label"] = test["label"].map({1: 0, 2: 1})
+
+        for signal in SIGNALS:
+
+            feature_cols = [
+                f"{signal}_mean",
+                f"{signal}_std",
+                f"{signal}_min",
+                f"{signal}_max"
+            ]
+
+            X_train = train[feature_cols]
+            y_train = train["label"]
+
+            X_test = test[feature_cols]
+            y_test = test["label"]
+
+            # -------------------------------------------------------
+            # Train RF
+            # -------------------------------------------------------
+
+            rf = RandomForestClassifier(
+                n_estimators=100,
+                random_state=42,
+                n_jobs=-1
+            )
+
+            rf.fit(X_train, y_train)
+
+            y_pred = rf.predict(X_test)
+            y_prob = rf.predict_proba(X_test)[:, 1]
+
+            # -------------------------------------------------------
+            # Metrics
+            # -------------------------------------------------------
+
+            acc = accuracy_score(y_test, y_pred)
+
+            prec = precision_score(
+                y_test,
+                y_pred,
+                average="macro",
+                zero_division=0
+            )
+
+            rec = recall_score(
+                y_test,
+                y_pred,
+                average="macro",
+                zero_division=0
+            )
+
+            f1 = f1_score(
+                y_test,
+                y_pred,
+                average="macro"
+            )
+
+            auc = roc_auc_score(y_test, y_prob)
+
+            # -------------------------------------------------------
+            # ROC Curve
+            # -------------------------------------------------------
+
+            fpr, tpr, thresholds = roc_curve(
+                y_test,
+                y_prob
+            )
+
+            roc_df = pd.DataFrame({
+                "FPR": fpr,
+                "TPR": tpr,
+                "Threshold": thresholds
+            })
+
+            roc_df.to_csv(
+                ROC_DIR /
+                f"roc_{signal}_{window}_{subject}.csv",
+                index=False
+            )
+
+            # -------------------------------------------------------
+            # Confusion Matrix
+            # -------------------------------------------------------
+
+            cm = confusion_matrix(y_test, y_pred)
+
+            cm_df = pd.DataFrame(
+                cm,
+                index=["Actual_0", "Actual_1"],
+                columns=["Pred_0", "Pred_1"]
+            )
+
+            cm_df.to_csv(
+                CM_DIR /
+                f"confusion_{signal}_{window}_{subject}.csv"
+            )
+
+            # -------------------------------------------------------
+            # Results Summary
+            # -------------------------------------------------------
+
+            results.append({
+                "signal": signal,
+                "subject": subject,
+                "window": window,
+                "accuracy": round(acc, 4),
+                "precision": round(prec, 4),
+                "recall": round(rec, 4),
+                "f1": round(f1, 4),
+                "roc_auc": round(auc, 4)
+            })
+
+            print(
+                f"{subject:>3} | "
+                f"{signal:<4} | "
+                f"{window:<4} | "
+                f"AUC={auc:.3f} "
+                f"F1={f1:.3f}"
+            )
+
+# -------------------------------------------------------
+# Save Summary
+# -------------------------------------------------------
+
+results_df = pd.DataFrame(results)
+
+results_df = results_df[
+    [
+        "signal",
+        "subject",
+        "window",
+        "accuracy",
+        "precision",
+        "recall",
+        "f1",
+        "roc_auc"
+    ]
+]
+
+results_df.to_csv(
+    OUTPUT_DIR / "rf_window_results.csv",
+    index=False
+)
+
+print("\nFinished.")
+print(results_df)
 
 ```
 
 
-**Stress vs. Non-Stress Separability Across 1-Minute and 3-Minute Windows Result**
-![Wrist window rolling](wesad_wrist_rolling_scatter.png)
 
 
 
@@ -758,6 +1634,7 @@ print("\n=== Chest RF Complete ===")
 
 *Table 1: ARIMA error metrics for 1 min rolling windows.*
 
+
 | Signal | Subject |        MAE |              MSE |       RMSE |          MAPE |
 | ------ | ------- | ---------: | ---------------: | ---------: | ------------: |
 | ECG    | S2      |      0.118 |            0.029 |      0.171 |        81.483 |
@@ -775,46 +1652,96 @@ print("\n=== Chest RF Complete ===")
 
 *Table 2: ARIMA error metrics for 3 min rolling windows.*
 
+**ARIMA Prediction for S3 ECG (3min)** ![ARIMA continuous prediction for S3 ECG 3-min](plotting_utils/arima_prediction_plots/ARIMA_ECG_S3_3min.png)
+**ARIMA Prediction for S2 EDA (1min)** ![ARIMA continuous prediction for S2 EDA 1-min](plotting_utils/arima_prediction_plots/ARIMA_EDA_S2_1min.png)
+**ARIMA Prediction for S4 RESP (3min)** ![ARIMA continuous prediction for S4 RESP 3-min](plotting_utils/arima_prediction_plots/ARIMA_RESP_S4_3min.png)
+**ARIMA Prediction for S3 TEMP (1min)** ![ARIMA continuous prediction for S3 TEMP 1-min](plotting_utils/arima_prediction_plots/ARIMA_TEMP_S3_1min.png)
+
+Based on the error metrics from the original ARIMA continuous prediction, the longer 3 minute window showed to substantially improve ECG prediction across subjects. of the 4 signals, EDA and RESP had the lowest forecasting error for both window sizes. This aligns with EDA and RESP having slower fluctuations than a signal like ECG, where ARIMA can struggle with quick patterns. It is worth noting that TEMP for subjects 2 and 3 seemed to perform well, but S4 failed to converge. Overall, the longer window was able to improve the prediction of physiological trends.
+
 
 ### ARIMA vs RF Classification Results
 
 
-| **Signal** | **Subject** | **RF Precision** | **ARIMA Precision** | **RF Recall** | **ARIMA Recall** | **RF F1** | **ARIMA F1** |
-| ------ | ------- | ---------------: | ------------------: | ------------: | ---------------: | --------: | -----------: |
-| ECG    | S2      |           0.4295 |              0.3820 |        0.4292 |           0.4220 |    0.3545 |       0.4010 |
-| ECG    | S3      |           0.5828 |              0.4291 |        0.5989 |           0.5750 |    0.5692 |       0.4915 |
-| ECG    | S4      |           0.5613 |              0.3351 |        0.5645 |           0.5858 |    0.5623 |       0.4263 |
-| EDA    | S2      |           0.8273 |              0.0002 |        0.5123 |           0.0003 |    0.4414 |       0.0002 |
-| EDA    | S3      |           0.1976 |              0.9977 |        0.2823 |           0.2870 |    0.1796 |       0.4458 |
-| EDA    | S4      |           1.0000 |              0.9997 |        1.0000 |           1.0000 |    1.0000 |       0.9998 |
-| TEMP   | S2      |           1.0000 |              0.5197 |        1.0000 |           1.0000 |    1.0000 |       0.6840 |
-| TEMP   | S3      |           0.7754 |              0.6667 |        0.8278 |           0.0007 |    0.7514 |       0.0013 |
-| TEMP   | S4      |           0.9993 |              0.3540 |        0.9997 |           1.0000 |    0.9995 |       0.5229 |
-| RESP   | S2      |           0.5281 |              0.3341 |        0.5324 |           0.4467 |    0.5247 |       0.3823 |
-| RESP   | S3      |           0.6411 |              0.3728 |        0.6400 |           0.5941 |    0.6406 |       0.4582 |
-| RESP   | S4      |           0.6220 |              0.3585 |        0.6395 |           0.5270 |    0.6242 |       0.4267 |
+1-Minute RF vs. ARIMA Classification Results
+
+| Signal | Subject | RF Accuracy | ARIMA Accuracy | RF Precision | ARIMA Precision | RF Recall | ARIMA Recall |  RF F1 | ARIMA F1 |
+| :----: | :-----: | ----------: | -------------: | -----------: | --------------: | --------: | -----------: | -----: | -------: |
+|   ECG  |    S2   |      0.7890 |         0.5680 |       0.7703 |          0.3874 |    0.7569 |       0.4052 | 0.7624 |   0.3961 |
+|   ECG  |    S3   |      0.8920 |         0.4559 |       0.9036 |          0.3552 |    0.8620 |       0.6299 | 0.8770 |   0.4543 |
+|   ECG  |    S4   |      0.8359 |         0.4419 |       0.8232 |          0.3351 |    0.8138 |       0.5858 | 0.8180 |   0.4263 |
+|   EDA  |    S2   |      0.0257 |         0.0001 |       0.0300 |          0.0002 |    0.0262 |       0.0003 | 0.0257 |   0.0002 |
+|   EDA  |    S3   |      0.7562 |         0.7434 |       0.8622 |          0.9977 |    0.6609 |       0.2870 | 0.6635 |   0.4458 |
+|   EDA  |    S4   |      1.0000 |         0.6459 |       1.0000 |          0.0000 |    1.0000 |       0.0000 | 1.0000 |   0.0000 |
+|  RESP  |    S2   |      0.7325 |         0.4946 |       0.7066 |          0.3332 |    0.6812 |       0.4446 | 0.6886 |   0.3809 |
+|  RESP  |    S3   |      0.7746 |         0.4948 |       0.7861 |          0.3728 |    0.7124 |       0.5941 | 0.7259 |   0.4582 |
+|  RESP  |    S4   |      0.7413 |         0.4984 |       0.7197 |          0.3584 |    0.6935 |       0.5270 | 0.7013 |   0.4266 |
+|  TEMP  |    S2   |      0.6936 |         0.6769 |       0.7665 |          0.5197 |    0.7644 |       1.0000 | 0.6936 |   0.6840 |
+|  TEMP  |    S3   |      0.9521 |         0.6403 |       0.9652 |          0.0000 |    0.9334 |       0.0000 | 0.9463 |   0.0000 |
+|  TEMP  |    S4   |      0.9549 |         0.6459 |       0.9435 |          0.0000 |    0.9651 |       0.0000 | 0.9520 |   0.0000 |
+
 
 *Table 3: Random Forest and ARIMA chest sensor classification results using 
-rolling window features (ECG, EDA, TEMP, RESP at 700Hz).*
+rolling window features at 1min intervals (ECG, EDA, TEMP, RESP at 700Hz).*
 
-<!-- **Wrist Sensor Results**
+### 3-Minute RF vs. ARIMA Classification Results
 
-| Subject | Precision | Recall | F1 Score |
-|---------|-----------|--------|----------|
-| S2      | 0.3559    | 1.0000 | 0.5250   |
-| S3      | 0.0000    | 0.0000 | 0.0000   |
-| S4      | 1.0000    | 1.0000 | 1.0000   |
+| Signal | Subject | RF Accuracy | ARIMA Accuracy | RF Precision | ARIMA Precision | RF Recall | ARIMA Recall |  RF F1 | ARIMA F1 |
+| :----: | :-----: | ----------: | -------------: | -----------: | --------------: | --------: | -----------: | -----: | -------: |
+|   ECG  |    S2   |      0.8429 |         0.5591 |       0.8282 |          0.3820 |    0.8249 |       0.4220 | 0.8265 |   0.4010 |
+|   ECG  |    S3   |      0.9587 |         0.5721 |       0.9625 |          0.4291 |    0.9479 |       0.5750 | 0.9545 |   0.4915 |
+|   ECG  |    S4   |      0.9101 |         0.4343 |       0.8970 |          0.3194 |    0.9139 |       0.5287 | 0.9039 |   0.3982 |
+|   EDA  |    S2   |      0.0389 |         0.0000 |       0.0387 |          0.0000 |    0.0470 |       0.0000 | 0.0387 |   0.0000 |
+|   EDA  |    S3   |      0.7784 |         0.7427 |       0.8707 |          0.9988 |    0.6920 |       0.2847 | 0.7038 |   0.4431 |
+|   EDA  |    S4   |      1.0000 |         0.9999 |       1.0000 |          0.9997 |    1.0000 |       1.0000 | 1.0000 |   0.9998 |
+|  RESP  |    S2   |      0.7470 |         0.4951 |       0.7233 |          0.3341 |    0.7023 |       0.4467 | 0.7094 |   0.3823 |
+|  RESP  |    S3   |      0.7835 |         0.4952 |       0.7935 |          0.3729 |    0.7252 |       0.5928 | 0.7394 |   0.4578 |
+|  RESP  |    S4   |      0.7560 |         0.4987 |       0.7375 |          0.3585 |    0.7104 |       0.5270 | 0.7188 |   0.4267 |
+|  TEMP  |    S2   |      0.6800 |         0.6768 |       0.7611 |          0.5197 |    0.7539 |       1.0000 | 0.6799 |   0.6840 |
+|  TEMP  |    S3   |      0.9509 |         0.6405 |       0.9644 |          0.6667 |    0.9317 |       0.0007 | 0.9449 |   0.0013 |
+|  TEMP  |    S4   |      0.9485 |         0.3540 |       0.9364 |          0.3540 |    0.9601 |       1.0000 | 0.9453 |   0.5229 |
 
-*Table 2: Random Forest wrist sensor classification results using 
-rolling window features (EDA, TEMP at 4Hz).* -->
 
-#### RF Results
+*Table 4: Random Forest and ARIMA chest sensor classification results using 
+rolling window features at 3min intervals (ECG, EDA, TEMP, RESP at 700Hz).*
 
-**Random Forest ROC Curves Result**
-![ROC Curves on RF](rf_roc_curves_combined.png)
+### Figure A. ECG (Subject S3, 3-minute Window)
 
-**Aggregated Confusion Matrix for Random Forest**
-![RF Confusion matrix](RF_global_confusion_matrix.png)
+| ARIMA | Random Forest |
+|:------:|:-------------:|
+| ![](model_pipeline/plots/S3_ECG_mean_3min_roc_auc.png){width=400px} | ![](rf_plots/ECG_3min_S3_roc_curve.png){width=260px} |
+| **(a) ARIMA ROC Curve** | **(b) Random Forest ROC Curve** |
+| ![](model_pipeline/plots/S3_ECG_mean_3min_conf_matrix.png){width=400px} | ![](rf_plots/ECG_3min_S3_conf_matrix.png){width=260px} |
+| **(c) ARIMA Confusion Matrix** | **(d) Random Forest Confusion Matrix** |
+
+*Figure A. Comparison of ARIMA and Random Forest performance for ECG (Subject S3) using a 3-minute rolling window.*
+
+| ARIMA | Random Forest |
+|:------:|:-------------:|
+| ![](model_pipeline/plots/S4_EDA_mean_3min_roc_auc.png){width=400px} | ![](rf_plots/EDA_3min_S4_roc_curve.png){width=260px} |
+| **(a) ARIMA ROC Curve** | **(b) Random Forest ROC Curve** |
+| ![](model_pipeline/plots/S4_EDA_mean_3min_conf_matrix.png){width=400px} | ![](rf_plots/EDA_3min_S4_conf_matrix.png){width=260px} |
+| **(c) ARIMA Confusion Matrix** | **(d) Random Forest Confusion Matrix** |
+
+*Figure B. Comparison of ARIMA and Random Forest performance for EDA (Subject S4) using a 3-minute rolling window.*
+
+| ARIMA | Random Forest |
+|:------:|:-------------:|
+| ![](model_pipeline/plots/S3_RESP_mean_3min_roc_auc.png){width=400px} | ![](rf_plots/RESP_3min_S3_roc_curve.png){width=260px} |
+| **(a) ARIMA ROC Curve** | **(b) Random Forest ROC Curve** |
+| ![](model_pipeline/plots/S3_RESP_mean_3min_conf_matrix.png){width=400px} | ![](rf_plots/RESP_3min_S3_conf_matrix.png){width=260px} |
+| **(c) ARIMA Confusion Matrix** | **(d) Random Forest Confusion Matrix** |
+
+*Figure C. Comparison of ARIMA and Random Forest performance for RESP (Subject S3) using a 3-minute rolling window.*
+
+| ARIMA | Random Forest |
+|:------:|:-------------:|
+| ![](model_pipeline/plots/S2_TEMP_mean_3min_roc_auc.png){width=400px} | ![](rf_plots/TEMP_3min_S2_roc_curve.png){width=260px} |
+| **(a) ARIMA ROC Curve** | **(b) Random Forest ROC Curve** |
+| ![](model_pipeline/plots/S2_TEMP_mean_3min_conf_matrix.png){width=400px} | ![](rf_plots/TEMP_3min_S2_conf_matrix.png){width=260px} |
+| **(c) ARIMA Confusion Matrix** | **(d) Random Forest Confusion Matrix** |
+
+*Figure D. Comparison of ARIMA and Random Forest performance for TEMP (Subject S2) using a 3-minute rolling window.*
 
 ## Conclusion
 
