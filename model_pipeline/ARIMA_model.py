@@ -3,6 +3,34 @@ import pandas as pd
 from statsmodels.tsa.arima.model import ARIMA
 from sklearn.metrics import mean_absolute_error, mean_squared_error
 
+def get_classification_rules(df, subject, activity_label, variables):
+    # Compute participant-specific classification rules for selected variables.
+
+    subset = df[
+        (df["subject"] == subject) &
+        (df["label"] == activity_label)
+    ]
+
+    rules = []
+
+    for var in variables:
+        mean = subset[var].mean()
+        std = subset[var].std()
+
+        rules.append({
+            "subject": subject,
+            "activity_label": activity_label,
+            "variable": var,
+            "mean": mean,
+            "std": std,
+            "min": subset[var].min(),
+            "max": subset[var].max(),
+            "lower_1sd": mean - std,
+            "upper_1sd": mean + std
+        })
+
+    return pd.DataFrame(rules)
+
 try:
     from pmdarima import auto_arima
 except ImportError:
@@ -33,46 +61,29 @@ def compute_continuous_scores(y_true, y_pred) -> dict:
         "MAPE": mape
     }
 
-
 def run_arima(train_df, test_df, target_col: str, p=None, d=None, q=None):
     y_train = train_df[target_col].dropna()
     y_test = test_df[target_col].dropna()
 
-
-
-    if p is None or d is None or q is None:
-        if auto_arima is None:
-            raise ImportError(
-                "pmdarima is not installed. Install it with: pip install pmdarima"
-            )
-
-        print("Using AutoARIMA...")
-
-        auto_model = auto_arima(
-            y_train,
-            seasonal=False,
-            stepwise=True,
-            suppress_warnings=True,
-            error_action="ignore"
-        )
-
-        order = auto_model.order
-
-    else:
-        order = (p, d, q)
+    order = (p, d, q)
 
     print(f"Using ARIMA order: {order}")
 
-    model = ARIMA(
-        y_train,
-        order=order
-    )
-
+    model = ARIMA(y_train, order=order)
     fitted_model = model.fit()
 
-    predictions = fitted_model.forecast(
-        steps=len(y_test)
-    )
+    predictions = []
+
+    for actual in y_test:
+        pred = fitted_model.forecast(steps=1).iloc[0]
+        predictions.append(pred)
+
+        fitted_model = fitted_model.append(
+            [actual],
+            refit=False
+        )
+
+    predictions = pd.Series(predictions, index=y_test.index)
 
     scores = compute_continuous_scores(
         y_true=y_test,
@@ -80,9 +91,12 @@ def run_arima(train_df, test_df, target_col: str, p=None, d=None, q=None):
     )
 
     results_df = pd.DataFrame({
+        "subject": test_df.loc[y_test.index, "subject"].values,
+        "label": test_df.loc[y_test.index, "label"].values,
         "actual": y_test.values,
         "predicted": predictions.values
     })
+
 
     return {
         "model": fitted_model,
