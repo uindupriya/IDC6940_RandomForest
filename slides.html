@@ -442,7 +442,7 @@
   <meta name="generator" content="quarto-1.9.37">
 
   <meta name="author" content="Virginia Vaughan, Indupriya Uppaluri, Chawan Sreelekha (Advisor: Dr. Cohen)">
-  <meta name="dcterms.date" content="2026-07-15">
+  <meta name="dcterms.date" content="2026-07-16">
   <title>Stress State Prediction from Wearable Sensors</title>
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -999,7 +999,179 @@ Virginia Vaughan, Indupriya Uppaluri, Chawan Sreelekha (Advisor: Dr. Cohen)
 </div>
 </div>
 
-  <p class="date">2026-07-15</p>
+  <p class="date">2026-07-16</p>
+</section>
+<section id="introduction-why-stress-detection-matters" class="slide level2">
+<h2>Introduction: Why Stress Detection Matters</h2>
+<div class="quarto-layout-panel" data-layout-ncol="2">
+<div class="quarto-layout-row">
+<div id="left-side" class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: flex-start;">
+<ul>
+<li><strong>Growing interest</strong> in real-time stress detection and biomarkers from both military and corporate settings aiming to improve worker health and performance</li>
+<li><strong>Wearables</strong> now capture BPM, HR, HRV, EDA, RESP, and TEMP continuously and non-invasively</li>
+<li>These signals are modeled two very different ways:
+<ul>
+<li><strong>Stochastic models</strong> (e.g., ARIMA)</li>
+<li><strong>Machine learning models</strong> (e.g., Random Forest)</li>
+</ul></li>
+<li><strong>Our question:</strong> can the simpler ARIMA model match Random Forest’s accuracy in predicting stress state?</li>
+</ul>
+</div>
+<div id="right-side" class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: flex-start;">
+<ul>
+<li><strong>If ARIMA performs comparably</strong>, it argues that stress can be predicted from physiological signals <em>without</em> the intensive training machine learning requires</li>
+<li><strong>We chose WESAD</strong> because it provides multimodal physiological data across Baseline, Stress, and Amusement conditions</li>
+<li>Literature review pointed us toward <strong>HR, HRV, and EDA</strong> as the strongest stress predictors, enhanced by <strong>RESP and TEMP</strong> as secondary signals</li>
+</ul>
+</div>
+</div>
+</div>
+</section>
+<section id="why-arima-vs.-random-forest" class="slide level2">
+<h2>Why ARIMA vs. Random Forest?</h2>
+<svg width="100%" viewbox="0 0 680 260" role="img">
+<title>ARIMA vs Random Forest comparison</title>
+<defs>
+<lineargradient id="arima-grad" x1="0" y1="0" x2="1" y2="1">
+  <stop offset="0%" stop-color="#5DCAA5"></stop>
+  <stop offset="100%" stop-color="#1D9E75"></stop>
+</lineargradient>
+<lineargradient id="rf-grad" x1="0" y1="0" x2="1" y2="1">
+  <stop offset="0%" stop-color="#AFA9EC"></stop>
+  <stop offset="100%" stop-color="#534AB7"></stop>
+</lineargradient>
+</defs>
+
+<g>
+  <rect x="30" y="30" width="290" height="200" rx="12" fill="url(#arima-grad)" opacity="0.95" />
+  <text x="175" y="60" text-anchor="middle" font-size="16" font-weight="bold" fill="#08402F">ARIMA</text>
+  <text x="50" y="90" font-size="13" fill="#08402F">• Classical, linear time-series model</text>
+  <text x="50" y="112" font-size="13" fill="#08402F">• Uses own past values + error terms</text>
+  <text x="50" y="134" font-size="13" fill="#08402F">• Needs less data to train</text>
+  <text x="50" y="156" font-size="13" fill="#08402F">• Highly interpretable</text>
+  <text x="50" y="178" font-size="13" fill="#08402F">• Assumes stationarity + linearity</text>
+  <text x="50" y="200" font-size="13" fill="#08402F">• Best on structured, low-dim data</text>
+</g>
+
+<g>
+  <rect x="360" y="30" width="290" height="200" rx="12" fill="url(#rf-grad)" opacity="0.95" />
+  <text x="505" y="60" text-anchor="middle" font-size="16" font-weight="bold" fill="#26215C">Random Forest</text>
+  <text x="380" y="90" font-size="13" fill="#26215C">• Ensemble machine learning model</text>
+  <text x="380" y="112" font-size="13" fill="#26215C">• No linearity / distribution assumption</text>
+  <text x="380" y="134" font-size="13" fill="#26215C">• More data-intensive to train</text>
+  <text x="380" y="156" font-size="13" fill="#26215C">• Captures complex, nonlinear patterns</text>
+  <text x="380" y="178" font-size="13" fill="#26215C">• Established WESAD benchmark</text>
+  <text x="380" y="200" font-size="13" fill="#26215C">• Less interpretable than ARIMA</text>
+</g>
+
+<text x="340" y="245" text-anchor="middle" font-size="13" fill="#888780" font-style="italic">Central question: can simplicity (ARIMA) match performance (Random Forest)?</text>
+</svg>
+</section>
+<section id="literature-review-arima-for-physiological-signals" class="slide level2">
+<h2>Literature Review: ARIMA for Physiological Signals</h2>
+<div id="left-side" style="font-size: 28px; line-height: 1.45; width: 100%;">
+<ul>
+<li><strong>(Kontopoulou et al. 2023)</strong> — ARIMA remains a broadly used, interpretable approach, particularly well-suited for structured, lower-dimensional datasets where its linearity assumptions hold reasonably well</li>
+<li><strong>(Ziyadidegan et al. 2025)</strong> — Identified ARIMA as <em>underutilized</em> for physiological stress research, appearing in only 3 of 119 reviewed cardiovascular stress studies, despite its recognized capacity to capture temporal rhythms in cardiovascular and electrodermal signals</li>
+<li><strong>(Oyeleye et al. 2022)</strong> — Found that ARIMA’s accuracy can be heavily improved using a <strong>rolling window</strong> approach, letting the model learn from a window of time rather than treating each sample independently</li>
+<li><strong>Takeaway:</strong> ECG and EDA both change measurably during stress and carry temporal structure — theoretically well-suited to ARIMA with a rolling window, which directly shaped our modeling pipeline</li>
+</ul>
+</div>
+</section>
+<section id="literature-review-selecting-the-right-signals" class="slide level2">
+<h2>Literature Review: Selecting the Right Signals</h2>
+<div class="quarto-layout-panel" data-layout-ncol="2">
+<div class="quarto-layout-row">
+<div id="left-side" class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: flex-start;">
+<p><strong>(Luzzani and Demarchi 2024)</strong></p>
+<ul>
+<li>Examined statistical correlation between PPG, EDA, and skin temperature and stress/mental workload</li>
+<li>Analyzed 43 features using Kruskal-Wallis and Mann-Whitney U tests</li>
+<li>~half the features statistically differentiated relaxed vs. altered emotional states; 15 could detect both mental workload and stress level</li>
+<li><strong>Gave us empirical support for choosing which features best discriminate stress</strong></li>
+</ul>
+</div>
+<div id="right-side" class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: flex-start;">
+<p><strong>(Sosa and Atchison 2026)</strong></p>
+<ul>
+<li>Systematic review: EDA is a strong sympathetic nervous system (SNS) arousal indicator — but only <em>one part</em> of the picture</li>
+<li>Recommends multimodal systems combining EDA, HRV, PPG, skin temperature, and blood oxygen</li>
+<li>HRV reflects parasympathetic activity; EDA reflects sympathetic/sweat gland activity</li>
+<li><strong>Reinforced our multimodal approach: EDA + RESP + TEMP, alongside ECG</strong></li>
+</ul>
+</div>
+</div>
+</div>
+</section>
+<section id="literature-review-random-forest-the-wesad-benchmark" class="slide level2">
+<h2>Literature Review: Random Forest &amp; the WESAD Benchmark</h2>
+<div id="left-side" style="font-size: 28px; line-height: 1.45; width: 100%;">
+<ul>
+<li><strong>(Garg et al. 2021)</strong> — Evaluated Random Forest against k-NN, Linear Discriminant Analysis, AdaBoost, and SVM on WESAD; Random Forest achieved consistently strong performance on both binary (stress vs. non-stress) and three-class (neutral, stress, amusement) tasks</li>
+<li><strong>(Schmidt and Reiss 2018)</strong> — Original authors of the WESAD dataset; their own Random Forest experiments reached <strong>88.33% baseline accuracy</strong>, establishing RF as the benchmark comparator for this study</li>
+<li><strong>(Aigrain et al. 2015; Beltran 2024)</strong> — Support mapping continuous physiological measurements to meaningful categorical states, which informed how we converted ARIMA’s continuous forecasts into participant-specific stress/non-stress labels</li>
+<li><strong>Takeaway:</strong> together, these findings position Random Forest as a well-validated, high-performing method for stress classification on WESAD — and set the bar ARIMA needed to reach</li>
+</ul>
+</div>
+</section>
+<section id="literature-review-summary" class="slide level2">
+<h2>Literature Review Summary</h2>
+<table class="caption-top">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Paper</th>
+<th>Focus</th>
+<th>How It Shaped Our Study</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Kontopoulou et al. 2023</td>
+<td>ARIMA strengths/limits</td>
+<td>Confirmed ARIMA fits structured, low-dim signals</td>
+</tr>
+<tr class="even">
+<td>Ziyadidegan et al. 2025</td>
+<td>ARIMA underuse in stress research</td>
+<td>Motivated testing ARIMA on ECG/EDA</td>
+</tr>
+<tr class="odd">
+<td>Oyeleye et al. 2022</td>
+<td>Rolling windows for ARIMA</td>
+<td>Basis for our 1-min/3-min rolling window pipeline</td>
+</tr>
+<tr class="even">
+<td>Luzzani &amp; Demarchi 2024</td>
+<td>Feature-level stress discrimination</td>
+<td>Guided feature selection across PPG/EDA/TEMP</td>
+</tr>
+<tr class="odd">
+<td>Sosa &amp; Atchison 2026</td>
+<td>Multimodal SNS/PNS review</td>
+<td>Justified combining EDA, RESP, TEMP, ECG</td>
+</tr>
+<tr class="even">
+<td>Garg et al. 2021</td>
+<td>RF vs. other classifiers on WESAD</td>
+<td>Confirmed RF as strongest ML baseline</td>
+</tr>
+<tr class="odd">
+<td>Schmidt &amp; Reiss 2018</td>
+<td>WESAD dataset + RF baseline</td>
+<td>Set the 88.33% benchmark we compare against</td>
+</tr>
+<tr class="even">
+<td>Aigrain et al. 2015; Beltran 2024</td>
+<td>Categorizing continuous variables</td>
+<td>Informed our ARIMA-to-label classification rule</td>
+</tr>
+</tbody>
+</table>
 </section>
 <section id="overview" class="slide level2">
 <h2>Overview</h2>
@@ -1483,7 +1655,6 @@ Virginia Vaughan, Indupriya Uppaluri, Chawan Sreelekha (Advisor: Dr. Cohen)
 </div>
 </div>
 </div>
-<p>:::</p>
 </section>
 <section id="what-is-arima" class="slide level2">
 <h2>What is ARIMA</h2>
