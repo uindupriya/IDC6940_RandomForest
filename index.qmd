@@ -1645,12 +1645,13 @@ print("\n=== Chest RF Complete ===")
 
 *Table 2: ARIMA error metrics for 3 min rolling windows.*
 
+
 **ARIMA Prediction for S3 ECG (3min)** ![ARIMA continuous prediction for S3 ECG 3-min](plotting_utils/arima_prediction_plots/ARIMA_ECG_S3_3min.png)
 **ARIMA Prediction for S2 EDA (1min)** ![ARIMA continuous prediction for S2 EDA 1-min](plotting_utils/arima_prediction_plots/ARIMA_EDA_S2_1min.png)
 **ARIMA Prediction for S4 RESP (3min)** ![ARIMA continuous prediction for S4 RESP 3-min](plotting_utils/arima_prediction_plots/ARIMA_RESP_S4_3min.png)
 **ARIMA Prediction for S3 TEMP (1min)** ![ARIMA continuous prediction for S3 TEMP 1-min](plotting_utils/arima_prediction_plots/ARIMA_TEMP_S3_1min.png)
 
-Based on the error metrics from the original ARIMA continuous prediction, the longer 3 minute window showed to substantially improve ECG prediction across subjects. of the 4 signals, EDA and RESP had the lowest forecasting error for both window sizes. This aligns with EDA and RESP having slower fluctuations than a signal like ECG, where ARIMA can struggle with quick patterns. It is worth noting that TEMP for subjects 2 and 3 seemed to perform well, but S4 failed to converge. Overall, the longer window was able to improve the prediction of physiological trends.
+Based on the error metrics from the original ARIMA continuous prediction, the longer 3 minute window showed to substantially improve ECG and RESP prediction across subjects. Of the 4 signals, EDA and RESP had the lowest forecasting error for both window sizes. This aligns with EDA and RESP having slower fluctuations than a signal like ECG, where ARIMA can struggle with quick patterns. It is worth noting that TEMP for subjects 2 and 3 seemed to perform well, but S4 failed to converge. Overall, the longer window was able to improve the prediction of physiological trends.
 
 ### ARIMA vs RF Classification Results
 
@@ -1698,6 +1699,8 @@ rolling window features at 3min intervals (ECG, EDA, TEMP, RESP at 700Hz).*
 
 ### Model Comparison Figures (3-minute Window)
 
+Overall the Random Forest model performed better than the ARIMA and classfication for most signals and participants, with some interesting behaviors that emerged due to the nature of each physiological signal.
+
 | ARIMA | Random Forest |
 |:------:|:-------------:|
 | ![](model_pipeline/plots/S3_ECG_mean_3min_roc_auc.png){width=400px} | ![](rf_plots/ECG_3min_S3_roc_curve.png){width=260px} |
@@ -1706,6 +1709,11 @@ rolling window features at 3min intervals (ECG, EDA, TEMP, RESP at 700Hz).*
 | **(c) ARIMA Confusion Matrix** | **(d) Random Forest Confusion Matrix** |
 
 *Figure A. Comparison of ARIMA and Random Forest performance for ECG (Subject S3) using a 3-minute rolling window.*
+
+As expected, the ARIMA did not perform as well as Random Forest when predicting ECG, even with the improved prediction from longer rolling windows. The example above shows how signals with a complex temporal patterns are harder to predict for a univariate forecasting model like ARIMA. This resulted in the predicted values not having a meaniful separation between baseline and stress state for accrurate classification using nearest-means.
+
+ As observed by the signals with less complexity, the ARIMA-based classification performes better with a more distince difference in baseline and stress state. A useful metric to forecast with in next steps would be HR and HRV, instead of raw ECG. HR and HRV typically show more obvious physiological changes when in stess state, and classification rules using nearest mean may be more meaningful for detecting stress. 
+
 
 | ARIMA | Random Forest |
 |:------:|:-------------:|
@@ -1716,6 +1724,8 @@ rolling window features at 3min intervals (ECG, EDA, TEMP, RESP at 700Hz).*
 
 *Figure B. Comparison of ARIMA and Random Forest performance for EDA (Subject S4) using a 3-minute rolling window.*
 
+In the case above, both models performed well, showing how metrics with a significant physiological difference between baseline and stress state allows for even a simple heuristic model based on nearest-mean classification can achieve accurate classification. This suggests that when there is a clear physiological difference when under stress, complex machine learning algorithms may provide only small improvements. 
+
 | ARIMA | Random Forest |
 |:------:|:-------------:|
 | ![](model_pipeline/plots/S3_RESP_mean_3min_roc_auc.png){width=400px} | ![](rf_plots/RESP_3min_S3_roc_curve.png){width=260px} |
@@ -1724,6 +1734,8 @@ rolling window features at 3min intervals (ECG, EDA, TEMP, RESP at 700Hz).*
 | **(c) ARIMA Confusion Matrix** | **(d) Random Forest Confusion Matrix** |
 
 *Figure C. Comparison of ARIMA and Random Forest performance for RESP (Subject S3) using a 3-minute rolling window.*
+
+In this case, RESP proved to be a more difficult classification problem. Although neither model had near-perfect classification, we see again how Random Forest has a greater ability to capture patterns related to stress and provided better results than the ARIMA-based approach. This difference in performance was consistently shown when there was a less obvious physiological difference in stress state, limiting the effectiveness of mean-based classification.
 
 | ARIMA | Random Forest |
 |:------:|:-------------:|
@@ -1734,8 +1746,10 @@ rolling window features at 3min intervals (ECG, EDA, TEMP, RESP at 700Hz).*
 
 *Figure D. Comparison of ARIMA and Random Forest performance for TEMP (Subject S2) using a 3-minute rolling window.*
 
+This final case is shows ARIMA's unique behavior with perfect recall for stress, but a much lower precision due to many false positives. This is seen not only in Temperature, but other signals where the nearest-mean classification tends to favor stress class when the prediction fell between baseline and stress state. The result is an increase in false alarms, reducing overall classification performance. Random Forest consistently produced a more balanced classifier by leveraging multiple rolling-window features (mean, standard deviation, minimum, and maximum), allowing it to better capture temporal differences in stress state and resulting in higher overall accuracy and F1 scores.
+
 ## Conclusion
 
-**Results:** This paper performed a comparative analysis of two classifiers in two different data window sizes (1-minute, 3-minute) for all three subjects (S2–S4) of stress states derived from chest sensor data (ECG, EDA, TEMP, RESP) using ARIMA and Random Forest classifiers. Random Forest consistently outperformed ARIMA overall — mean accuracy was 0.76 vs. 0.53 (1-min) and 0.78 vs. 0.54 (3-min), with an even wider F1 gap (0.74 vs. 0.31 and 0.76 vs. 0.43). There was a wide range of this gap across signals. However, ARIMA fared poorly in the ECG and RESP datasets, and its ROC curves yielded AUC near or below 0.5 (random), indicating that the linear model used by ARIMA is not valid for these signals for capturing their stress-sensitive behavior. The only time that ARIMA outperformed Random Forest was during the 3-minute window for S2 (Random Forest F1 was 0.6799, while ARIMA's was 0.6840). The most erratic signal was EDA, a signal that went from near-perfect (S4) to near-zero (S2), which was probably a pipeline problem and not necessarily a model issue. The length of the windows did not help both models, but more so for ARIMA as its average F1 improved on the order of 13 points with the increase in window length from 1 minute to 3 minutes, corroborating the findings of its improved ECG forecasting accuracy at longer windows.
+**Results:** This paper performed a comparative analysis of two classifiers in two different data window sizes (1-minute, 3-minute) for all three subjects (S2–S4) of stress states derived from chest sensor data (ECG, EDA, TEMP, RESP) using ARIMA and Random Forest classifiers. Random Forest consistently outperformed ARIMA overall — mean accuracy was 0.76 vs. 0.53 (1-min) and 0.78 vs. 0.54 (3-min), with an even wider F1 gap (0.74 vs. 0.31 and 0.76 vs. 0.43). There was a wide range of this gap across signals. However, ARIMA fared poorly in the ECG and RESP datasets, and its ROC curves yielded AUC near or below 0.5 (random), indicating that the ARIMA-based nearest-mean classification is not valid for these signals when capturing their stress-sensitive behavior. The only time that ARIMA outperformed Random Forest was during the 3-minute window for S2 (Random Forest F1 was 0.6799, while ARIMA's was 0.6840). The most erratic signal was EDA, a signal that went from near-perfect (S4) to near-zero (S2), indicating that subject-specific signal characteristics likely had substantial influence on classification performance. Increasing the window size from 1 minute to 3 minutes showed limited improvement in both model, but helped ARIMA-based classification, with an average F1 improved on the order of 13 points with the larger 3 minute window. This corroborates the findings of ARIMA's improved ECG forecasting accuracy at longer windows, which in turn helps nearest-mean classification.
 
-**Implications:** This does not confirm the potential of ARIMA in every situation, as for the ECG and respiration signals, the added cost of Random Forest is clearly warranted because they are fast and complex signals. However, for more slowly changing signals, such as temperature, ARIMA was close enough (and briefly better) that, in real-time, resource-constrained wearable situations, it might be the more practical option because it is simpler and less computation intensive. The choice of model is not necessarily one-size-fits-all, but rather model choice may be more appropriately signal-dependent. Because of the small sample size (3 out of 15 subjects available in WESAD) and the simplicity of the classification rule for ARIMA, which often seemed to "stabilize" at the majority class, these results are to be interpreted with some care, and future studies should investigate a more sophisticated decision threshold that could meaningfully improve the performance of ARIMA.
+**Implications:** This does not confirm the potential of ARIMA-based classification in every situation, as for the ECG and respiration signals, the added cost of Random Forest is clearly warranted because they are fast and complex signals. However, for more slowly varying signals, such as temperature, ARIMA achieved comparable performance that, in real-time, resource-constrained wearable situations, might be the more practical option because it is simpler and less computation intensive. The choice of model is not necessarily one-size-fits-all, but rather model choice may be more appropriately signal-dependent. Because of the small sample size (3 out of 15 subjects available in WESAD) and the simplicity of the ARIMA-based nearest-means classification, which often seemed biased to the majority class, these results are to be interpreted with some care. Future studies should investigate more sophisticated decision thresholds or probabilistic decision stategies that incorporate ARIMA prediction uncertainty and better utilize temporal dynamics, to potentially improve classification performance relative to Random Forest.
