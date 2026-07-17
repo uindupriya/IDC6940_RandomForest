@@ -142,7 +142,7 @@ detection using WESAD wearable sensor data
 - **Goal:** Determine if ARIMA can match Random Forest in classifying 
 stress states without complex training
 - **Approach:** Extract ECG and EDA signals, engineer rolling window 
-features, evaluate with F1-score and confusion matrix
+features, evaluate with final Accuracy, Precision, Recall, F1-Score, and ROC-AUC curves
 
 
 
@@ -191,22 +191,22 @@ features, evaluate with F1-score and confusion matrix
 
 ::: {layout-ncol="2"}
 
-::: {#left-side style="font-size: 32px; line-height: 1.4; width: 48%;"}
+::: {#left-side style="font-size: 32px; line-height: 1.4; width: 38%;"}
 - **Raw Processing:** Loaded raw WESAD pickle files and extracted synchronized chest and wrist signals
 - **Sanity Checks:** Removed implausible readings (TEMP outside 20–45°C, negative EDA values)
-- **Binary Mapping:** Consolidated labels into binary targets: `0 = Non-Stress (Baseline + Amusement)`, `1 = Stress`
+- **Binary Mapping:** Consolidated labels into binary targets: `0 = Non-Stress (Baseline)`, `1 = Stress`
 :::
 
-::: {#right-side style="font-size: 32px; line-height: 1.4; width: 48%;"}
+::: {#right-side style="font-size: 32px; line-height: 1.4; width: 38%;"}
 - **Normalization:** Subject-specific `StandardScaler` applied — fit only on training data, transformed on test data
 - **Why this matters:**
     - Removes individual baseline physiological differences between subjects
     - Prevents critical data leakage before modeling
 :::
-
-**Normalization on Chest EDA and TEMP Signals Before vs. After Result** ![Normalization comparison chest](wesad_chest_normalization_comparison.png)
-**Normalization on Wrist EDA and TEMP Signals Before vs. After Result** ![Normalization comparison wrist](wesad_wrist_normalization_comparison.png)
-
+::: {.column width="25%"}
+**Normalization on Chest EDA and TEMP** ![Normalization comparison chest](wesad_chest_normalization_comparison.png){fig-align="center" width="70%"}
+![Normalization comparison wrist](wesad_wrist_normalization_comparison.png){fig-align="center" width="70%"}
+::: 
 ```{=html}
 <svg width="100%" viewBox="0 0 700 250" role="img" style="background: transparent;">
 <title>Innovative Data Science Preprocessing Pipeline Matrix</title>
