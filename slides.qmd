@@ -32,7 +32,7 @@ execute:
 
 ::: {#right-side style="font-size: 30px; line-height: 1.4; width: 48%;"}
 - **If ARIMA performs comparably**, it argues that stress can be predicted from physiological signals *without* the intensive training machine learning requires
-- **We chose WESAD** because it provides multimodal physiological data across Baseline, Stress, and Amusement conditions
+- **We chose WESAD** because it provides multimodal physiological data across Baseline and Stress
 - Literature review pointed us toward **HR, HRV, and EDA** as the strongest stress predictors, enhanced by **RESP and TEMP** as secondary signals
 :::
 
