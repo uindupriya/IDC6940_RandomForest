@@ -456,7 +456,291 @@ features, evaluate with final Accuracy, Precision, Recall, F1-Score, and ROC-AUC
 :::
 
 
-## What is ARIMA
--arima content goes here
--arima content goes here
--arima content goes here
+## ARIMA-based Classification
+### Objective
+
+- Evaluate whether a classical time-series model (**ARIMA**) can classify stress states from physiological wrist sensor data.
+- Compare ARIMA classification performance with a **Random Forest** baseline.
+
+### Workflow
+
+1. Preprocess and normalize sensor data.
+2. Create **1-minute** and **3-minute** rolling windows.
+3. Fit an ARIMA model for each participant and physiological signal.
+4. Forecast the next window value.
+5. Convert forecasts to **Stress** or **Non-Stress** using participant-specific baseline and stress thresholds.
+6. Evaluate performance using:
+   - Classification Metrics (Accuracy, Precision, Recall, F1-score
+   - Confusion Matrix
+   - ROC-AUC
+
+
+
+## ARIMA Classification Pipeline
+
+```{=html}
+<svg width="100%" viewBox="0 0 1000 180" role="img">
+
+<defs>
+  <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5"
+          markerWidth="6" markerHeight="6" orient="auto">
+    <path d="M0,0 L10,5 L0,10 Z" fill="#FFFFFF"/>
+  </marker>
+
+  <linearGradient id="grad" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0%" stop-color="#5DCAA5"/>
+    <stop offset="100%" stop-color="#1D9E75"/>
+  </linearGradient>
+</defs>
+
+<!-- Connecting arrows -->
+<line x1="125" y1="70" x2="175" y2="70" stroke="#FFF" stroke-width="2" marker-end="url(#arrow)"/>
+<line x1="275" y1="70" x2="325" y2="70" stroke="#FFF" stroke-width="2" marker-end="url(#arrow)"/>
+<line x1="425" y1="70" x2="475" y2="70" stroke="#FFF" stroke-width="2" marker-end="url(#arrow)"/>
+<line x1="575" y1="70" x2="625" y2="70" stroke="#FFF" stroke-width="2" marker-end="url(#arrow)"/>
+<line x1="725" y1="70" x2="775" y2="70" stroke="#FFF" stroke-width="2" marker-end="url(#arrow)"/>
+
+<!-- Box 1 -->
+<rect x="25" y="30" width="100" height="80" rx="10" fill="url(#grad)"/>
+<text x="75" y="58" text-anchor="middle" fill="#FFF" font-size="12" font-weight="bold">Sensor</text>
+<text x="75" y="76" text-anchor="middle" fill="#FFF" font-size="12">Signals</text>
+
+<!-- Box 2 -->
+<rect x="175" y="30" width="100" height="80" rx="10" fill="url(#grad)"/>
+<text x="225" y="52" text-anchor="middle" fill="#FFF" font-size="11" font-weight="bold">Preprocess</text>
+<text x="225" y="70" text-anchor="middle" fill="#FFF" font-size="11">& Normalize</text>
+
+<!-- Box 3 -->
+<rect x="325" y="30" width="100" height="80" rx="10" fill="url(#grad)"/>
+<text x="375" y="50" text-anchor="middle" fill="#FFF" font-size="11" font-weight="bold">Rolling</text>
+<text x="375" y="68" text-anchor="middle" fill="#FFF" font-size="11">Windows</text>
+<text x="375" y="86" text-anchor="middle" fill="#FFF" font-size="10">(1 & 3 min)</text>
+
+<!-- Box 4 -->
+<rect x="475" y="30" width="100" height="80" rx="10" fill="url(#grad)"/>
+<text x="525" y="58" text-anchor="middle" fill="#FFF" font-size="12" font-weight="bold">ARIMA</text>
+<text x="525" y="76" text-anchor="middle" fill="#FFF" font-size="11">(5,0,0)</text>
+
+<!-- Box 5 -->
+<rect x="625" y="30" width="100" height="80" rx="10" fill="url(#grad)"/>
+<text x="675" y="52" text-anchor="middle" fill="#FFF" font-size="11" font-weight="bold">Participant</text>
+<text x="675" y="70" text-anchor="middle" fill="#FFF" font-size="11">Thresholds</text>
+
+<!-- Box 6 -->
+<rect x="775" y="30" width="100" height="80" rx="10" fill="url(#grad)"/>
+<text x="825" y="52" text-anchor="middle" fill="#FFF" font-size="11" font-weight="bold">Stress /</text>
+<text x="825" y="70" text-anchor="middle" fill="#FFF" font-size="11">Non-Stress</text>
+<text x="825" y="88" text-anchor="middle" fill="#FFF" font-size="11">Label</text>
+
+<!-- Metrics -->
+<rect x="885" y="20" width="105" height="100" rx="10"
+      fill="none" stroke="#5DCAA5" stroke-width="2"/>
+<text x="938" y="40" text-anchor="middle" fill="#5DCAA5"
+      font-size="11" font-weight="bold">Evaluation</text>
+<text x="895" y="60" fill="#FFF" font-size="10">• Accuracy</text>
+<text x="895" y="75" fill="#FFF" font-size="10">• Precision</text>
+<text x="895" y="90" fill="#FFF" font-size="10">• Recall / F1</text>
+<text x="895" y="105" fill="#FFF" font-size="10">• ROC-AUC</text>
+
+</svg>
+```
+
+
+## ARIMA Results
+
+::: {.columns}
+
+:::: {.column width="42%"}
+
+- **Overall Performance:** ARIMA successfully modeled temporal trends but produced lower classification accuracy than Random Forest.
+- **Best Signals:** ECG consistently achieved the strongest results across participants.
+- **Window Length:** Three-minute rolling windows generally improved prediction stability over one-minute windows.
+- **Observed Limitation:** Continuous forecasts frequently converged toward participant baselines.
+
+::::
+
+:::: {.column width="58%"}
+
+**ECG (S3, 3 min)**
+
+![](plotting_utils/arima_prediction_plots/ARIMA_ECG_S3_3min.png){width=80%}
+
+**EDA (S2, 1 min)**
+
+![](plotting_utils/arima_prediction_plots/ARIMA_EDA_S2_1min.png){width=80%}
+
+::::
+
+:::
+
+## ARIMA Results (Continued)
+
+::: {.columns}
+
+:::: {.column width="42%"}
+
+- **Key Finding:** ARIMA captured physiological trends better than abrupt state changes.
+- Forecast quality depended strongly on signal stability.
+- Predictions often reverted toward the participant baseline, reducing sensitivity to rapid stress transitions.
+
+::::
+
+:::: {.column width="58%"}
+
+**RESP (S4, 3 min)**
+
+![](plotting_utils/arima_prediction_plots/ARIMA_RESP_S4_3min.png){width=80%}
+
+**TEMP (S3, 1 min)**
+
+![](plotting_utils/arima_prediction_plots/ARIMA_TEMP_S3_1min.png){width=80%}
+
+::::
+
+:::
+
+
+## Classification Results ECG (Subject S3)
+
+::: {.columns}
+
+:::: {.column width="40%"}
+### ARIMA
+
+![](model_pipeline/plots/S3_ECG_mean_3min_roc_auc.png){width=50%}
+
+![](model_pipeline/plots/S3_ECG_mean_3min_conf_matrix.png){width=50%}
+::::
+
+:::: {.column width="40%"}
+### Random Forest
+
+![](rf_plots/ECG_3min_S3_roc_curve.png){width=50%}
+
+![](rf_plots/ECG_3min_S3_conf_matrix.png){width=50%}
+::::
+
+:::
+
+Random Forest substantially outperformed ARIMA because ECG contains complex temporal patterns that a univariate ARIMA model could not fully capture.
+
+## Classification Results EDA (Subject S4)
+
+::: {.columns}
+
+:::: {.column width="40%"}
+### ARIMA
+
+![](model_pipeline/plots/S4_EDA_mean_3min_roc_auc.png){width=50%}
+
+![](model_pipeline/plots/S4_EDA_mean_3min_conf_matrix.png){width=50%}
+::::
+
+:::: {.column width="40%"}
+### Random Forest
+
+![](rf_plots/EDA_3min_S4_roc_curve.png){width=50%}
+
+![](rf_plots/EDA_3min_S4_conf_matrix.png){width=50%}
+::::
+
+:::
+
+Both models achieved strong classification, suggesting that EDA provides clearer physiological separation between baseline and stress than ECG.
+
+---
+
+## Classification Results RESP (Subject S3)
+
+::: {.columns}
+
+:::: {.column width="40%"}
+### ARIMA
+
+![](model_pipeline/plots/S3_RESP_mean_3min_roc_auc.png){width=50%}
+
+![](model_pipeline/plots/S3_RESP_mean_3min_conf_matrix.png){width=50%}
+::::
+
+:::: {.column width="40%"}
+### Random Forest
+
+![](rf_plots/RESP_3min_S3_roc_curve.png){width=50%}
+
+![](rf_plots/RESP_3min_S3_conf_matrix.png){width=50%}
+::::
+
+:::
+
+Random Forest again demonstrated better discrimination and fewer classification errors than ARIMA.
+
+---
+
+## Classification Results TEMP (Subject S2)
+
+::: {.columns}
+
+:::: {.column width="40%"}
+### ARIMA
+
+![](model_pipeline/plots/S2_TEMP_mean_3min_roc_auc.png){width=50%}
+
+![](model_pipeline/plots/S2_TEMP_mean_3min_conf_matrix.png){width=50%}
+::::
+
+:::: {.column width="40%"}
+### Random Forest
+
+![](rf_plots/TEMP_3min_S2_roc_curve.png){width=50%}
+
+![](rf_plots/TEMP_3min_S2_conf_matrix.png){width=50%}
+::::
+
+:::
+
+ARIMA achieved relatively high recall but produced many false positives, whereas Random Forest provided a more balanced classifier.
+
+
+## Key Findings
+
+- **Random Forest consistently outperformed ARIMA** across all evaluation metrics (Accuracy, Precision, Recall, F1-score, and ROC-AUC).
+
+- **Longer (3-minute) windows generally produced more stable classifications** by reducing short-term fluctuations.
+
+- **Signal characteristics influenced ARIMA performance.** More stable physiological signals were forecast more accurately, while highly variable signals proved more challenging.
+
+- **ARIMA demonstrated meaningful temporal modeling capability**, but the nearest-mean decision rule limited its classification performance compared with Random Forest.
+
+- **Forecast accuracy alone was insufficient for reliable stress classification**, highlighting the importance of more sophisticated classification strategies.
+
+
+## Future Work
+
+- Increase the number of WESAD participants.
+- Explore multivariate ARIMA and ARIMAX models.
+- Evaluate LSTM and Transformer-based sequence models.
+- Incorporate additional physiological features.
+- Investigate probabilistic decision thresholds instead of fixed participant-specific thresholds.
+
+
+
+## Conclusions
+
+### Research Question
+
+Can ARIMA classify stress states as effectively as Random Forest?
+
+### Answer
+
+Random Forest consistently achieved higher Accuracy, Precision, Recall, F1-score, and ROC-AUC.
+
+### Contributions
+
+- Evaluated a classical forecasting approach for wearable stress detection.
+- Established a direct comparison between ARIMA and Random Forest.
+- Demonstrated that temporal forecasting alone is insufficient for robust stress classification.
+
+### Takeaway
+Random Forest excelled at classification, while ARIMA demonstrated that physiological signals contain meaningful temporal structure but require more sophisticated decision strategies for accurate stress detection.
+
+---
