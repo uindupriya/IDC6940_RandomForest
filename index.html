@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Indupriya Uppaluri, Virginia Vaughan, Chawan Sreelekha (Advisor: Dr. Cohen)">
-<meta name="dcterms.date" content="2026-07-15">
+<meta name="dcterms.date" content="2026-07-19">
 
 <title>Stress State Prediction from Wearable Sensors: A Comparative Study of ARIMA and Random Forest on the WESAD Dataset</title>
 <style>
@@ -2384,7 +2384,7 @@ window.Quarto = {
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">July 15, 2026</p>
+      <p class="date">July 19, 2026</p>
     </div>
   </div>
   
@@ -2578,7 +2578,7 @@ F1 = \frac{2TP}{2TP + FP + FN}
 <h2 class="anchored" data-anchor-id="modeling-and-results">Modeling and Results</h2>
 <p><strong>Preparing Data for Modeling</strong></p>
 <p>Subject-specific StandardScaler normalization was applied to remove individual baseline biological variance before modeling. The comparison below shows wrist EDA versus TEMP before and after normalization. Before normalization, raw signal values vary considerably across subjects due to individual physiological differences. After normalization, signals are centered around a mean of 0 with a standard deviation of 1 per subject, making Stress and Non-Stress patterns more comparable and preventing data leakage across training partitions.</p>
-<div id="9e919cfe" class="cell" data-execution_count="1">
+<div id="cbac4102" class="cell" data-execution_count="1">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Load Data</span></span>
@@ -2674,7 +2674,7 @@ F1 = \frac{2TP}{2TP + FP + FN}
 <p>To capture temporal stress dynamics, 1-minute and 3-minute rolling window mean and standard deviation features were engineered from the normalized EDA and TEMP signals. The scatter plots below show rolling mean versus rolling standard deviation colored by Stress and Non-Stress conditions. The Stress condition shows distinct clustering patterns in rolling window space compared to Non-Stress, confirming that temporal context windows improve class separability beyond what raw signal values alone provide.</p>
 <section id="rolling-windows-creation" class="level4">
 <h4 class="anchored" data-anchor-id="rolling-windows-creation">Rolling Windows Creation</h4>
-<div id="5ca1c16d" class="cell" data-execution_count="2">
+<div id="ddef94e9" class="cell" data-execution_count="2">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
@@ -2915,7 +2915,7 @@ q: 0</code></pre>
 </details></section>
 <section id="arima-classification" class="level4">
 <h4 class="anchored" data-anchor-id="arima-classification">ARIMA Classification</h4>
-<div id="fdd980bb" class="cell" data-execution_count="3">
+<div id="d1f44c70" class="cell" data-execution_count="3">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> os</span>
@@ -3154,7 +3154,7 @@ q: 0</code></pre>
 </section>
 <section id="rolling-windows-for-arima" class="level4">
 <h4 class="anchored" data-anchor-id="rolling-windows-for-arima">Rolling windows for ARIMA</h4>
-<div id="0c421aa1" class="cell" data-execution_count="4">
+<div id="28028e45" class="cell" data-execution_count="4">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
@@ -3265,7 +3265,7 @@ q: 0</code></pre>
 <span id="cb5-106"><a href="#cb5-106" aria-hidden="true" tabindex="-1"></a>    }</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 </div>
-<div id="443e469c" class="cell" data-execution_count="5">
+<div id="26376e82" class="cell" data-execution_count="5">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pickle</span>
@@ -3494,7 +3494,7 @@ q: 0</code></pre>
 </section>
 <section id="rolling-windows-for-random-forest" class="level4">
 <h4 class="anchored" data-anchor-id="rolling-windows-for-random-forest">Rolling windows for Random Forest</h4>
-<div id="0fc375f1" class="cell" data-execution_count="6">
+<div id="ca80d1d7" class="cell" data-execution_count="6">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Load Data</span></span>
@@ -3726,7 +3726,7 @@ q: 0</code></pre>
 <span id="cb7-227"><a href="#cb7-227" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(results_df)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 </div>
-<div id="f38a54e7" class="cell" data-execution_count="7">
+<div id="57c692f9" class="cell" data-execution_count="7">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Load Data</span></span>
@@ -4513,7 +4513,7 @@ q: 0</code></pre>
 </section>
 <section id="model-comparison-figures-3-minute-window" class="level3">
 <h3 class="anchored" data-anchor-id="model-comparison-figures-3-minute-window">Model Comparison Figures (3-minute Window)</h3>
-<p>Overall the Random Forest model performed better than the ARIMA and classfication for most signals and participants, with some interesting behaviors that emerged due to the nature of each physiological signal.</p>
+<p>Overall the Random Forest model performed better than the ARIMA and classification for most signals and participants, with some interesting behaviors that emerged due to the nature of each physiological signal.</p>
 <table class="caption-top table">
 <colgroup>
 <col style="width: 34%">
@@ -4545,8 +4545,8 @@ q: 0</code></pre>
 </tbody>
 </table>
 <p><em>Figure A. Comparison of ARIMA and Random Forest performance for ECG (Subject S3) using a 3-minute rolling window.</em></p>
-<p>As expected, the ARIMA did not perform as well as Random Forest when predicting ECG, even with the improved prediction from longer rolling windows. The example above shows how signals with a complex temporal patterns are harder to predict for a univariate forecasting model like ARIMA. This resulted in the predicted values not having a meaniful separation between baseline and stress state for accrurate classification using nearest-means.</p>
-<p>As observed by the signals with less complexity, the ARIMA-based classification performes better with a more distince difference in baseline and stress state. A useful metric to forecast with in next steps would be HR and HRV, instead of raw ECG. HR and HRV typically show more obvious physiological changes when in stess state, and classification rules using nearest mean may be more meaningful for detecting stress.</p>
+<p>As expected, the ARIMA did not perform as well as Random Forest when predicting ECG, even with the improved prediction from longer rolling windows. The example above shows how signals with a complex temporal patterns are harder to predict for a univariate forecasting model like ARIMA. This resulted in the predicted values not having a meaningful separation between baseline and stress state for accurate classification using nearest-means.</p>
+<p>As observed by the signals with less complexity, the ARIMA-based classification performes better with a more distince difference in baseline and stress state. A useful metric to forecast with in next steps would be HR and HRV, instead of raw ECG. HR and HRV typically show more obvious physiological changes when in stress state, and classification rules using nearest mean may be more meaningful for detecting stress.</p>
 <table class="caption-top table">
 <colgroup>
 <col style="width: 34%">
@@ -4648,7 +4648,7 @@ q: 0</code></pre>
 <section id="conclusion" class="level2">
 <h2 class="anchored" data-anchor-id="conclusion">Conclusion</h2>
 <p><strong>Results:</strong> This paper performed a comparative analysis of two classifiers in two different data window sizes (1-minute, 3-minute) for all three subjects (S2–S4) of stress states derived from chest sensor data (ECG, EDA, TEMP, RESP) using ARIMA and Random Forest classifiers. Random Forest consistently outperformed ARIMA overall — mean accuracy was 0.76 vs. 0.53 (1-min) and 0.78 vs. 0.54 (3-min), with an even wider F1 gap (0.74 vs. 0.31 and 0.76 vs. 0.43). There was a wide range of this gap across signals. However, ARIMA fared poorly in the ECG and RESP datasets, and its ROC curves yielded AUC near or below 0.5 (random), indicating that the ARIMA-based nearest-mean classification is not valid for these signals when capturing their stress-sensitive behavior. The only time that ARIMA outperformed Random Forest was during the 3-minute window for S2 (Random Forest F1 was 0.6799, while ARIMA’s was 0.6840). The most erratic signal was EDA, a signal that went from near-perfect (S4) to near-zero (S2), indicating that subject-specific signal characteristics likely had substantial influence on classification performance. Increasing the window size from 1 minute to 3 minutes showed limited improvement in both model, but helped ARIMA-based classification, with an average F1 improved on the order of 13 points with the larger 3 minute window. This corroborates the findings of ARIMA’s improved ECG forecasting accuracy at longer windows, which in turn helps nearest-mean classification.</p>
-<p><strong>Implications:</strong> This does not confirm the potential of ARIMA-based classification in every situation, as for the ECG and respiration signals, the added cost of Random Forest is clearly warranted because they are fast and complex signals. However, for more slowly varying signals, such as temperature, ARIMA achieved comparable performance that, in real-time, resource-constrained wearable situations, might be the more practical option because it is simpler and less computation intensive. The choice of model is not necessarily one-size-fits-all, but rather model choice may be more appropriately signal-dependent. Because of the small sample size (3 out of 15 subjects available in WESAD) and the simplicity of the ARIMA-based nearest-means classification, which often seemed biased to the majority class, these results are to be interpreted with some care. Future studies should investigate more sophisticated decision thresholds or probabilistic decision stategies that incorporate ARIMA prediction uncertainty and better utilize temporal dynamics, to potentially improve classification performance relative to Random Forest.</p>
+<p><strong>Implications:</strong> This does not confirm the potential of ARIMA-based classification in every situation, as for the ECG and respiration signals, the added cost of Random Forest is clearly warranted because they are fast and complex signals. However, for more slowly varying signals, such as temperature, ARIMA achieved comparable performance that, in real-time, resource-constrained wearable situations, might be the more practical option because it is simpler and less computation intensive. The choice of model is not necessarily one-size-fits-all, but rather model choice may be more appropriately signal-dependent. Because of the small sample size (3 out of 15 subjects available in WESAD) and the simplicity of the ARIMA-based nearest-means classification, which often seemed biased to the majority class, these results are to be interpreted with some care. Future studies should investigate more sophisticated decision thresholds or probabilistic decision strategies that incorporate ARIMA prediction uncertainty and better utilize temporal dynamics, to potentially improve classification performance relative to Random Forest.</p>
 
 </section>
 
