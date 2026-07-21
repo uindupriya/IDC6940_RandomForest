@@ -1609,6 +1609,47 @@ print("\n=== Chest RF Complete ===")
 
 ```
 
+#### Random Forest Classification Results
+
+Random Forest classifiers were trained separately for each subject (S2, S3, S4) and signal (ECG, EDA, RESP, TEMP), using an ensemble of B = 100 decision trees on rolling window features (mean, standard deviation, minimum, and maximum) engineered from the normalized signals at 1-minute and 3-minute intervals. Random Forest achieved a mean accuracy of 0.76 and mean F1 of 0.74 across all signals and subjects at the 1-minute window, improving modestly to a mean accuracy of 0.78 and mean F1 of 0.76 at the 3-minute window with a gain of roughly two points in both metrics. Performance was strongest and most consistent for TEMP and ECG, with 3-minute TEMP accuracy reaching 0.95 for both S3 and S4, and 3-minute ECG accuracy reaching 0.96 for S3. RESP classification was moderate and stable across subjects, with accuracy consistently in the 0.75–0.78 range at both window sizes. EDA showed by far the widest subject-to-subject swing of any signal: Random Forest achieved perfect classification for S4 (1.0000 accuracy and F1 at both windows) but near-zero performance for S2 (0.0257 accuracy at 1-minute, 0.0389 at 3-minute), indicating that EDA's predictive value was highly subject-dependent rather than reflecting a stable underlying stress signal.
+
+#### Rolling windows for RandomForest
+
+| Signal | Subject | RF Accuracy | RF Precision | RF Recall | RF F1 |
+| :----: | :-----: | ----------: | ------------: | --------: | -----: |
+|   ECG  |    S2   |      0.7890 |        0.7703 |    0.7569 | 0.7624 |
+|   ECG  |    S3   |      0.8920 |        0.9036 |    0.8620 | 0.8770 |
+|   ECG  |    S4   |      0.8359 |        0.8232 |    0.8138 | 0.8180 |
+|   EDA  |    S2   |      0.0257 |        0.0300 |    0.0262 | 0.0257 |
+|   EDA  |    S3   |      0.7562 |        0.8622 |    0.6609 | 0.6635 |
+|   EDA  |    S4   |      1.0000 |        1.0000 |    1.0000 | 1.0000 |
+|  RESP  |    S2   |      0.7325 |        0.7066 |    0.6812 | 0.6886 |
+|  RESP  |    S3   |      0.7746 |        0.7861 |    0.7124 | 0.7259 |
+|  RESP  |    S4   |      0.7413 |        0.7197 |    0.6935 | 0.7013 |
+|  TEMP  |    S2   |      0.6936 |        0.7665 |    0.7644 | 0.6936 |
+|  TEMP  |    S3   |      0.9521 |        0.9652 |    0.9334 | 0.9463 |
+|  TEMP  |    S4   |      0.9549 |        0.9435 |    0.9651 | 0.9520 |
+
+*Table 1: Random Forest chest sensor classification results using rolling window features at 1min intervals (ECG, EDA, TEMP, RESP at 700Hz).*
+
+
+| Signal | Subject | RF Accuracy | RF Precision | RF Recall | RF F1 |
+| :----: | :-----: | ----------: | ------------: | --------: | -----: |
+|   ECG  |    S2   |      0.8429 |        0.8282 |    0.8249 | 0.8265 |
+|   ECG  |    S3   |      0.9587 |        0.9625 |    0.9479 | 0.9545 |
+|   ECG  |    S4   |      0.9101 |        0.8970 |    0.9139 | 0.9039 |
+|   EDA  |    S2   |      0.0389 |        0.0387 |    0.0470 | 0.0387 |
+|   EDA  |    S3   |      0.7784 |        0.8707 |    0.6920 | 0.7038 |
+|   EDA  |    S4   |      1.0000 |        1.0000 |    1.0000 | 1.0000 |
+|  RESP  |    S2   |      0.7470 |        0.7233 |    0.7023 | 0.7094 |
+|  RESP  |    S3   |      0.7835 |        0.7935 |    0.7252 | 0.7394 |
+|  RESP  |    S4   |      0.7560 |        0.7375 |    0.7104 | 0.7188 |
+|  TEMP  |    S2   |      0.6800 |        0.7611 |    0.7539 | 0.6799 |
+|  TEMP  |    S3   |      0.9509 |        0.9644 |    0.9317 | 0.9449 |
+|  TEMP  |    S4   |      0.9485 |        0.9364 |    0.9601 | 0.9453 |
+
+*Table 2: Random Forest chest sensor classification results using rolling window features at 3min intervals (ECG, EDA, TEMP, RESP at 700Hz).*
+
 #### Rolling windows for ARIMA Prediction
 | Signal | Subject |   MAE |   MSE |  RMSE |    MAPE |
 | ------ | ------- | ----: | ----: | ----: | ------: |
@@ -1625,7 +1666,7 @@ print("\n=== Chest RF Complete ===")
 | TEMP   | S3      | 0.002 | 0.001 | 0.028 |   0.593 |
 | TEMP   | S4      | 0.707 | 1.011 | 1.005 | 101.087 |
 
-*Table 1: ARIMA error metrics for 1 min rolling windows.*
+*Table 3: ARIMA error metrics for 1 min rolling windows.*
 
 
 | Signal | Subject |        MAE |              MSE |       RMSE |          MAPE |
@@ -1643,7 +1684,7 @@ print("\n=== Chest RF Complete ===")
 | TEMP   | S3      |      0.001 |            0.001 |      0.025 |         0.286 |
 | TEMP   | S4      | 641412.983 | 411410614800.562 | 641412.983 | 214480410.853 |
 
-*Table 2: ARIMA error metrics for 3 min rolling windows.*
+*Table 4: ARIMA error metrics for 3 min rolling windows.*
 
 
 **ARIMA Prediction for S3 ECG (3min)** ![ARIMA continuous prediction for S3 ECG 3-min](plotting_utils/arima_prediction_plots/ARIMA_ECG_S3_3min.png)
@@ -1673,7 +1714,7 @@ Based on the error metrics from the original ARIMA continuous prediction, the lo
 |  TEMP  |    S4   |      0.9549 |         0.6459 |       0.9435 |          0.0000 |    0.9651 |       0.0000 | 0.9520 |   0.0000 |
 
 
-*Table 3: Random Forest and ARIMA chest sensor classification results using 
+*Table 5: Random Forest and ARIMA chest sensor classification results using 
 rolling window features at 1min intervals (ECG, EDA, TEMP, RESP at 700Hz).*
 
 ### 3-Minute RF vs. ARIMA Classification Results
@@ -1694,7 +1735,7 @@ rolling window features at 1min intervals (ECG, EDA, TEMP, RESP at 700Hz).*
 |  TEMP  |    S4   |      0.9485 |         0.3540 |       0.9364 |          0.3540 |    0.9601 |       1.0000 | 0.9453 |   0.5229 |
 
 
-*Table 4: Random Forest and ARIMA chest sensor classification results using 
+*Table 6: Random Forest and ARIMA chest sensor classification results using 
 rolling window features at 3min intervals (ECG, EDA, TEMP, RESP at 700Hz).*
 
 ### Model Comparison Figures (3-minute Window)
